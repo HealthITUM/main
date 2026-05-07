@@ -1,0 +1,161 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="VSr0yH6TGDJfLntEMJJe">
+    <mxGraphModel dx="991" dy="1713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gjk3GSussaet2GcuBiZ3-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="515" width="740" x="40" y="-105" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-33" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="430" width="690" x="60" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-71" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="117.5" x="443.75" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Monolith" vertex="1">
+          <mxGeometry height="30" width="60" x="395" y="-100" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="100" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="API&lt;div&gt;/api/&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="395" y="-50" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="User" vertex="1">
+          <mxGeometry height="30" width="60" x="130" y="-20" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="100" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /user/me" vertex="1">
+          <mxGeometry height="30" width="100" x="110" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="POST /user/login" vertex="1">
+          <mxGeometry height="30" width="100" x="110" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="100" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" value="" vertex="1">
+          <mxGeometry height="30" width="140" x="90" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="POST /user/register" vertex="1">
+          <mxGeometry height="30" width="120" x="100" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="PATCH /user/me" vertex="1">
+          <mxGeometry height="30" width="140" x="90" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="User_Plants" vertex="1">
+          <mxGeometry height="30" width="60" x="290" y="-20" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /my/plants/" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="POST /my/plants/" vertex="1">
+          <mxGeometry height="30" width="100" x="270" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /my/plants/:id" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-75" edge="1" parent="1" source="gjk3GSussaet2GcuBiZ3-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="175" />
+              <mxPoint x="400" y="-5" />
+            </Array>
+            <mxPoint x="360" y="180" as="sourcePoint" />
+            <mxPoint x="360" y="-5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Sensor" vertex="1">
+          <mxGeometry height="30" width="60" x="290" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="165" x="237.5" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="192.5" x="223.75" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /my/plants/:id/sensors" vertex="1">
+          <mxGeometry height="30" width="165" x="237.5" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /my/plants/:id/measurements" vertex="1">
+          <mxGeometry height="30" width="192.5" x="223.75" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-28" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Recipes" vertex="1">
+          <mxGeometry height="30" width="60" x="635" y="-20" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-29" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="605" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-30" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /recipes/:id" vertex="1">
+          <mxGeometry height="30" width="100" x="615" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="130" x="600" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /recipes/?params" vertex="1">
+          <mxGeometry height="30" width="130" x="600" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-34" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="605" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-35" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="POST /recipes/create" vertex="1">
+          <mxGeometry height="30" width="120" x="605" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" value="" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-58" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" value="" vertex="1">
+          <mxGeometry height="30" width="140" x="250" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-59" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="PATCH /my/plants/:id" vertex="1">
+          <mxGeometry height="30" width="120" x="260" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-60" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="DELETE /my/plants/:id" vertex="1">
+          <mxGeometry height="30" width="140" x="250" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-66" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Species" vertex="1">
+          <mxGeometry height="30" width="60" x="475" y="-20" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-67" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="" vertex="1">
+          <mxGeometry height="30" width="117.5" x="443.75" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-69" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /species/" vertex="1">
+          <mxGeometry height="30" width="110" x="450" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-70" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="GET /species/:id" vertex="1">
+          <mxGeometry height="30" width="110" x="450" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-79" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="gjk3GSussaet2GcuBiZ3-22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="265" />
+              <mxPoint x="220" y="175" />
+            </Array>
+            <mxPoint x="280" y="265" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-76" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Measurement" vertex="1">
+          <mxGeometry height="30" width="60" x="290" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-77" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="" vertex="1">
+          <mxGeometry height="30" width="165" x="237.5" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="gjk3GSussaet2GcuBiZ3-78" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="POST /my/plants/:id/sensors" vertex="1">
+          <mxGeometry height="30" width="165" x="237.5" y="220" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
