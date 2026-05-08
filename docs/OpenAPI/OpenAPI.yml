@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: PlantIT - OpenAPI
+  description: PlantIT OpenAPI rules
+  version: 1.0.0
+
+#basics
+servers:
+  - url: <URL>/api/
+
+paths:
+  
+  #user endpoints
+  /user/me:
+    get:
+      tags: [User]
+      summary: Get data from current user
+      description: Get all data of currently logged-in user - JWT is required
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User data returned
+        401:
+          description: Unauthorized - missing or invalid JWT
+        404:
+          description: User data not found
+        500:
+          description: Internal server error
+
+    patch:
+      tags: [User]
+      summary: Update user data
+      description: Change user information - password, username...
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Data has been updated
+        400:
+          description: Invalid update data
+        401:
+          description: Unauthorized
+        404:
+          description: User data not found
+        500:
+          description: Internal server error
+
+  /user/login:
+    post:
+      tags: [User]
+      summary: Send login data to backend
+      description: Send login information and receive JWT token
+      responses:
+        200:
+          description: JWT token returned
+        400:
+          description: Invalid username or password
+        500:
+          description: Internal server error
+
+  /user/register:
+    post:
+      tags: [User]
+      summary: Send register data to backend
+      description: Create new user account
+      responses:
+        201:
+          description: User has been created
+        400:
+          description: Validation error - email exists, weak password...
+        500:
+          description: Internal server error
+
+  #user plants endpoints
+  /my/plants:
+    get:
+      tags: [User_Plants]
+      summary: Get a list of user plants
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of user plants retrieved successfully
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+    post:
+      tags: [User_Plants]
+      summary: Create/Add a new plant
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: Plant was created
+        400:
+          description: Invalid plant data
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+  /my/plants/{id}:
+    get:
+      tags: [User_Plants]
+      summary: Get exact plant of a user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Plant returned
+        400:
+          description: Bad request - invalid plant ID
+        401:
+          description: Unauthorized
+        404:
+          description: Plant was not found
+        500:
+          description: Internal server error
+
+    patch:
+      tags: [User_Plants]
+      summary: Change some information of a plant
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Plant was updated
+        400:
+          description: Invalid update data
+        401:
+          description: Unauthorized
+        404:
+          description: Plant was not found
+        500:
+          description: Internal server error
+
+    delete:
+      tags: [User_Plants]
+      summary: Delete a specific plant
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: No Content
+        400:
+          description: Bad request - invalid plant ID
+        401:
+          description: Unauthorized
+        404:
+          description: Plant was not found
+        500:
+          description: Internal server error
+
+  #sensor endpoints
+  /my/plants/{id}/sensors:
+    get:
+      tags: [Sensors]
+      summary: Get all sensors that are connected to a specific plant
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Sensors list retrieved successfully
+        400:
+          description: Bad request - invalid plant ID
+        401:
+          description: Unauthorized
+        404:
+          description: Plant was not found
+        500:
+          description: Internal server error
+
+    post:
+      tags: [Sensors]
+      summary: Add a new sensor to a specific plant
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: Sensor was added
+        400:
+          description: Invalid sensor data
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+  #measurements endpoints
+  /my/plants/{id}/measurements:
+    get:
+      tags: [Measurements]
+      summary: Get all measurements for exact plant
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Measurements returned
+        400:
+          description: Bad request - invalid plant ID
+        401:
+          description: Unauthorized
+        404:
+          description: Plant was not found
+        500:
+          description: Internal server error
+
+  #species of plants endpoints
+  /species:
+    get:
+      tags: [Species]
+      summary: Get all species available
+      description: Get all species that are available - those can be modified by parameters
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of species retrieved successfully
+        500:
+          description: Internal server error
+
+  /species/{id}:
+    get:
+      tags: [Species]
+      summary: Get exact species of a plant
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Species data successful
+        400:
+          description: Bad request - invalid species ID
+        404:
+          description: Species not found
+        500:
+          description: Internal server error
+
+  #recipes endpoints
+  /recipes/{id}:
+    get:
+      tags: [Recipes]
+      summary: Get exact recipe
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Recipe returned
+        400:
+          description: Bad request - invalid recipe ID
+        500:
+          description: Internal server error
+
+  /recipes:
+    get:
+      tags: [Recipes]
+      summary: Get a list of recipes
+      description: Get a list of recipes which can be modified with parameters
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Recipe returned
+        404:
+          description: Recipe not found
+        500:
+          description: Internal server error
+
+    post:
+      tags: [Recipes]
+      summary: Create a new recipe
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: Recipe was created
+        400:
+          description: Invalid recipe data
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+#EXPLANATION: shared contract between backend and fronted: defines what endpoint exist, what they expect and what they return
+#backend use: OpenAPI is blueprint for implementation - for GET /user/me backend must implement: app.get("/api/user/me",...)
+#for security so bearerAuth: [] backend needs to check JWT token and reject with 401 if it is invalid
+#frontend use: to know which endpoint exists, what APIs are available and which actions are possible
