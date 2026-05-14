@@ -1,0 +1,13 @@
+{
+  "name": "PlantIT",
+  "private": true,
+  "workspaces": [
+    "backend/main",
+    "shared",
+    "frontend/react-native-mobile",
+    "frontend/react-web"
+  ],
+  "scripts": {
+    "dev:all": "npm run dev --workspaces --if-present"
+  }
+}
