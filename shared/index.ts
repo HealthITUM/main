@@ -1,1 +1,1 @@
-// export * from FILENAME.ts
+export * from "./UserDTO.js"

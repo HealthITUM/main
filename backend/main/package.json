@@ -1,6 +1,7 @@
 {
   "name": "main",
   "version": "1.0.0",
+  "type": "module",
   "description": "Monolith backend on Node.js + Express.js.",
   "main": "index.js",
   "directories": {
