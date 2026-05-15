@@ -1,6 +1,5 @@
 import { api } from "./api";
 import type { IUser, IUserLoginDTO, IUserLoginResponseDTO, IUserRegisterDTO, IUserUpdateDTO } from "../../../shared/UserDTO";
-import { useReducer } from "react";
 
 export const userService = {
     register: async (userData: IUserRegisterDTO)

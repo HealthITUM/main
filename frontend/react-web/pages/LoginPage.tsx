@@ -1,0 +1,89 @@
+import { useState } from "react";
+import { userService } from "../services/userServices";
+import type { IUserLoginDTO } from "../../../shared/UserDTO";
+import { useNavigate } from "react-router-dom";
+
+export default function LoginPage() {
+    const navigate = useNavigate();
+    const [form, setForm] = useState<IUserLoginDTO>({
+        username: "",
+        email: "",
+        password: "",
+    });
+
+    const [error, setError] = useState("");
+
+    const handleLogin = async () => {
+        setError("");
+
+        if(!form.username || !form.password){
+            setError("Please fill in all fields");
+            return;
+        }
+
+        try {
+            const res = await userService.login(form);
+
+            localStorage.setItem("token", res.token);
+
+            navigate("/");
+        }catch (err: any){
+            console.error(err?.response?.data?.message || "Login failed");
+        }
+    };
+
+    return (
+        <div className="container d-flex justify-content-center align-items-center vh-100">
+            <div className="dark-green-card shadow p-4" style={{ width: "400px"}}>
+                <h1 className="text-center mb-4">Login</h1>
+
+                <div className="mb-3">
+                    <label className="form-label">Username</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter username"
+                        value={form.username}
+                        onChange={(e) => 
+                            setForm({ ...form, username: e.target.value})
+                        }
+                    />
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Enter password"
+                        value={form.password}
+                        onChange={(e) => 
+                            setForm({ ...form, password: e.target.value })
+                        }
+                    />
+                </div>
+
+                {error && (
+                    <div className="alert alert-danger py-2">
+                        {error}
+                    </div>
+                )}
+
+                <button
+                    className="btn dark-green-btn w-100"
+                    onClick={handleLogin}>Login
+                </button>
+
+                <p className="text-center mt-3 mb-0">
+                    Don’t have an account yet? {" "}
+                    <span
+                        style={{ color: "white", cursor: "pointer", textDecoration: "underline" }}
+                        onClick={() => navigate("/register")}
+                    >
+                        Create one
+                    </span>
+                </p>
+            </div>
+        </div>
+    );
+}
