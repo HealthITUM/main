@@ -28,7 +28,7 @@ model PlantSpecies {
   description   String
   idealValues   Json
   imagePath     String  @unique
-  recipes      Recipes[]
+  recipes       Recipes[]
   userPlants    UserPlants[]     
 }
 
@@ -36,6 +36,7 @@ model Recipes {
   id            Int     @id @default(autoincrement())
   dishName      String              
   description   String
+  imagePath     String
   fkUserId      Int
   author        Users   @relation(fields: [fkUserId], references: [id])
   plantSpecies  PlantSpecies[]
@@ -47,7 +48,7 @@ model Ingredients {
   name          String
   unit          String
   amount        Int
-  fkRecipesId  Int
+  fkRecipesId   Int
   recepie       Recipes @relation(fields: [fkRecipesId], references: [id])
 }
 
