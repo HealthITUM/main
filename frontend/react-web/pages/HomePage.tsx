@@ -82,7 +82,9 @@ export default function HomePage() {
                         <div className="shadow-sm p-4 dark-green-card">
                             <h4>Recipes</h4>
                             <p>Find recipes and ideas.</p>
-                            <button className="btn w-100 dark-green-btn">
+                            <button className="btn w-100 dark-green-btn"
+                                onClick={() => navigate("/recipes")}
+                            >
                                 Open Recipes
                             </button>
                         </div>

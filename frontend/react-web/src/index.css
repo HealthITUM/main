@@ -135,7 +135,7 @@ button:focus-visible {
   border-radius: 14px;
   padding: 8px;
   background-color: white;
-  box-shadow: 0 10px 15 px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
 }
 
 .green-dropdown .dropdown-item {
@@ -153,6 +153,76 @@ button:focus-visible {
 .green-dropdown .dropdown-item.text-danger:hover {
   background-color: #4B6043;
   color: white;
+}
+
+select.dark-green-select {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+}
+
+select.dark-green-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+}
+
+select.dark-green-select option {
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+  color: #4B6043;
+  font-weight: 500;
+}
+
+input.dark-green-input {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+}
+
+input.dark-green-input::placeholder {
+  color: #8aa08a;
+}
+
+input.dark-green-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+  background-color: white;
+}
+
+textarea.dark-green-textarea {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+
+  min-height: 120px;
+  resize: vertical;
+}
+
+textarea.dark-green-textarea::placeholder {
+  color: #8aa08a;
+}
+
+textarea.dark-green-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+  background-color: white;
+}
+
+.recipe-title:hover {
+    text-decoration: underline;
 }
 
 @media (prefers-color-scheme: light) {

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { userService } from "../services/userServices";
-import type { IUserLoginDTO } from "../../../shared/UserDTO";
+import type { IUserLoginRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const [form, setForm] = useState<IUserLoginDTO>({
+    const [form, setForm] = useState<IUserLoginRequestDTO>({
         username: "",
         email: "",
         password: "",

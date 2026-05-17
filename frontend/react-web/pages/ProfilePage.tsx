@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { userService } from "../services/userServices";
-import type { IUser } from "../../../shared/UserDTO";
+import type { IUserDTO} from "@project/shared";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IUserDTO | null>(null);
 
   useEffect(() => {
     const loadUser = async () => {

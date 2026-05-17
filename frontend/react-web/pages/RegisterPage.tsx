@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { userService } from "../services/userServices";
-import type { IUserRegisterDTO } from "../../../shared/UserDTO";
+import type { IUserRegisterRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
     const navigate = useNavigate();
-    const [form, setForm] = useState<IUserRegisterDTO>({
+    const [form, setForm] = useState<IUserRegisterRequestDTO>({
         username: "",
         email: "",
         password: "",
