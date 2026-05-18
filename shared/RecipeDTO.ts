@@ -1,4 +1,4 @@
-import { IUserDTO } from "./UserDTO";
+import type { IUserDTO } from "./UserDTO.js";
 
 export interface IRecipeDTO { // Base class. GET /recipes/. Response.
     id: string;
