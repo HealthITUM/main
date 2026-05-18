@@ -3,12 +3,13 @@ import { authMiddleware } from '../middleware/auth.js';
 import { userPlantController } from '../controllers/UserPlantController.js';
 import { sensorController } from '../controllers/SensorController.js';
 import { measurementController } from '../controllers/MeasurementController.js';
+import { uploadMiddleware } from '../configs/storage.config.js';
 
 const router = Router();
 
 router.get('/',         authMiddleware, userPlantController.getPlants);
 router.get('/:id',      authMiddleware, userPlantController.getPlantById);
-router.post('/',        authMiddleware, userPlantController.create);
+router.post('/',        authMiddleware, uploadMiddleware, userPlantController.create);
 router.patch('/:id',    authMiddleware, userPlantController.update);
 router.delete('/:id',   authMiddleware, userPlantController.delete);
 

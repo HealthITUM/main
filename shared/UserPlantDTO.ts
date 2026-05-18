@@ -1,4 +1,4 @@
-import type { ISpecieDTO } from "./SpeciesDTO";
+import type { ISpecieDTO } from "./SpeciesDTO.js";
 
 export interface IUserPlantDTO { // Base class.
     id: string;

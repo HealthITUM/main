@@ -15,10 +15,16 @@ const app = express();
 // });
 // const prisma = new PrismaClient({ adapter });
 // const PORT = 3001;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", userRouter);
 app.use("/api/my/plants", userPlantRouter);
 app.use("/api/recipes", recipeRouter);
 app.use("/api/species", plantSpecieRouter);
 
-app.use(express.json());
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on ${PORT} port.`);
+});
