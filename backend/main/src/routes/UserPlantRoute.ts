@@ -18,3 +18,5 @@ router.post('/:id/sensors',         authMiddleware, sensorController.create);
 router.delete('/:id/sensors/:id',   authMiddleware, sensorController.delete);
 
 router.get('/:id/measurements', authMiddleware, measurementController.getMeasurements);
+
+export default router;

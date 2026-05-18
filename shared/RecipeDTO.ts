@@ -6,6 +6,7 @@ export interface IRecipeDTO { // Base class. GET /recipes/. Response.
     description: string;
     author: IUserDTO;
     ingredients: IIngredientHasRecipeDTO[];
+    imageUrl: string;
 }
 export interface IIngredientHasRecipeDTO {
     id: string;
@@ -20,4 +21,5 @@ export interface IRecipeCreateRequestDTO {
     description: string;
     authorId: string;
     ingredients: IIngredientHasRecipeDTO[];
+    image: File;
 }

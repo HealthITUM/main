@@ -5,3 +5,5 @@ const router = Router();
 
 router.get('/', plantSpecieController.getSpecies);
 router.get('/:id', plantSpecieController.getSpecieById);
+
+export default router;
