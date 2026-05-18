@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { recipeService } from "../services/recipeServices";
 import type { IRecipeDTO } from "@project/shared";
 
 export const RecipeDetailPage = () => {
+    //get URL parameter of recipe
     const { id } = useParams();
+    //navigation
+    const navigate = useNavigate();
+    //start as null, later full object type
     const [recipe, setRecipe] = useState<IRecipeDTO | null>(null);
     const [loading, setLoading] = useState(true);
-
+    //fetch data - when page loads, change of id
     useEffect(() => {
         const fetchRecipe = async () => {
+            //safety check - prevents API call if URL has no id
             if (!id) return;
 
             try {
+                //request: GET /recipes/:id
                 const data = await recipeService.getById(id);
                 setRecipe(data);
             } finally {
@@ -26,7 +32,7 @@ export const RecipeDetailPage = () => {
     if (loading) return <p>Loading...</p>;
     if (!recipe) return <p>Recipe not found</p>;
 
-     return (
+    return (
         <div className="container mt-4">
 
             <h1>{recipe.name}</h1>
@@ -47,19 +53,25 @@ export const RecipeDetailPage = () => {
 
             <p>{recipe.description}</p>
 
+            {/*
             <p>
                 <strong>Diet:</strong> {recipe.dietType}
             </p>
+            */}
 
+            {/*
             <p>
                 <strong>Total time:</strong>{" "}
                 {recipe.prepTime + recipe.cookTime} min
             </p>
+            */}
 
+            {/*
             <p>
                 <strong>Prep:</strong> {recipe.prepTime} min |{" "}
                 <strong>Cook:</strong> {recipe.cookTime} min
             </p>
+            */}
 
             <h3>Ingredients</h3>
             <ul>
@@ -70,12 +82,14 @@ export const RecipeDetailPage = () => {
                 ))}
             </ul>
 
+            {/*
             <h3>Steps</h3>
             <ol>
                 {recipe.steps?.map((step, index) => (
                     <li key={index}>{step}</li>
                 ))}
             </ol>
+            */}
 
             <p>
                 <strong>Author:</strong> {recipe.author.username}
@@ -83,11 +97,11 @@ export const RecipeDetailPage = () => {
 
             <button
                 className="btn btn-outline-light mt-3"
-                onClick={() => window.history.back()}
+                onClick={() => navigate("/recipes")}
             >
                 ← Back
             </button>
 
         </div>
     );
-}
+};

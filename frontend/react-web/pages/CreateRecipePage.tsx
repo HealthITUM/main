@@ -1,29 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { recipeService } from "../services/recipeServices";
+import { userService } from "../services/userServices";
 import { useNavigate } from "react-router-dom";
-import type { IIngredientHasRecipeDTO, IRecipeCreateRequestDTO } from "@project/shared";
+import type { IIngredientHasRecipeDTO, IUserDTO } from "@project/shared";
 
 export const CreateRecipePage = () => {
     const navigate = useNavigate();
 
-    const currentUser = { id: "user-123" };
+    //const currentUser = { id: "user-123" };
+    //logged in user - required for authorId
+    const [user, setUser] = useState<IUserDTO | null>(null);
+    const [loading, setLoading] = useState(true);
+
     const [errors, setErrors] = useState<string[]>([]);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [prepTime, setPrepTime] = useState("");
-    const [cookTime, setCookTime] = useState("");
-    const [imagePreview, setImagePreview] = useState<string>("");
-    const [steps, setSteps] = useState<string[]>([]);
-    const [plantIds, setPlantIds] = useState<string[]>([]);
-    const [ingredients, setIngredients] = useState<IIngredientHasRecipeDTO[]>([]);
-    const [dietType, setDietType] = useState<"none" | "vegan" | "vegetarian">("none");
 
+    // const [prepTime, setPrepTime] = useState("");
+    // const [cookTime, setCookTime] = useState("");
+
+    //imagepreview - UI
+    const [imagePreview, setImagePreview] = useState<string>("");
+    //imagefile for real file backend
+    const [imageFile, setImageFile] = useState<File | null>(null);
+
+    // const [steps, setSteps] = useState<string[]>([]);
+    // const [plantIds, setPlantIds] = useState<string[]>([]);
+
+    const [ingredients, setIngredients] = useState<IIngredientHasRecipeDTO[]>([]);
+
+    // const [dietType, setDietType] =
+    //     useState<"none" | "vegan" | "vegetarian">("none");
+    /*
     const myPlants = [
         { id: "1", name: "Basil" },
         { id: "2", name: "Mint" },
         { id: "3", name: "Rosemary" }
     ];
+    */
 
+    /*
     const togglePlant = (id: string) => {
         setPlantIds((prev) =>
             prev.includes(id)
@@ -31,12 +47,35 @@ export const CreateRecipePage = () => {
                 : [...prev, id]
         );
     };
+    */
+    //load user - important
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                //get logged in user
+                const me = await userService.getMe();
+                setUser(me);
+            } catch {
+                //logout - redirect to login
+                setUser(null);
+                localStorage.removeItem("token");
+                navigate("/login");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadUser();
+    }, [navigate]);
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        //get selected file
         const file = e.target.files?.[0];
         if (!file) return;
-
-        setImagePreview(URL.createObjectURL(file));
+        //store
+        setImageFile(file);
+        //preview - temporary browser URL
+        setImagePreview(URL.createObjectURL(file)); 
     };
 
     const addIngredient = () => {
@@ -57,6 +96,7 @@ export const CreateRecipePage = () => {
         value: any
     ) => {
         const updated = [...ingredients];
+        //updates single field dynamically
         updated[index] = { ...updated[index], [field]: value };
         setIngredients(updated);
     };
@@ -65,82 +105,101 @@ export const CreateRecipePage = () => {
         setIngredients(ingredients.filter((_, i) => i !== index));
     };
 
-    const addStep = () => setSteps([...steps, ""]);
+    // const addStep = () => setSteps([...steps, ""]);
 
-    const updateStep = (index: number, value: string) => {
-        const updated = [...steps];
-        updated[index] = value;
-        setSteps(updated);
-    };
+    // const updateStep = (index: number, value: string) => {
+    //     const updated = [...steps];
+    //     updated[index] = value;
+    //     setSteps(updated);
+    // };
 
-    const removeStep = (index: number) => {
-        setSteps(steps.filter((_, i) => i !== index));
-    };
+    // const removeStep = (index: number) => {
+    //     setSteps(steps.filter((_, i) => i !== index));
+    // };
 
     const validate = () => {
         const newErrors: string[] = [];
 
         if (!name.trim()) newErrors.push("Recipe name is required.");
         if (!description.trim()) newErrors.push("Description is required.");
+
+        /*
         if (!prepTime || Number(prepTime) <= 0)
             newErrors.push("Prep time must be greater than 0.");
         if (!cookTime || Number(cookTime) <= 0)
             newErrors.push("Cook time must be greater than 0.");
+        */
+
         if (ingredients.length === 0)
             newErrors.push("Add at least one ingredient.");
-        if (steps.length === 0)
-            newErrors.push("Add at least one step.");
-        if (plantIds.length === 0)
-            newErrors.push("Select at least one plant.");
 
-        const invalidIngredient = ingredients.some(
-            (i) => !i.name.trim()
-        );
+        // if (steps.length === 0)
+        //     newErrors.push("Add at least one step.");
+
+        const invalidIngredient = ingredients.some((i) => !i.name.trim());
         if (invalidIngredient)
             newErrors.push("All ingredients must have a name.");
 
+        /*
         const invalidStep = steps.some((s) => !s.trim());
         if (invalidStep)
             newErrors.push("Steps cannot be empty.");
+        */
 
         return newErrors;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        //stop page reload
         e.preventDefault();
-
+        //validate form
         const validationErrors = validate();
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
             return;
         }
+        //ensure user exist
+        if (!user) return;
 
         setErrors([]);
+        //sendind text fields and file upload - formData
+        const formData = new FormData();
 
-        const payload: IRecipeCreateRequestDTO = {
-            name,
-            description,
-            authorId: currentUser.id,
-            ingredients,
-            steps,
-            prepTime: Number(prepTime),
-            cookTime: Number(cookTime),
-            plantIds,
-            imageUrl: imagePreview || undefined,
-            dietType,
-        };
+        formData.append("name", name);
+        formData.append("description", description);
+        formData.append("authorId", user.id);
+        formData.append("ingredients", JSON.stringify(ingredients));
 
-        const newRecipe = await recipeService.create(payload);
+         if (imageFile) {
+            formData.append("image", imageFile);
+        }
+        //authorId: currentUser.id,
+        // steps,
+        // prepTime: Number(prepTime),
+        // cookTime: Number(cookTime),
+        // plantIds,
+        // dietType,
+        
+        //multipart request
+        const newRecipe = await recipeService.create(formData);
 
         navigate(`/recipes/${newRecipe.id}`);
     };
 
+    if (loading) return <p>Loading...</p>;
+    if (!user) return null;
+
     return (
         <div className="container mt-4 d-flex justify-content-center">
-            <div className="dark-green-card p-4 shadow-lg w-100" style={{ maxWidth: "800px" }}>
+            <div
+                className="dark-green-card p-4 shadow-lg w-100"
+                style={{ maxWidth: "800px" }}
+            >
 
-                <h1 className="text-center mb-4 fw-bold">Add Recipe</h1>
+                <h1 className="text-center mb-4 fw-bold">
+                    Add Recipe
+                </h1>
 
                 <button
                     type="button"
@@ -196,69 +255,38 @@ export const CreateRecipePage = () => {
                         )}
                     </div>
 
+                    {/*
                     <div className="mb-3">
                         <label className="form-label fw-bold text-white">
                             Diet type
                         </label>
 
-                        <select
-                            className="form-select dark-green-select"
-                            value={dietType}
-                            onChange={(e) => setDietType(e.target.value as any)}
-                        >
-                            <option value="none">None</option>
-                            <option value="vegetarian">Vegetarian</option>
-                            <option value="vegan">Vegan</option>
+                        <select ...>
+                            ...
                         </select>
                     </div>
+                    */}
 
+                    {/*
                     <div className="mb-3">
                         <label className="form-label fw-bold text-white">
                             Select plants
                         </label>
-
-                        <div className="d-flex flex-wrap gap-2">
-                            {myPlants.map((plant) => (
-                                <button
-                                    key={plant.id}
-                                    type="button"
-                                    className={`btn ${
-                                        plantIds.includes(plant.id)
-                                            ? "dark-green-btn"
-                                            : "btn-outline-light"
-                                    }`}
-                                    onClick={() => togglePlant(plant.id)}
-                                >
-                                    {plant.name}
-                                </button>
-                            ))}
-                        </div>
+                        ...
                     </div>
+                    */}
 
+                    {/*
                     <div className="row mb-3">
-                        <div className="col-md-6">
-                            <input
-                                className="form-control dark-green-input"
-                                type="number"
-                                placeholder="Prep time"
-                                value={prepTime}
-                                onChange={(e) => setPrepTime(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="col-md-6">
-                            <input
-                                className="form-control dark-green-input"
-                                type="number"
-                                placeholder="Cook time"
-                                value={cookTime}
-                                onChange={(e) => setCookTime(e.target.value)}
-                            />
-                        </div>
+                        <input type="number" placeholder="Prep time" />
+                        <input type="number" placeholder="Cook time" />
                     </div>
+                    */}
 
                     <div className="mb-3">
-                        <label className="form-label fw-bold text-white">Ingredients</label>
+                        <label className="form-label fw-bold text-white">
+                            Ingredients
+                        </label>
 
                         {ingredients.map((ing, index) => (
                             <div key={ing.id} className="d-flex gap-2 mb-2">
@@ -303,38 +331,23 @@ export const CreateRecipePage = () => {
                             </div>
                         ))}
 
-                        <button type="button" className="btn dark-green-btn ms-4" onClick={addIngredient}>
+                        <button
+                            type="button"
+                            className="btn dark-green-btn ms-4"
+                            onClick={addIngredient}
+                        >
                             + Add ingredient
                         </button>
                     </div>
 
+                    {/*
                     <div className="mb-3">
-                        <label className="form-label fw-bold text-white">Steps</label>
-
-                        {steps.map((step, index) => (
-                            <div key={index} className="d-flex gap-2 mb-2">
-
-                                <input
-                                    className="form-control dark-green-input"
-                                    placeholder={`Step ${index + 1}`}
-                                    value={step}
-                                    onChange={(e) => updateStep(index, e.target.value)}
-                                />
-
-                                <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    onClick={() => removeStep(index)}
-                                >
-                                    X
-                                </button>
-                            </div>
-                        ))}
-
-                        <button type="button" className="btn dark-green-btn ms-4" onClick={addStep}>
-                            + Add step
-                        </button>
+                        <label className="form-label fw-bold text-white">
+                            Steps
+                        </label>
+                        ...
                     </div>
+                    */}
 
                     <button className="btn dark-green-btn w-100 mt-3">
                         Create Recipe

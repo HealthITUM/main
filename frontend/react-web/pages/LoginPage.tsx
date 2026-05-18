@@ -3,7 +3,9 @@ import { userService } from "../services/userServices";
 import type { IUserLoginRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 
+//save data from input
 export default function LoginPage() {
+    //navigation - example to home page
     const navigate = useNavigate();
     const [form, setForm] = useState<IUserLoginRequestDTO>({
         username: "",
@@ -11,24 +13,28 @@ export default function LoginPage() {
         password: "",
     });
 
+    //show errors
     const [error, setError] = useState("");
 
+    //runs when button is clicked
     const handleLogin = async () => {
         setError("");
-
+        //basic validation
         if(!form.username || !form.password){
             setError("Please fill in all fields");
             return;
         }
-
+        
         try {
+            //request to backend - API call
             const res = await userService.login(form);
-
+            //save token
             localStorage.setItem("token", res.token);
 
             navigate("/");
         }catch (err: any){
-            console.error(err?.response?.data?.message || "Login failed");
+            console.log("Login error:", err);
+            setError(err?.response?.data?.message || "Login failed");
         }
     };
 

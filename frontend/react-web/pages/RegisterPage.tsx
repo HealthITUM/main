@@ -3,7 +3,9 @@ import { userService } from "../services/userServices";
 import type { IUserRegisterRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 
+//stores user input for username... -> controlled form
 export default function RegisterPage() {
+    //navigation
     const navigate = useNavigate();
     const [form, setForm] = useState<IUserRegisterRequestDTO>({
         username: "",
@@ -11,19 +13,24 @@ export default function RegisterPage() {
         password: "",
     });
 
+    //seperated field for password match - does not send to backend
     const [confirmPassword, setConfirmPassword] = useState("");
+    //errors - validation, API errors - UI
     const [error, setError] = useState("");
-
+    
+    //runs when button is clicked
     const handleRegister = async () => {
         setError("");
 
+        //pasword must match
         if (form.password !== confirmPassword){
             setError("Passwords do not match");
             return;
         }
 
+        //password validation
         const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
-
+        //error password validation
         if (!passwordRegex.test(form.password)){
             setError(
                 "Password must be at least 6 characters long, contain 1 uppercase letter and 1 special character"
@@ -31,17 +38,21 @@ export default function RegisterPage() {
             return;
         }
 
+        //email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+        //invalid email
         if (!emailRegex.test(form.email)){
             setError("Invalid email format");
             return;
         }
 
         try {
+            //send request - API call -> POST /user/register
             await userService.register(form);
             navigate("/login");
         }catch (err: any){
+            //show error
             console.log("Register error:", err);
             setError(err?.response?.data?.message || "Registration failed");
         }

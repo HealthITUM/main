@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
+    //navigation - redirect without page reload
     const navigate = useNavigate();
 
+    //authentication check - get token - JWT from browser storage
     const token = localStorage.getItem("token");
+    //converst to boolean - so if user is logged in its true, if no - false
     const isLoggedIn = !!token;
 
     return (
