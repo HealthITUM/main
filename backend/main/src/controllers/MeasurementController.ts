@@ -1,11 +1,14 @@
 import type { Response } from 'express';
-import type { AuthRequest } from '../middleware/auth.js';
+import type { AuthenticatedRequest } from '../middleware/auth.js';
 
 class MeasurementController {
-    getMeasurements = async (req: AuthRequest, res: Response) => {
-        // TODO
-        
+    getMeasurements = async (baseReq: Request, res: Response) => {
+        try {
 
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
     }
 }
 

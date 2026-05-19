@@ -1,29 +1,41 @@
 import type { Response } from 'express';
-import type { AuthRequest } from '../middleware/auth.js';
+import type { AuthenticatedRequest } from '../middleware/auth.js';
 
 class SensorController {
-    getSensors = async (req: AuthRequest, res: Response) => {
-        // TODO
-        
+    getSensors = async (req: AuthenticatedRequest, res: Response) => {
+        try {
 
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
     }
 
-    getSensorById = async (req: AuthRequest, res: Response) => {
-        // TODO
-        
+    getSensorById = async (req: AuthenticatedRequest, res: Response) => {
+        try {
 
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
     }
 
-    create = async (req : AuthRequest, res : Response) => {
-        // TODO
+    create = async (req : AuthenticatedRequest, res : Response) => {
+        try {
 
-        
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }   
     }
 
-    delete = async (req : AuthRequest, res : Response) => {
-        // TODO
+    delete = async (req : AuthenticatedRequest, res : Response) => {
+        try {
 
-        
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 import type { IRecipeCreateRequestDTO } from "@project/shared";
+import type { IRecipeCreateServiceInput } from "../models/Recipe.js";
 
 export class RecipeRepository {
     async getRecipes(amount? : number) {
@@ -9,7 +10,7 @@ export class RecipeRepository {
         // TODO
 
     }
-    async create(data : IRecipeCreateRequestDTO){
+    async create(data : IRecipeCreateServiceInput){
         // TODO
 
     }

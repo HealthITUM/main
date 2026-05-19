@@ -1,29 +1,33 @@
-import type { IUserLoginRequestDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
 import { userRepository } from "../repositories/UserRepository.js";
 
 export class UserService {
-    async getProfile (id : Number) {
+    async getProfile (id : number) : Promise<IUserDTO> {
         // TODO
 
-        userRepository.getById(id);
+        const user = await userRepository.getById(id);
+        return user;
     }
 
-    async login (data : IUserLoginRequestDTO) {
+    async login (data : IUserLoginRequestDTO) : Promise<IUserLoginResponseDTO> {
         // TODO
         
-        userRepository.getByNickname(data.username);
+        const user = await userRepository.getByNickname(data.username);
+        return user;
     }
 
-    async register (data : IUserRegisterRequestDTO) {
+    async register (data : IUserRegisterRequestDTO) : boolean  {
         // TODO
         
-        userRepository.create(data);
+        const response = await userRepository.create(data);
+        return response;
     }
 
-    async update (data : IUserUpdateRequestDTO) {
+    async update (data : IUserUpdateRequestDTO) : boolean {
         // TODO
         
-        userRepository.update(data);
+        const response = await userRepository.update(data);
+        return response;
     }
 }
 
