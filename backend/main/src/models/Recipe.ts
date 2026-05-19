@@ -1,6 +1,6 @@
 import type { IIngredientHasRecipeDTO } from "@project/shared";
 
-export interface IRecipeCreateServiceInput {
+export interface IRecipeCreateModel {
     name: string;
     description: string;
     ingredients: IIngredientHasRecipeDTO[];

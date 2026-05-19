@@ -2,19 +2,19 @@ import type { IMeasurementDTO } from "@project/shared";
 import { measurementRepository } from "../repositories/MeasurementRepository.js";
 
 export class MeasurementService {
-    async getMeasurements (plantId : number) : Promise<Array<IMeasurementDTO>> {
+    async getMeasurements (plantId : number) : Promise<IMeasurementDTO[] | null> {
         // TODO
 
         var amount = 10;
-        const measurements = await measurementRepository.getMeasurements(amount, plantId);
+        const measurements = await measurementRepository.getMeasurements(plantId, amount);
 
         return measurements;
     }
-    async getMeasurementById (measurementId : number) : Promise<IMeasurementDTO> {
+    async getById (measurementId : number) : Promise<IMeasurementDTO | null> {
         // TODO
 
         const measurement = await measurementRepository.getById(measurementId);
-        
+
         return measurement;
     }
 }

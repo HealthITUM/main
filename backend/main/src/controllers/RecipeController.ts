@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
+import type { IRecipeCreateRequestDTO } from '@project/shared';
+import type { IRecipeCreateModel } from '../models/Recipe.js';
 import { recipeService } from '../services/RecipeService.js';
 import { uploadFile, BUCKETS } from '../configs/storage.config.js';
 import nodeCrypto from 'crypto';
@@ -9,6 +11,10 @@ class RecipeController {
         try {
             const recipes = await recipeService.getRecipes();
 
+            if (!recipes){
+                return res.status(400).json({ message: "Error: Recipes could not be returned!"});
+            }
+
             return res.status(200).json(recipes);
         }
         catch (error){
@@ -16,7 +22,7 @@ class RecipeController {
         }
     }
 
-    getRecipeById = async (req : Request, res : Response) => {
+    getById = async (req : Request, res : Response) => {
         try {
             const requestRecipeId = req.params.id;
 
@@ -51,7 +57,7 @@ class RecipeController {
                 return res.status(400).json({ message: "Error: Image file is required!" });
             }
             
-            const { name, description, ingredients } = req.body;
+            const { name, description, ingredients } = req.body as IRecipeCreateRequestDTO;
 
             if (!name || !description) {
                 return res.status(400).json({ message: "Error: Name and description are required fields!" });
@@ -66,23 +72,16 @@ class RecipeController {
                 req.file.buffer,
                 req.file.mimetype
             );
-
-            let parsedIngredients = ingredients;
-            if (typeof ingredients === 'string') {
-                try {
-                    parsedIngredients = JSON.parse(ingredients);
-                } catch {
-                    return res.status(400).json({ message: "Error: Invalid ingredients format. Expected JSON." });
-                }
-            }
-
-            const newRecipe = await recipeService.create({
+            
+            const data : IRecipeCreateModel = {
                 name,
                 description,
-                ingredients: parsedIngredients,
+                ingredients,
                 authorId,
                 imageUrl
-            });
+            }
+
+            const newRecipe = await recipeService.create(data);
 
             if (!newRecipe){
                 return res.status(400).json({ message : "Error: Failed to create new recipe! "});
@@ -97,6 +96,7 @@ class RecipeController {
 
     delete = async (req : AuthRequest, res : Response) => {
         try {
+            const userId = req.user?.id!;
             const requestRecipeId = req.params.id;
 
             if (!requestRecipeId){
@@ -109,10 +109,10 @@ class RecipeController {
                 return res.status(400).json({ message: "Error: RecipeID must be a valid number!" });
             }
             
-            const response = await recipeService.delete(parsedId);
+            const response = await recipeService.delete(parsedId, userId);
 
             if (!response){
-                return res.status(400).json({ message : "Error: Failed to delete recipe! "});
+                return res.status(400).json({ message : "Error: Failed to delete recipe!"});
             }
 
             return res.status(200).json({ message : "Success: Recipe deleted!" });

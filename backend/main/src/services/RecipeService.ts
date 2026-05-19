@@ -1,34 +1,37 @@
-import type { IRecipeCreateRequestDTO, IRecipeDTO } from "@project/shared";
+import type { IRecipeDTO } from "@project/shared";
+import type { IRecipeCreateModel } from "../models/Recipe.js";
 import { recipeRepository } from "../repositories/RecipeRepository.js";
 
 export class RecipeService {
-    async getRecipes () : Promise<Array<IRecipeDTO>> {
+    async getRecipes () : Promise<IRecipeDTO[] | null> {
         // TODO
 
-        var amount = 10;
-        const recipes = await recipeRepository.getRecipes(amount); 
+        const recipes = await recipeRepository.getRecipes(); 
 
-        return recipes as Array<IRecipeDTO>;
+        return recipes;
     }
 
-    async getRecipeById (id : number) : Promise<IRecipeDTO> {
+    async getRecipeById (id : number) : Promise<IRecipeDTO | null> {
         // TODO
         
         const recipe = await recipeRepository.getById(id);
+
         return recipe;
     }
 
-    async create (data : IRecipeCreateRequestDTO) : boolean {
+    async create (data : IRecipeCreateModel) : Promise<boolean> {
         // TODO
         
         const response = recipeRepository.create(data);
+
         return response;
     }
 
-    async delete (id : number) : boolean {
+    async delete (recipeId : number, userId : number) : Promise<boolean> {
         // TODO
         
-        const response = recipeRepository.delete(id);
+        const response = recipeRepository.delete(recipeId, userId);
+
         return response;
     }
 }

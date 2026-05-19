@@ -8,16 +8,16 @@ import { uploadMiddleware } from '../configs/storage.config.js';
 const router = Router();
 
 router.get('/',         authMiddleware, userPlantController.getPlants);
-router.get('/:id',      authMiddleware, userPlantController.getPlantById);
+router.get('/:id',      authMiddleware, userPlantController.getById);
 router.post('/',        authMiddleware, uploadMiddleware, userPlantController.create);
 router.patch('/:id',    authMiddleware, userPlantController.update);
 router.delete('/:id',   authMiddleware, userPlantController.delete);
 
-router.get('/:id/sensors',          authMiddleware, sensorController.getSensors);
-router.get('/:id/sensors/:id',      authMiddleware, sensorController.getSensorById);
-router.post('/:id/sensors',         authMiddleware, sensorController.create);
-router.delete('/:id/sensors/:id',   authMiddleware, sensorController.delete);
+router.get('/:plantId/sensors',          authMiddleware, sensorController.getSensors);
+router.get('/:plantId/sensors/:sensorId',      authMiddleware, sensorController.getById);
+router.post('/:plantId/sensors',         authMiddleware, sensorController.create);
+router.delete('/:plantId/sensors/:sensorId',   authMiddleware, sensorController.delete);
 
-router.get('/:id/measurements', authMiddleware, measurementController.getMeasurements);
+router.get('/:plantId/measurements', authMiddleware, measurementController.getMeasurements);
 
 export default router;

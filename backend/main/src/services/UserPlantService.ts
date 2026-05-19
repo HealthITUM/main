@@ -1,36 +1,46 @@
+import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
+import type { IUserPlantDTO } from "@project/shared";
 import { userPlantRepository } from "../repositories/UserPlantRepository.js";
-import type { IUserPlantCreateRequestDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
 
 export class UserPlantService {
-    async getPlants(){
+    async getPlants(userId : number) : Promise<IUserPlantDTO[] | null> {
         // TODO
 
-        var amount = 10;
-        userPlantRepository.getPlants(amount);
+        const plants = await userPlantRepository.getPlants(userId);
+
+        return plants;
     }
 
-    async getById(id : number){
+    async getById(plantId : number, userId : number) : Promise<IUserPlantDTO | null> {
         // TODO
 
-        userPlantRepository.getById(id);
+        const plant = await userPlantRepository.getById(plantId, userId);
+
+        return plant;
     }
 
-    async create(data : IUserPlantCreateRequestDTO) {
+    async create(data : IUserPlantCreateModel) : Promise<boolean> {
         // TODO
 
-        userPlantRepository.create(data);
+        const response = await userPlantRepository.create(data);
+        
+        return response;
     }
 
-    async update(data : IUserPlantUpdateRequestDTO){
+    async update(data : IUserPlantUpdateModel, userId : number) : Promise<boolean> {
         // TODO
 
-        userPlantRepository.update(data);
+        const response = userPlantRepository.update(data, userId);
+
+        return response;
     }
 
-    async delete(id : number){
+    async delete(plantId : number, userId : number) : Promise<boolean> {
         // TODO
     
-        userPlantRepository.delete(id);
+        const response = await userPlantRepository.delete(plantId, userId);
+
+        return response;
     }
 }
 

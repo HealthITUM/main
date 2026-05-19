@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import * as Minio from 'minio';
+import type { Request, Response, NextFunction } from 'express';
 
 export const minioClient = new Minio.Client({
   endPoint: process.env.MINIO_ENDPOINT || 'minio',
@@ -34,6 +35,21 @@ export const uploadFile = async (
     console.error(`[MinIO Error] Error while loading an image ${objectName} into the ${bucket}:`, error);
     throw new Error('Failed to upload file to storage');
   }
+};
+
+export const parseJsonField = (fieldName: string) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (req.body && typeof req.body[fieldName] === 'string') {
+            try {
+                req.body[fieldName] = JSON.parse(req.body[fieldName]);
+            } catch (error) {
+                return res.status(400).json({ 
+                    message: `Error: Invalid JSON format in field "${fieldName}"` 
+                });
+            }
+        }
+        next();
+    };
 };
 
 const storage = multer.memoryStorage(); // RAM-storage.

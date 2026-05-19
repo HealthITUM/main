@@ -5,6 +5,10 @@ class PlantSpecieController {
     getSpecies = async (req: Request, res: Response) => {
         try {
             const species = plantSpecieService.getSpecies();
+
+            if (!species){
+                return res.status(400).json({ message: "Error: Species could not be returned!"});
+            }
             
             return res.status(200).json(species);
         }
@@ -13,7 +17,7 @@ class PlantSpecieController {
         }
     }
 
-    getSpecieById = async (req : Request, res : Response) => {
+    getById = async (req : Request, res : Response) => {
         try {
             const requestSpecieId = req.params.id;
 
@@ -27,7 +31,7 @@ class PlantSpecieController {
                 return res.status(400).json({ message: "Error: SpecieID must be a valid number!" });
             }
 
-            const specie = await plantSpecieService.getSpecieById(parsedId);
+            const specie = await plantSpecieService.getById(parsedId);
             
             if (!specie){
                 return res.status(404).json({ message : "Error: could not find specie with that id!"});

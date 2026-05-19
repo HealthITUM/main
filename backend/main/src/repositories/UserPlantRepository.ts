@@ -1,29 +1,30 @@
-import type { IUserPlantCreateRequestDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
+import type { IUserPlantDTO } from "@project/shared";
+import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
 
 export class UserPlantRepository {
-    async getPlants(amount? : number){
+    async getPlants(userId : number) : Promise<IUserPlantDTO[] | null>{
         // TODO
-        
+        return null;
     }
 
-    async getById(id : number){
+    async getById(plantId : number, userId : number) : Promise<IUserPlantDTO | null>{
         // TODO
-
+        return null;
     }
 
-    async create(data : IUserPlantCreateRequestDTO) {
+    async create(data : IUserPlantCreateModel) : Promise<boolean> {
         // TODO
-
+        return false;
     }
 
-    async update(data : IUserPlantUpdateRequestDTO){
+    async delete(plantId : number, userId : number) : Promise<boolean>{
         // TODO
-
+        return false;
     }
 
-    async delete(id : number){
+    async update(data : IUserPlantUpdateModel, userId : number) : Promise<boolean>{
         // TODO
-        
+        return false;
     }
 }
 

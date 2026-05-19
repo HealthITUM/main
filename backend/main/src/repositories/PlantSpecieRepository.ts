@@ -1,11 +1,14 @@
-export class PlantSpecieRepository {
-    async getById(id : number){
-        // TODO
+import type { ISpecieDTO } from "@project/shared";
 
-    }
-    async getSpecies(amount? : number){
+export class PlantSpecieRepository {
+    async getSpecies(amount? : number) : Promise<ISpecieDTO[] | null>{
         // TODO
-        
+        return null;
+    }
+    
+    async getById(id : number) : Promise<ISpecieDTO | null> {
+        // TODO
+        return null;
     }
 }
 

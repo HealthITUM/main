@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { AuthRequest } from "../middleware/auth.js";
-import { userService } from '../services/UserService.js';
 import type { IUserUpdateRequestDTO } from '@project/shared';
+import { userService } from '../services/UserService.js';
 
 class UserController {
     getProfile = async (req: AuthRequest, res: Response) => {

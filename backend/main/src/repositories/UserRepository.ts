@@ -1,21 +1,24 @@
-import type { IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
 
 export class UserRepository {
-    async create(data : IUserRegisterRequestDTO) {
+    async getById(id : number) : Promise<IUserDTO | null> {
         // TODO
-
+        return null;
     }
-    async getById(id : number) {
-        // TODO
 
-    }
-    async getByNickname(nickname : string){
+    async getByNickname(nickname : string) : Promise<IUserDTO | null>{
         // TODO
+        return null;
+    }
 
-    }
-    async update(data : IUserUpdateRequestDTO) {
+    async create(data : IUserRegisterRequestDTO) : Promise<boolean> {
         // TODO
-        
+        return false;
+    }
+
+    async update(data : IUserUpdateRequestDTO) : Promise<boolean> {
+        // TODO
+        return false;
     }
 }
 
