@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { userPlantService } from "../services/userPlantsServices";
-import { userService } from "../services/userServices";
+import { userPlantService } from "../../shared/services/userPlantsServices";
+import { userService } from "../../shared/services/userServices";
 import type { IUserDTO, IUserPlantDTO } from "@project/shared";
 
 export default function MyPlantsPage() {

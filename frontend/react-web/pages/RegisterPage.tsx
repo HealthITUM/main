@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { userService } from "../services/userServices";
+import { userService } from "@project/frontend-shared";
 import type { IUserRegisterRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 

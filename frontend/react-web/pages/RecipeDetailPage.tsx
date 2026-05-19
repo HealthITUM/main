@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { recipeService } from "../services/recipeServices";
 import type { IRecipeDTO } from "@project/shared";
+import { recipeService } from "@project/frontend-shared"
 
 export const RecipeDetailPage = () => {
     //get URL parameter of recipe

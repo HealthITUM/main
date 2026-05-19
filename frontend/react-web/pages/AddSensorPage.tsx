@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { userPlantService } from "../services/userPlantsServices";
+import { userPlantService } from "@project/frontend-shared";
 import type { IUserPlantDTO } from "@project/shared";
 
 export default function AddSensorPage() {

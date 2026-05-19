@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { userPlantService } from "../services/userPlantsServices";
-import { specieService } from "../services/speciesServices";
+import { specieService, userPlantService } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
 
 export default function EditPlantPage() {

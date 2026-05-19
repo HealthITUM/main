@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { recipeService } from "../services/recipeServices";
-import { userService } from "../services/userServices";
+import { userService, recipeService } from "@project/frontend-shared";
 import { useNavigate } from "react-router-dom";
 import type { IIngredientHasRecipeDTO, IUserDTO } from "@project/shared";
 
