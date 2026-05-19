@@ -1,11 +1,14 @@
-export class MeasurementRepository {
-    async getById(id : number){
-        // TODO
+import type { IMeasurementDTO } from "@project/shared";
 
-    }
-    async getMeasurements(plantId : number, amount? : number){
+export class MeasurementRepository {
+    async getMeasurements(plantId : number, amount? : number) : Promise<IMeasurementDTO[] | null>{
         // TODO
-        
+        return null;
+    }
+    
+    async getById(id : number) : Promise<IMeasurementDTO | null> {
+        // TODO
+        return null;
     }
 }
 

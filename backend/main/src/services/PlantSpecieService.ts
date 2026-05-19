@@ -1,16 +1,20 @@
+import type { ISpecieDTO } from "@project/shared";
 import { plantSpecieRepository } from "../repositories/PlantSpecieRepository.js";
 
 export class PlantSpecieService {
-    async getSpecies () {
+    async getSpecies () : Promise<ISpecieDTO[] | null> {
         // TODO
 
-        var amount = 10;
-        plantSpecieRepository.getSpecies(amount);
+        const species = await plantSpecieRepository.getSpecies();
+
+        return species;
     }
-    async getSpecieById (id : number) {
+    async getById (id : number) : Promise<ISpecieDTO | null> {
         // TODO
 
-        plantSpecieRepository.getById(id);
+        const specie = await plantSpecieRepository.getById(id);
+
+        return specie;
     }
 }
 

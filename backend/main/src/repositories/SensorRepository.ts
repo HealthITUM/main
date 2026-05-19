@@ -1,24 +1,24 @@
 import type { ISensorDTO } from "@project/shared";
 
 export class SensorRepository {
-    async getSensors(plantId : number, amount? : number){
+    async getSensors(plantId : number, amount? : number) : Promise<ISensorDTO[] | null>{
         // TODO
-        
+        return null;
     }
 
-    async getById(id : number){
+    async getById(id : number) : Promise<ISensorDTO | null>{
         // TODO
-
+        return null;
     }
 
-    async create(data : ISensorDTO) {
+    async create(data : ISensorDTO) : Promise<boolean> {
         // TODO
-
+        return false;
     }
 
-    async delete(id : number){
+    async delete(sensorId : number, userId : number) : Promise<boolean>{
         // TODO
-
+        return false;
     }
 }
 

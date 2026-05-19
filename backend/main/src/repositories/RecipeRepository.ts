@@ -1,21 +1,25 @@
-import type { IRecipeCreateRequestDTO } from "@project/shared";
+import type { IRecipeDTO } from "@project/shared";
+import type { IRecipeCreateModel } from "../models/Recipe.js";
 
 export class RecipeRepository {
-    async getRecipes(amount? : number) {
+    async getRecipes(amount? : number) : Promise<IRecipeDTO[] | null> {
         // TODO
-
+        return null;
     }
-    async getById(id : number) {
-        // TODO
 
+    async getById(id : number) : Promise<IRecipeDTO | null> {
+        // TODO
+        return null;
     }
-    async create(data : IRecipeCreateRequestDTO){
-        // TODO
 
+    async create(data : IRecipeCreateModel) : Promise<boolean> {
+        // TODO
+        return false;
     }
-    async delete(id : number){
-        // TODO
 
+    async delete(recipeId : number, userId : number) : Promise<boolean> {
+        // TODO
+        return false;
     }
 }
 

@@ -2,29 +2,36 @@ import type { ISensorDTO } from "@project/shared";
 import { sensorRepository } from "../repositories/SensorRepository.js";
 
 export class SensorService {
-    async getSensors (plantId : number) {
+    async getSensors (plantId : number) : Promise<ISensorDTO[] | null> {
         // TODO
 
-        var amount = 10;
-        sensorRepository.getSensors(plantId, amount); 
+        const sensors = await sensorRepository.getSensors(plantId);
+        
+        return sensors;
     }
 
-    async getById (sensorId : number) {
+    async getById (sensorId : number) : Promise<ISensorDTO | null> {
         // TODO
 
-        sensorRepository.getById(sensorId);
+        const sensor = await sensorRepository.getById(sensorId);
+        
+        return sensor;
     }
 
-    async create (data : ISensorDTO){
+    async create (data : ISensorDTO) : Promise<boolean> {
         // TODO
 
-        sensorRepository.create(data);
+        const response = await sensorRepository.create(data);
+        
+        return response;
     }
 
-    async delete(id : number){
+    async delete(sensorId : number, userId : number) : Promise<boolean>{
         // TODO
 
-        sensorRepository.delete(id);
+        const response = await sensorRepository.delete(sensorId, userId);
+
+        return response;
     }
 }
 

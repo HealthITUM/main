@@ -1,29 +1,48 @@
-import type { IUserLoginRequestDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
 import { userRepository } from "../repositories/UserRepository.js";
 
 export class UserService {
-    async getProfile (id : Number) {
+    async getProfile (id : number) : Promise<IUserDTO | null> {
         // TODO
 
-        userRepository.getById(id);
+        const user = await userRepository.getById(id);
+
+        return user;
     }
 
-    async login (data : IUserLoginRequestDTO) {
-        // TODO
+    async login (data : IUserLoginRequestDTO) : Promise<IUserLoginResponseDTO | null> {
+        // TODO TOKEN
         
-        userRepository.getByNickname(data.username);
+        const user = await userRepository.getByNickname(data.username);
+        
+        if (user == null){
+            return null;
+        }
+
+        const response : IUserLoginResponseDTO = { // TEMP
+            id : user.id,
+            username : user.username,
+            email : user.email,
+            token : "TEMP"
+        }
+
+        return response;
     }
 
-    async register (data : IUserRegisterRequestDTO) {
-        // TODO
+    async register (data : IUserRegisterRequestDTO) : Promise<boolean>  {
+        // TODO HASH PASSWORD
         
-        userRepository.create(data);
+        const response = await userRepository.create(data);
+
+        return response;
     }
 
-    async update (data : IUserUpdateRequestDTO) {
-        // TODO
+    async update (data : IUserUpdateRequestDTO) : Promise<boolean> {
+        // TODO VALIDATE THE DATA
         
-        userRepository.update(data);
+        const response = await userRepository.update(data);
+
+        return response;
     }
 }
 
