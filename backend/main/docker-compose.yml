@@ -37,6 +37,49 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  minio:
+    image: minio/minio:latest
+    container_name: plantit_minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
 
+  # Инициализатор бакетов (использует mc, где ТОЧНО есть встроенный shell)
+  minio_init:
+    image: minio/mc:latest
+    container_name: plantit_minio_initializer
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+
+      mc alias set my_s3 http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+
+      mc mb --ignore-existing my_s3/plants;
+      mc mb --ignore-existing my_s3/recipes;
+      mc mb --ignore-existing my_s3/species;
+
+      mc anonymous set download my_s3/plants;
+      mc anonymous set download my_s3/recipes;
+      mc anonymous set download my_s3/species;
+
+      echo 'Buckets created';
+      "
 volumes:
   postgres-data:
+  minio_data:
+    driver: local

@@ -1,6 +1,6 @@
 // GET user/me
 export interface IUserDTO { // Basic class.
-    id: string;
+    id: number;
     username: string;
     email: string;
 }

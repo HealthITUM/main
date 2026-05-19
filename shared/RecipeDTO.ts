@@ -1,7 +1,7 @@
 import type { IUserDTO } from "./UserDTO.js";
 
 export interface IRecipeDTO { // Base class. GET /recipes/. Response.
-    id: string;
+    id: number;
     name: string;
     description: string;
     author: IUserDTO;
@@ -9,7 +9,7 @@ export interface IRecipeDTO { // Base class. GET /recipes/. Response.
     imageUrl: string;
 }
 export interface IIngredientHasRecipeDTO {
-    id: string;
+    id: number;
     name: string;
     unit: string;
     amount: number;
@@ -19,7 +19,7 @@ export interface IIngredientHasRecipeDTO {
 export interface IRecipeCreateRequestDTO {
     name: string;
     description: string;
-    authorId: string;
+    authorId: number;
     ingredients: IIngredientHasRecipeDTO[];
     image: File;
 }

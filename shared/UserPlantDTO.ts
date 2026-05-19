@@ -1,7 +1,7 @@
-import type { ISpecieDTO } from "./SpeciesDTO";
+import type { ISpecieDTO } from "./SpeciesDTO.js";
 
 export interface IUserPlantDTO { // Base class.
-    id: string;
+    id: number;
     plant_specie: ISpecieDTO;
     name: string;
     imageUrl: string; // <- OR FILE.
@@ -20,7 +20,7 @@ export interface IUserPlantUpdateRequestDTO extends Partial<IUserPlantDTO>{}
 
 // SENSORS.
 export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
-    id: string;
+    id: number;
     internal_chip_id: string;
     last_seen: Date;
     online: boolean;
@@ -28,7 +28,7 @@ export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
 
 // MEASUREMENT. GET my/plants/:id/measurement
 export interface IMeasurementDTO {
-    id: string;
+    id: number;
     values: JSON;
     timestamp: Date;
 }
