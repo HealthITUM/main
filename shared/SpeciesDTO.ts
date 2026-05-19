@@ -3,6 +3,6 @@ export interface ISpecieDTO {
     id: number;
     name: string;
     description: string;
-    ideal_values: JSON;
+    ideal_values: Record<string, any>;
     imageUrl: string; // <- OR FILE.
 }

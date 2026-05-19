@@ -28,7 +28,7 @@ export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
 // MEASUREMENT. GET my/plants/:id/measurement
 export interface IMeasurementDTO {
     id: number;
-    values: JSON;
+    values: Record<string, any>;
     timestamp: Date;
     plantId: number;
 }
