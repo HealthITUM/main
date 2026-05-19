@@ -30,7 +30,7 @@ export class UserPlantService {
     async update(data : IUserPlantUpdateModel, userId : number) : Promise<boolean> {
         // TODO
 
-        const response = userPlantRepository.update(data, userId);
+        const response = await userPlantRepository.update(data, userId);
 
         return response;
     }

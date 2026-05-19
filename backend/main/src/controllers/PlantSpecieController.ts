@@ -4,7 +4,7 @@ import { plantSpecieService } from '../services/PlantSpecieService.js';
 class PlantSpecieController {
     getSpecies = async (req: Request, res: Response) => {
         try {
-            const species = plantSpecieService.getSpecies();
+            const species = await plantSpecieService.getSpecies();
 
             if (!species){
                 return res.status(400).json({ message: "Error: Species could not be returned!"});

@@ -80,7 +80,7 @@ class SensorController {
                 return res.status(400).json({ message: "Error: SensorID must be a valid number!" });
             }
 
-            const response = sensorService.delete(parsedId, userId);
+            const response = await sensorService.delete(parsedId, userId);
 
             if (!response) {
                 return res.status(400).json({ message: "Error: Failed to delete Sensor!"})

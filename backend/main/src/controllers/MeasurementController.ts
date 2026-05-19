@@ -4,25 +4,30 @@ import { measurementService } from '../services/MeasurementService.js';
 
 class MeasurementController {
     getMeasurements = async (req: AuthRequest, res: Response) => {
-        const requestPlantId = req.params.plantId;
+        try {
+            const requestPlantId = req.params.plantId;
 
-        if (!requestPlantId){
-            return res.status(400).json({ message : "Error: PlantID is empty!"});
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+
+            const parsedId = parseInt(String(requestPlantId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const measurements = await measurementService.getMeasurements(parsedId);
+
+            if (!measurements){
+                return res.status(400).json({ message: "Error: Measurements could not be returned!"});
+            }
+
+            return res.status(200).json(measurements);
         }
-
-        const parsedId = parseInt(String(requestPlantId), 10);
-
-        if (isNaN(parsedId)) {
-            return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
         }
-
-        const measurements = await measurementService.getMeasurements(parsedId);
-
-        if (!measurements){
-            return res.status(400).json({ message: "Error: Measurements could not be returned!"});
-        }
-
-        return res.status(200).json(measurements);
     }
 }
 

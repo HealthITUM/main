@@ -22,7 +22,7 @@ export class RecipeService {
     async create (data : IRecipeCreateModel) : Promise<boolean> {
         // TODO
         
-        const response = recipeRepository.create(data);
+        const response = await recipeRepository.create(data);
 
         return response;
     }
@@ -30,7 +30,7 @@ export class RecipeService {
     async delete (recipeId : number, userId : number) : Promise<boolean> {
         // TODO
         
-        const response = recipeRepository.delete(recipeId, userId);
+        const response = await recipeRepository.delete(recipeId, userId);
 
         return response;
     }

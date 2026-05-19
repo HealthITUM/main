@@ -70,7 +70,7 @@ class UserPlantController {
             const uniqueFileName = `${nodeCrypto.randomBytes(16).toString('hex')}.${fileExtension}`;
 
             const imageUrl = await uploadFile(
-                BUCKETS.RECIPES,
+                BUCKETS.PLANTS,
                 uniqueFileName,
                 req.file.buffer,
                 req.file.mimetype
