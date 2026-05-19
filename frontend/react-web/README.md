@@ -146,7 +146,19 @@ Authentication-based UI:
 MAP: exmple: filteredRecipes.map(recipe) => 
   - loops throught every recipe in the array - returns JSX - html like UI
   - if we have { name "Pizza" } it will return <div> Pizza </div>
+Maps used for rendering plants, sensors, recipes and species dropdown.
 
+Filtering:
+plants.filter(p =>
+  p.name.toLowerCase().includes(filter.toLowerCase())
+)
+
+Navigation: react router used for navigation:
+navigate("/my/plants")
+navigate(`/my/plants/${id}`)
+
+If backend fails at any point there is a error handler :
+ - example: if (error) return <p className="text-danger">{error}</p>; 
 
 3. RECIPES
 GetAll(): fetches all recipes from the backend
@@ -200,4 +212,50 @@ Form state: stores name, description, image preview, ingredients.
 Ingredients system: add, edit, remove - each has data from DTO -> id, name, amount, unit.
 
 Validation rules: name and description is required, it has at least 1 ingredient and all have to have a name.
+
+4. MYPLANTS
+GetAll(): GET /my/plants
+ - used: myplantspage
+ - it fetches plants for logged in user
+ Flow: page loads - useEffect. Then runs userPlantService.getAll() -> it stores result in plants state and UI renders this list.
+
+GetById(id): GET /my/plants/:id
+ - used: myplantsdetailsPage
+Flow: it extracts id from URL - useParams. Then it fetches plant details and stores in plant state. End: renders plant information.
+
+Create(): it uses FormData because image upload is included!
+  - used: createPlantPage
+Flow: user fills form and then validation runs. After that formData is build and API request is send.
+
+Update(): PATCH /my/plants/:id
+  - used: editing plant data - await userPlantService.update(id, formData) - editPlantPage
+Flow: loads plant data and edit fields -> image upload is optional. Then it sends FormData and redirect it back to details page.
+
+Delete(): DELETE /my/plants/:id
+  - used: removing plants - await userPlantService.delete(id);
+Flow: user clicks delete and then API call is send -> removes plant from state.
+
+5. SPECIES
+GetAll(): GET /species
+  - usage: await specieService.getAll(); -> create and edit plant page
+Flow: Page loads, species aare fetched and dropdown updates.
+
+6. SENSORS - connected to plants
+GetSensors(): GET /my/plants/:id/sensors
+  - usage: await userPlantSevice.getSensors(id); - my plant details page.
+Flow: plant loads, sensors load after plant fetch, it stores in sensors state.
+
+AddSensor(): POST /my/plantts/:id/sensors
+  - usage: await userPlantService.addSensor(id, { name: string }); -> add sensors
+! not finished
+Flow: user enters sensor name -> API is called and it redirect back to plant details.
+
+DeleteSensor(): DELETE /my/plants/:id/sensors/:sensorId
+  - usage: await userPlantService.deleteSensor(plantId, sensorId);
+Flow: user clicks delete, sensor is removed from backend -> state is updated.
+
+7. MEASUREMENTS
+GetMeasurements(): GET /my/plants/:id/measurement
+  - usage: await userPlantService.getMeasurements(id);
+Sensor data history - expansion later.
 

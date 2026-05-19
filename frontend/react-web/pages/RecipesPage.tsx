@@ -8,6 +8,7 @@ export const RecipesPage = () => {
     const [recipes, setRecipes] = useState<IRecipeDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [ingredientFilter, setIngredientFilter] = useState("");
+    const [error, setError] = useState<string | null>(null);
 
     // const [timeFilter, setTimeFilter] = useState("");
     // const [dietFilter, setDietFilter] = useState<"none" | "vegan" | "vegetarian">("none");
@@ -26,6 +27,8 @@ export const RecipesPage = () => {
                 //API call: GET /recipes
                 const data = await recipeService.getAll();
                 setRecipes(data);
+            } catch {
+                setError("Failed to load recipes");
             } finally {
                 setLoading(false);
             }
@@ -207,6 +210,12 @@ export const RecipesPage = () => {
 
                     </div>
                 </div>
+
+                {error && (
+                    <div className="alert alert-danger">
+                        {error}
+                    </div>
+                )}
 
                 {filteredRecipes.map((recipe) => (
                     <div

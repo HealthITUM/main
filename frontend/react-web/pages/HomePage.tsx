@@ -97,7 +97,8 @@ export default function HomePage() {
                         <div className="shadow-sm p-4 dark-green-card">
                             <h4>My Plants</h4>
                             <p>View and manage your plant collection.</p>
-                            <button className="btn w-100 dark-green-btn">
+                            <button className="btn w-100 dark-green-btn"
+                                onClick={() => navigate("/my/plants")}>
                                 Open
                             </button>
                         </div>
