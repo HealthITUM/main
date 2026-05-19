@@ -1,9 +1,9 @@
 export class MeasurementRepository {
-    async getById(id : Number){
+    async getById(id : number){
         // TODO
 
     }
-    async getMeasurements(plantId : Number, amount? : Number){
+    async getMeasurements(plantId : number, amount? : number){
         // TODO
         
     }

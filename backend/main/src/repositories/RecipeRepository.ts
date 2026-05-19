@@ -1,11 +1,11 @@
 import type { IRecipeCreateRequestDTO } from "@project/shared";
 
 export class RecipeRepository {
-    async getRecipes(amount? : Number) {
+    async getRecipes(amount? : number) {
         // TODO
 
     }
-    async getById(id : Number) {
+    async getById(id : number) {
         // TODO
 
     }
@@ -13,7 +13,7 @@ export class RecipeRepository {
         // TODO
 
     }
-    async delete(id : Number){
+    async delete(id : number){
         // TODO
 
     }

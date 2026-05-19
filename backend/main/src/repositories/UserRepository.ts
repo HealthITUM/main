@@ -5,7 +5,7 @@ export class UserRepository {
         // TODO
 
     }
-    async getById(id : Number) {
+    async getById(id : number) {
         // TODO
 
     }

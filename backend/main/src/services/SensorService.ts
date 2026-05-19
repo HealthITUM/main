@@ -2,14 +2,14 @@ import type { ISensorDTO } from "@project/shared";
 import { sensorRepository } from "../repositories/SensorRepository.js";
 
 export class SensorService {
-    async getSensors (plantId : Number) {
+    async getSensors (plantId : number) {
         // TODO
 
         var amount = 10;
         sensorRepository.getSensors(plantId, amount); 
     }
 
-    async getById (sensorId : Number) {
+    async getById (sensorId : number) {
         // TODO
 
         sensorRepository.getById(sensorId);
@@ -21,7 +21,7 @@ export class SensorService {
         sensorRepository.create(data);
     }
 
-    async delete(id : Number){
+    async delete(id : number){
         // TODO
 
         sensorRepository.delete(id);

@@ -1,13 +1,13 @@
 import { measurementRepository } from "../repositories/MeasurementRepository.js";
 
 export class MeasurementService {
-    async getMeasurements (plantId : Number) {
+    async getMeasurements (plantId : number) {
         // TODO
 
         var amount = 10;
         measurementRepository.getMeasurements(amount, plantId); 
     }
-    async getMeasurementById (measurementId : Number) {
+    async getMeasurementById (measurementId : number) {
         // TODO
 
         measurementRepository.getById(measurementId);

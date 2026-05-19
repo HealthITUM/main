@@ -9,7 +9,7 @@ export class UserPlantService {
         userPlantRepository.getPlants(amount);
     }
 
-    async getById(id : Number){
+    async getById(id : number){
         // TODO
 
         userPlantRepository.getById(id);
@@ -27,7 +27,7 @@ export class UserPlantService {
         userPlantRepository.update(data);
     }
 
-    async delete(id : Number){
+    async delete(id : number){
         // TODO
     
         userPlantRepository.delete(id);

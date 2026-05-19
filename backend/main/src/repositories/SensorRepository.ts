@@ -1,12 +1,12 @@
 import type { ISensorDTO } from "@project/shared";
 
 export class SensorRepository {
-    async getSensors(plantId : Number, amount? : Number){
+    async getSensors(plantId : number, amount? : number){
         // TODO
         
     }
 
-    async getById(id : Number){
+    async getById(id : number){
         // TODO
 
     }
@@ -16,7 +16,7 @@ export class SensorRepository {
 
     }
 
-    async delete(id : Number){
+    async delete(id : number){
         // TODO
 
     }

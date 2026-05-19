@@ -7,7 +7,7 @@ export class PlantSpecieService {
         var amount = 10;
         plantSpecieRepository.getSpecies(amount);
     }
-    async getSpecieById (id : Number) {
+    async getSpecieById (id : number) {
         // TODO
 
         plantSpecieRepository.getById(id);

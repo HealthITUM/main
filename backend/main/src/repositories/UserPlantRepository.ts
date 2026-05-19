@@ -1,12 +1,12 @@
 import type { IUserPlantCreateRequestDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
 
 export class UserPlantRepository {
-    async getPlants(amount? : Number){
+    async getPlants(amount? : number){
         // TODO
         
     }
 
-    async getById(id : Number){
+    async getById(id : number){
         // TODO
 
     }
@@ -21,7 +21,7 @@ export class UserPlantRepository {
 
     }
 
-    async delete(id : Number){
+    async delete(id : number){
         // TODO
         
     }

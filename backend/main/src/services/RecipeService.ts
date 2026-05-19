@@ -9,7 +9,7 @@ export class RecipeService {
         recipeRepository.getRecipes(amount); 
     }
 
-    async getRecipeById (id : Number) {
+    async getRecipeById (id : number) {
         // TODO
         
         recipeRepository.getById(id);
@@ -21,7 +21,7 @@ export class RecipeService {
         recipeRepository.create(data);
     }
 
-    async delete (id : Number) {
+    async delete (id : number) {
         // TODO
         
         recipeRepository.delete(id);

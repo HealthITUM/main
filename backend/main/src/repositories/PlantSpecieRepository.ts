@@ -1,9 +1,9 @@
 export class PlantSpecieRepository {
-    async getById(id : Number){
+    async getById(id : number){
         // TODO
 
     }
-    async getSpecies(amount? : Number){
+    async getSpecies(amount? : number){
         // TODO
         
     }

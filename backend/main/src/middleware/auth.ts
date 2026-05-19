@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 export interface AuthRequest extends Request {
     user?: {
-        id: Number;
+        id: number;
         username: string;
     };
 }
