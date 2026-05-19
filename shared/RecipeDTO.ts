@@ -1,10 +1,8 @@
-import type { IUserDTO } from "./UserDTO.js";
-
 export interface IRecipeDTO { // Base class. GET /recipes/. Response.
     id: number;
     name: string;
     description: string;
-    authorId: number;
+    authorId: number;   
     ingredients: IIngredientHasRecipeDTO[];
     imageUrl: string;
 }
