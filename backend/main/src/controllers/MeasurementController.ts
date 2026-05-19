@@ -1,14 +1,24 @@
 import type { Response } from 'express';
-import type { AuthenticatedRequest } from '../middleware/auth.js';
+import type { AuthRequest } from '../middleware/auth.js';
+import { measurementService } from '../services/MeasurementService.js';
 
 class MeasurementController {
-    getMeasurements = async (baseReq: Request, res: Response) => {
-        try {
+    getMeasurements = async (req: AuthRequest, res: Response) => {
+        const requestPlantId = req.params.id;
 
+        if (!requestPlantId){
+            return res.status(400).json({ message : "Error: SpecieID is empty!"});
         }
-        catch (error){
-            return res.status(500).json({ message : "Error on the server." });
+
+        const parsedId = parseInt(String(requestPlantId), 10);
+
+        if (isNaN(parsedId)) {
+            return res.status(400).json({ message: "Error: SpecieID must be a valid number!" });
         }
+
+        const measurements = await measurementService.getMeasurements(parsedId);
+
+        return res.status(200).json(measurements);
     }
 }
 

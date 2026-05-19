@@ -31,4 +31,5 @@ export interface IMeasurementDTO {
     id: number;
     values: JSON;
     timestamp: Date;
+    plantId: number;
 }

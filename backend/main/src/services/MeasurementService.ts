@@ -1,16 +1,21 @@
+import type { IMeasurementDTO } from "@project/shared";
 import { measurementRepository } from "../repositories/MeasurementRepository.js";
 
 export class MeasurementService {
-    async getMeasurements (plantId : number) {
+    async getMeasurements (plantId : number) : Promise<Array<IMeasurementDTO>> {
         // TODO
 
         var amount = 10;
-        measurementRepository.getMeasurements(amount, plantId); 
+        const measurements = await measurementRepository.getMeasurements(amount, plantId);
+
+        return measurements;
     }
-    async getMeasurementById (measurementId : number) {
+    async getMeasurementById (measurementId : number) : Promise<IMeasurementDTO> {
         // TODO
 
-        measurementRepository.getById(measurementId);
+        const measurement = await measurementRepository.getById(measurementId);
+        
+        return measurement;
     }
 }
 
