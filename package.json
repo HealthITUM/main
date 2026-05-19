@@ -5,7 +5,8 @@
     "backend/main",
     "shared",
     "frontend/react-native-mobile",
-    "frontend/react-web"
+    "frontend/react-web",
+    "frontend/shared/services"
   ],
   "scripts": {
     "dev:all": "npm run dev --workspaces --if-present"
