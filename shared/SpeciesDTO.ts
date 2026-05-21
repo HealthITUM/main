@@ -1,8 +1,8 @@
 // Base class. GET species/ OR GET species/:id
 export interface ISpecieDTO {
-    id: string;
+    id: number;
     name: string;
     description: string;
-    ideal_values: JSON;
+    ideal_values: Record<string, any>;
     imageUrl: string; // <- OR FILE.
 }

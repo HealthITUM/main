@@ -1,8 +1,8 @@
-import type { ISpecieDTO } from "./SpeciesDTO";
+//import type { ISpecieDTO } from "./SpeciesDTO";
 
 export interface IUserPlantDTO { // Base class.
-    id: string;
-    plant_specie: ISpecieDTO;
+    id: number;
+    plantSpecieId: number;
     name: string;
     imageUrl: string; // <- OR FILE.
 }
@@ -11,16 +11,17 @@ export interface IUserPlantDTO { // Base class.
 
 // POST /my/plants/. Request.
 export interface IUserPlantCreateRequestDTO {
-    plant_specie: ISpecieDTO;
+    plantSpecieId: number;
     name: string;
     image: File;
 }
 // PATCH /my/plants/:id. Request.
-export interface IUserPlantUpdateRequestDTO extends Partial<IUserPlantDTO>{}
+export interface IUserPlantUpdateRequestDTO 
+    extends Partial<Omit<IUserPlantCreateRequestDTO, 'image'>> {}
 
 // SENSORS.
 export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
-    id: string;
+    id: number;
     internal_chip_id: string;
     last_seen: Date;
     online: boolean;
@@ -28,7 +29,8 @@ export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
 
 // MEASUREMENT. GET my/plants/:id/measurement
 export interface IMeasurementDTO {
-    id: string;
-    values: JSON;
+    id: number;
+    values: Record<string, any>;
     timestamp: Date;
+    plantId: number;
 }

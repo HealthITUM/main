@@ -1,11 +1,11 @@
-import type { IUserDTO } from "./UserDTO";
+//import type { IUserDTO } from "./UserDTO";
 //export type DietType = "none" | "vegan" | "vegetarian";
 
 export interface IRecipeDTO { // Base class. GET /recipes/. Response.
-    id: string;
+    id: number;
     name: string;
     description: string;
-    author: IUserDTO;
+    authorId: number;
     ingredients: IIngredientHasRecipeDTO[];
     //prepTime: number;
     //cookTime: number;
@@ -14,7 +14,7 @@ export interface IRecipeDTO { // Base class. GET /recipes/. Response.
     //steps: string[];
 }
 export interface IIngredientHasRecipeDTO {
-    id: string;
+    id: number;
     name: string;
     unit: string;
     amount: number;
@@ -23,7 +23,7 @@ export interface IIngredientHasRecipeDTO {
 export interface IRecipeCreateRequestDTO {
     name: string;
     description: string;
-    authorId: string;
+    //authorId: string;
     ingredients: IIngredientHasRecipeDTO[];
     //prepTime: number;
     //cookTime: number;
