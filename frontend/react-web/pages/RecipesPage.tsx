@@ -19,6 +19,7 @@ export const RecipesPage = () => {
     const isLoggedIn = !!token;
     //navigation
     const navigate = useNavigate();
+    /* remove for backend
     //fetch data
     useEffect(() => {
         //load page
@@ -35,7 +36,7 @@ export const RecipesPage = () => {
         };
 
         fetchRecipes();
-    }, []);
+    }, []);*/
     //filter logic - creates a filtered version of recipes
     const filteredRecipes = recipes.filter((recipe) => {
         const matchesIngredient =
@@ -68,8 +69,8 @@ export const RecipesPage = () => {
 
         return matchesIngredient;
     });
-
-    if (loading) return <p>Loading recipes...</p>;
+    //remove for backend
+    //if (loading) return <p>Loading recipes...</p>;
 
     return (
         <div>
@@ -245,7 +246,7 @@ export const RecipesPage = () => {
                         </h3>
 
                         <p>{recipe.description}</p>
-                        <small>Author: {recipe.author.username}</small>
+                        <small>Author: {recipe.authorId}</small>
                     </div>
                 ))}
 

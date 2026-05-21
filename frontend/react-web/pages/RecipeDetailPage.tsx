@@ -92,7 +92,7 @@ export const RecipeDetailPage = () => {
             */}
 
             <p>
-                <strong>Author:</strong> {recipe.author.username}
+                <strong>Author:</strong> {recipe.authorId}
             </p>
 
             <button

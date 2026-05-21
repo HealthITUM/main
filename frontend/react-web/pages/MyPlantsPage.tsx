@@ -24,6 +24,7 @@ export default function MyPlantsPage() {
     const [user, setUser] = useState<IUserDTO | null>(null);
     //stores text that is entered in search field
     const [nameFilter, setNameFilter] = useState("");
+    //remove for backend
     //runs after componend is rendered
     /*useEffect(() => {
         //async function to call backend
@@ -44,8 +45,8 @@ export default function MyPlantsPage() {
 
         loadUser();
     }, [navigate]); //runs once when page loads - checks if token is valid, fetches user info*/
-
-    useEffect(() => {
+    //for user changes
+    /*useEffect(() => {
         //if (!user) return;
         //async function to call backend
         const fetchPlants = async () => {
@@ -62,7 +63,7 @@ export default function MyPlantsPage() {
         };
 
         fetchPlants();
-    }, [user]); //runs whenever user changes
+    }, [user]); //runs whenever user changes*/
     //filtered array for search text - which plants
     const filteredPlants = plants.filter((plant) =>
         //if empty it shows all
@@ -70,10 +71,10 @@ export default function MyPlantsPage() {
         //checks plant name
         plant.name.toLowerCase().includes(nameFilter.toLowerCase())
     );
-
+    //remove for backend
     //if (loadingUser) return <p>Loading user...</p>;
     //if (!user) return null;
-    if (loadingPlants) return <p>Loading plants...</p>;
+    //if (loadingPlants) return <p>Loading plants...</p>;
 
     return (
         <div>
@@ -206,7 +207,7 @@ export default function MyPlantsPage() {
                             {plant.name}
                         </h3>
 
-                        <p>{plant.plant_specie?.name}</p>
+                        <p>{plant.plantSpecieId}</p>
 
                         <div className="d-flex gap-2 mt-2">
                             <button
@@ -216,7 +217,7 @@ export default function MyPlantsPage() {
 
                                     if (!window.confirm("Delete this plant?")) return;
 
-                                    await userPlantService.delete(plant.id);
+                                    await userPlantService.delete(String(plant.id));
 
                                     setPlants((prev) =>
                                         prev.filter((p) => p.id !== plant.id)

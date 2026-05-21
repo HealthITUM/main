@@ -47,6 +47,7 @@ export const CreateRecipePage = () => {
         );
     };
     */
+   /*remove for backend
     //load user - important
     useEffect(() => {
         const loadUser = async () => {
@@ -65,7 +66,7 @@ export const CreateRecipePage = () => {
         };
 
         loadUser();
-    }, [navigate]);
+    }, [navigate]);*/
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //get selected file
@@ -81,7 +82,7 @@ export const CreateRecipePage = () => {
         setIngredients([
             ...ingredients,
             {
-                id: crypto.randomUUID(),
+                id: Date.now(),
                 name: "",
                 unit: "pcs",
                 amount: 1
@@ -167,7 +168,7 @@ export const CreateRecipePage = () => {
 
         formData.append("name", name);
         formData.append("description", description);
-        formData.append("authorId", user.id);
+        formData.append("authorId", String(user.id));
         formData.append("ingredients", JSON.stringify(ingredients));
 
          if (imageFile) {
@@ -185,9 +186,9 @@ export const CreateRecipePage = () => {
 
         navigate(`/recipes/${newRecipe.id}`);
     };
-
-    if (loading) return <p>Loading...</p>;
-    if (!user) return null;
+    //remove for backend
+    //if (loading) return <p>Loading...</p>;
+    //if (!user) return null;
 
     return (
         <div className="container mt-4 d-flex justify-content-center">

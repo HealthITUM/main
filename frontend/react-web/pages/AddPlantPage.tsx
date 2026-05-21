@@ -20,8 +20,8 @@ export default function CreatePlantPage() {
     const [errors, setErrors] = useState<string[]>([]);
     //tracks create request - disable button while saving
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
+    //remove for backend
+    /*useEffect(() => {
         //loads species from backend
         const load = async () => {
             try {
@@ -34,7 +34,7 @@ export default function CreatePlantPage() {
         };
 
         load();
-    }, []); //runs once only when page loads
+    }, []); //runs once only when page loads*/
     //runs when user selects file
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //gets first selected file
@@ -78,7 +78,7 @@ export default function CreatePlantPage() {
             //! besause we know its not null - validation checks before
             await userPlantService.create({
                 name,
-                plant_specie: selectedSpecie!,
+                plantSpecieId: Number(selectedSpecie!.id),
                 image: image!,
             });
 
@@ -157,7 +157,7 @@ export default function CreatePlantPage() {
                             value={selectedSpecie?.id || ""}
                             onChange={(e) => {
                                 const found = species.find(
-                                    (s) => s.id === e.target.value
+                                    (s) => s.id === Number(e.target.value)
                                 );
                                 setSelectedSpecie(found || null);
                             }}

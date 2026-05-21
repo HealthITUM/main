@@ -12,16 +12,10 @@ export default function AddSensorPage() {
     //const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //demo plant
     const [plant] = useState<IUserPlantDTO>({
-        id: "1",
+        id: 1,
         name: "Demo Plant",
         imageUrl: "",
-        plant_specie: {
-            id: "1",
-            name: "Basil",
-            description: "",
-            ideal_values: {} as any,
-            imageUrl: ""
-        }
+        plantSpecieId: 1 
     });
     //loading while plant is fetched
     const [loading, setLoading] = useState(true);
@@ -31,7 +25,7 @@ export default function AddSensorPage() {
     const [saving, setSaving] = useState(false);
     //stores input name
     const [sensorName, setSensorName] = useState("");
-
+    //remove for backend
     /*useEffect(() => {
         const loadPlant = async () => {
             //stops if route param is missing
@@ -70,7 +64,7 @@ export default function AddSensorPage() {
             setSaving(false);
         }
     };
-
+    //remove for backend
     //if (loading) return <p>Loading...</p>;
     //if (error) return <p className="text-danger">{error}</p>;
     //if (!plant) return <p>Plant not found</p>;

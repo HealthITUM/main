@@ -24,7 +24,7 @@ export default function EditPlantPage() {
     const [loading, setLoading] = useState(false);
     //true while initial plant data is loading
     const [pageLoading, setPageLoading] = useState(true);
-
+    /*remove for backend
     useEffect(() => {
         const load = async () => {
             //stops if route param is missing
@@ -43,7 +43,7 @@ export default function EditPlantPage() {
                 setImagePreview(plantData.imageUrl || "");
                 //for dropdows: finds selected specie with id
                 const foundSpecie = speciesData.find(
-                    (s) => s.id === plantData.plant_specie?.id
+                    (s) => s.id === plantData.plantSpecieId
                 );
                 //prefills dropdown
                 setSelectedSpecie(foundSpecie || null);
@@ -56,7 +56,7 @@ export default function EditPlantPage() {
         };
 
         load();
-    }, [id]); //if plant id changes it reloads
+    }, [id]); //if plant id changes it reloads*/
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //gets selected file
@@ -98,7 +98,7 @@ export default function EditPlantPage() {
         const formData = new FormData();
     
         formData.append("name", name);
-        formData.append("plant_specie", selectedSpecie.id);
+        formData.append("plant_specie", String(selectedSpecie.id));
         //if user does not upload a new one it keeps old one
         if (image) {
             formData.append("image", image);
@@ -106,7 +106,10 @@ export default function EditPlantPage() {
 
         try {
             //updates API call: PATCH /my/plants/:id
-            await userPlantService.update(id, formData);
+            await userPlantService.update(id, {
+                name,
+                plantSpecieId: selectedSpecie.id
+            });
             navigate(`/my/plants/${id}`);
         } catch {
             setErrors(["Failed to update plant"]);
@@ -114,8 +117,8 @@ export default function EditPlantPage() {
             setLoading(false);
         }
     };
-
-    if (pageLoading) return <p>Loading...</p>;
+    //remove for backend
+    //if (pageLoading) return <p>Loading...</p>;
 
     return (
         <div className="container mt-4 d-flex justify-content-center">
@@ -183,7 +186,7 @@ export default function EditPlantPage() {
                             value={selectedSpecie?.id || ""}
                             onChange={(e) => {
                                 const found = species.find(
-                                    (s) => s.id === e.target.value
+                                    (s) => s.id === Number(e.target.value)
                                 );
                                 setSelectedSpecie(found || null);
                             }}

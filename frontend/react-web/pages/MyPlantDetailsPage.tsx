@@ -16,7 +16,7 @@ export default function MyPlantDetailsPage() {
     const [loading, setLoading] = useState(true);
     //stores API errors
     const [error, setError] = useState<string | null>(null);
-
+    //remove for backend
     /*useEffect(() => {
         //dependency is [id] - if id plant changes it reloads
         const fetchData = async () => {
@@ -43,29 +43,23 @@ export default function MyPlantDetailsPage() {
     //demo for fake local data
     useEffect(() => {
         const demoPlant: IUserPlantDTO = {
-            id: "123-demo",
+            id: 123,
             name: "Monstera Deliciosa",
             imageUrl:
                 "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1200",
 
-            plant_specie: {
-                id: "sp-1",
-                name: "Monstera",
-                description: "Demo plant species",
-                imageUrl: "",
-                ideal_values: {} as any,
-            },
+            plantSpecieId: 1,
         };
 
         const demoSensors: ISensorDTO[] = [
             {
-                id: "sensor-1",
+                id: 1,
                 internal_chip_id: "ESP32-001",
                 online: true,
                 last_seen: new Date(),
             },
             {
-                id: "sensor-2",
+                id: 2,
                 internal_chip_id: "ESP32-002",
                 online: false,
                 last_seen: new Date(),
@@ -81,13 +75,13 @@ export default function MyPlantDetailsPage() {
         if (!id) return;
         navigate(`/my/plants/${id}/add-sensor`);
     };
-
-    /*const handleDeleteSensor = async (sensorId: string) => {
+    //remove for backend
+    /*const handleDeleteSensor = async (sensorId: number) => {
         try {
             //checks id
             if (!id) return;
             //backend: DELETE /my/plants/:id/sensors/:sensorId
-            await userPlantService.deleteSensor(id, sensorId);
+            await userPlantService.deleteSensor(id, String(sensorId));
             //removes deleted sensor from page
             setSensors((prev) =>
                 prev.filter((s) => s.id !== sensorId)
@@ -98,7 +92,7 @@ export default function MyPlantDetailsPage() {
         }
     };*/
     //demo - without API call - removes local state
-    const handleDeleteSensor = (sensorId: string) => {
+    const handleDeleteSensor = (sensorId: number) => {
         setSensors((prev) =>
             prev.filter((s) => s.id !== sensorId)
         );
@@ -151,7 +145,7 @@ export default function MyPlantDetailsPage() {
                             <h1 className="fw-bold">{plant.name}</h1>
 
                             <p>
-                                <strong>Species:</strong> {plant.plant_specie?.name}
+                                <strong>Species:</strong> {plant.plantSpecieId}
                             </p>
 
                             <p>
