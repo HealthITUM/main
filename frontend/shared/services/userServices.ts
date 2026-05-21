@@ -34,9 +34,9 @@ export const userService = {
 
     //update currently logged in user data
     updateMe: async (userData: IUserUpdateRequestDTO
-    ): Promise<IUserUpdateRequestDTO> => {
+    ): Promise<IUserDTO> => {
         //API call - partial update - only provided fields
-        const response = await api.patch<IUserUpdateRequestDTO>(
+        const response = await api.patch<IUserDTO>(
             "/user/me",
             userData);
         return response.data;

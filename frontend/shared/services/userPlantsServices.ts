@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { IUserPlantDTO, IUserPlantCreateRequestDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
+import type { IUserPlantDTO, IUserPlantCreateRequestDTO, ISensorDTO, IMeasurementDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
 //exports object with all user plants related API functions
 export const userPlantService = {
     //fetches all plants for logged in user
@@ -24,7 +24,7 @@ export const userPlantService = {
             const formData = new FormData();
             //multipart/form-data request
             formData.append("name", data.name);
-            formData.append("plant_specie", data.plant_specie.id);
+            formData.append("plantSpecieId", String(data.plantSpecieId));
             formData.append("image", data.image);
             //backend: POST /my/plants
             const response = await api.post<IUserPlantDTO>("/my/plants", formData, {
@@ -41,18 +41,20 @@ export const userPlantService = {
     //formData: for image upload - optional
     update: async (
         id: string,
-        formData: FormData
+        data: IUserPlantUpdateRequestDTO
+        //formData: FormData
     ): Promise<IUserPlantDTO> => {
         //backend PATCH /my/plants/:id
         const response = await api.patch<IUserPlantDTO>(
             `/my/plants/${id}`,
-            formData,
-            {
+            //formData,
+            data
+           /* {
                 //multipart request
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-            }
+            }*/
         );
         return response.data;
     },
