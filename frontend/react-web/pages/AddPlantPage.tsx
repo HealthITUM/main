@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { specieService, userPlantService } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
+import { api } from "../src/api";
+
+const userPlant = userPlantService(api);
+const specie = specieService(api);
 
 export default function CreatePlantPage() {
     //navigation
@@ -26,7 +30,7 @@ export default function CreatePlantPage() {
         const load = async () => {
             try {
                 //backend: GET /species
-                const data = await specieService.getAll();
+                const data = await specie.getAll();
                 setSpecies(data);
             } catch {
                 setErrors(["Failed to load species"]);
@@ -76,7 +80,7 @@ export default function CreatePlantPage() {
         try {
             //sends data to backend - creates formData
             //! besause we know its not null - validation checks before
-            await userPlantService.create({
+            await userPlant.create({
                 name,
                 plantSpecieId: Number(selectedSpecie!.id),
                 image: image!,

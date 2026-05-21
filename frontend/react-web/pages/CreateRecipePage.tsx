@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { userService, recipeService } from "@project/frontend-shared";
 import { useNavigate } from "react-router-dom";
 import type { IIngredientHasRecipeDTO, IUserDTO } from "@project/shared";
+import { api } from "../src/api";
+
+const recipeApi = recipeService(api);
 
 export const CreateRecipePage = () => {
     const navigate = useNavigate();
@@ -182,7 +185,7 @@ export const CreateRecipePage = () => {
         // dietType,
         
         //multipart request
-        const newRecipe = await recipeService.create(formData);
+        const newRecipe = await recipeApi.create(formData);
 
         navigate(`/recipes/${newRecipe.id}`);
     };

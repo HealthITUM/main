@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { specieService, userPlantService } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
+import { api } from "../src/api";
+
+const userPlant = userPlantService(api);
+const specie = specieService;
 
 export default function EditPlantPage() {
     //reads plant ID from URL - so /my/plants/123/edit - id is 123
@@ -24,7 +28,8 @@ export default function EditPlantPage() {
     const [loading, setLoading] = useState(false);
     //true while initial plant data is loading
     const [pageLoading, setPageLoading] = useState(true);
-    /*remove for backend
+    //remove for backend
+    /*
     useEffect(() => {
         const load = async () => {
             //stops if route param is missing
@@ -33,8 +38,8 @@ export default function EditPlantPage() {
             try {
                 //loads API requests - get species and plant details
                 const [speciesData, plantData] = await Promise.all([
-                    specieService.getAll(),
-                    userPlantService.getById(id),
+                    specie.getAll(),
+                    userPlant.getById(id),
                 ]);
                 //stores dropdown options
                 setSpecies(speciesData);
@@ -106,7 +111,7 @@ export default function EditPlantPage() {
 
         try {
             //updates API call: PATCH /my/plants/:id
-            await userPlantService.update(id, {
+            await userPlant.update(id, {
                 name,
                 plantSpecieId: selectedSpecie.id
             });

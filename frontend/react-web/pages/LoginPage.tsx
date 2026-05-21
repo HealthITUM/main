@@ -2,6 +2,7 @@ import { useState } from "react";
 import { userService } from "@project/frontend-shared";
 import type { IUserLoginRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
+import { api } from "../src/api";
 
 //save data from input
 export default function LoginPage() {
@@ -16,6 +17,8 @@ export default function LoginPage() {
     //show errors
     const [error, setError] = useState("");
 
+    const service = userService(api);
+
     //runs when button is clicked
     const handleLogin = async () => {
         setError("");
@@ -24,10 +27,10 @@ export default function LoginPage() {
             setError("Please fill in all fields");
             return;
         }
-        
+
         try {
             //request to backend - API call
-            const res = await userService.login(form);
+            const res = await service.login(form);
             //save token
             localStorage.setItem("token", res.token);
 

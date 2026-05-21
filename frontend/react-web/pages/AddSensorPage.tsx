@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { userPlantService } from "@project/frontend-shared";
 import type { IUserPlantDTO } from "@project/shared";
+import { api } from "../src/api";
+
+const userPlant = userPlantService(api);
 
 export default function AddSensorPage() {
     //reads plant id from url - so /my/.../123/add-sensor, id is 123
@@ -33,7 +36,7 @@ export default function AddSensorPage() {
 
             try {
                 //backend: GET /my/plants/:id
-                const data = await userPlantService.getById(id);
+                const data = await userPlant.getById(id);
                 setPlant(data);
             } catch {
                 setError("Failed to load plant");
@@ -53,7 +56,7 @@ export default function AddSensorPage() {
             //disables button
             setSaving(true);
             //backend: POST /my/plants/:id/sensors- requested body - name
-            await userPlantService.addSensor(id, {
+            await userPlant.addSensor(id, {
                 name: sensorName
             });
             //success: redirects to plant details page

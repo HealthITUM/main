@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { userPlantService } from "../../shared/services/userPlantsServices";
 import { userService } from "../../shared/services/userServices";
 import type { IUserDTO, IUserPlantDTO } from "@project/shared";
+import { api } from "../src/api";
+
+const userPlant = userPlantService(api);
+const service = userService(api);
 
 export default function MyPlantsPage() {
     //navigation
@@ -31,7 +35,7 @@ export default function MyPlantsPage() {
         const loadUser = async () => {
             try {
                 //calls backend: GET /user/me - JWT token, validates user, return logged in user data
-                const me = await userService.getMe();
+                const me = await service.getMe();
                 setUser(me);
             } catch {
                 //invalid token - expired, missing, unauthorized request
@@ -52,7 +56,7 @@ export default function MyPlantsPage() {
         const fetchPlants = async () => {
             try {
                 //returns user plants - GET /my/plants
-                const data = await userPlantService.getAll();
+                const data = await userPlant.getAll();
                 //stores
                 setPlants(data);
             } catch {
@@ -217,7 +221,7 @@ export default function MyPlantsPage() {
 
                                     if (!window.confirm("Delete this plant?")) return;
 
-                                    await userPlantService.delete(String(plant.id));
+                                    await userPlant.delete(String(plant.id));
 
                                     setPlants((prev) =>
                                         prev.filter((p) => p.id !== plant.id)

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { IRecipeDTO } from "@project/shared";
 import { recipeService } from "@project/frontend-shared"
+import { api } from "../src/api";
+
+const recipeApi = recipeService(api);
 
 export const RecipeDetailPage = () => {
     //get URL parameter of recipe
@@ -19,7 +22,7 @@ export const RecipeDetailPage = () => {
 
             try {
                 //request: GET /recipes/:id
-                const data = await recipeService.getById(id);
+                const data = await recipeApi.getById(id);
                 setRecipe(data);
             } finally {
                 setLoading(false);

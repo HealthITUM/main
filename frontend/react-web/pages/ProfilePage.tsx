@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { userService } from "@project/frontend-shared";
 import type { IUserDTO} from "@project/shared";
 import { useNavigate } from "react-router-dom";
+import { api } from "../src/api";
 
 //relies on GET /user/me
 export default function ProfilePage() {
@@ -9,6 +10,8 @@ export default function ProfilePage() {
   const [user, setUser] = useState<IUserDTO | null>(null);
   //navigacija
   const navigate = useNavigate();
+
+  const service = userService(api);
   
   //runs once when component is mount
   useEffect(() => {
@@ -16,7 +19,7 @@ export default function ProfilePage() {
     const loadUser = async () => {
       try {
         //send request to backend - checks token, return data
-        const data = await userService.getMe();
+        const data = await service.getMe();
         setUser(data);
       } catch (err) {
         console.error("Error loading user:", err);

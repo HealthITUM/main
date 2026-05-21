@@ -2,6 +2,7 @@ import { useState } from "react";
 import { userService } from "@project/frontend-shared";
 import type { IUserRegisterRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
+import { api } from "../src/api";
 
 //stores user input for username... -> controlled form
 export default function RegisterPage() {
@@ -17,6 +18,8 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     //errors - validation, API errors - UI
     const [error, setError] = useState("");
+
+    const service = userService(api);
     
     //runs when button is clicked
     const handleRegister = async () => {
@@ -49,7 +52,7 @@ export default function RegisterPage() {
 
         try {
             //send request - API call -> POST /user/register
-            await userService.register(form);
+            await service.register(form);
             navigate("/login");
         }catch (err: any){
             //show error
