@@ -1,8 +1,9 @@
-import { api } from "./api";
+//import { api } from "../../react-web/src/api";
 import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { AxiosInstance } from "axios";
 
 //exports object with all user related API functions
-export const userService = {
+export const userService = (api: AxiosInstance) => ({
     //create a new user account
     register: async (userData: IUserRegisterRequestDTO)
     : Promise<IUserDTO> => {
@@ -41,4 +42,4 @@ export const userService = {
             userData);
         return response.data;
     },
-};
+});

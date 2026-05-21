@@ -1,7 +1,8 @@
-import { api } from "./api";
+//import { api } from "../../react-web/src/api";
 import type { ISpecieDTO } from "@project/shared";
+import type { AxiosInstance } from "axios";
 //exports object with all plant specie related API functions
-export const specieService = {
+export const specieService = (api: AxiosInstance) => ({
     //fetch all plants from backend - to populate dropdown selection
     getAll: async ():
     Promise<ISpecieDTO[]> => {
@@ -18,4 +19,4 @@ export const specieService = {
         //ISpecieDTO
         return response.data;
     },
-};
+});

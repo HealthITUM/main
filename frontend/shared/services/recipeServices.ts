@@ -1,7 +1,8 @@
-import { api } from "./api";
+//import { api } from "../../react-web/src/api";
 import type { IRecipeDTO } from "@project/shared";
+import type { AxiosInstance } from "axios";
 //exports object with all recipe related API functions
-export const recipeService = {
+export const recipeService = (api: AxiosInstance) => ({
     //fetch all recipes
     getAll: async ()
     : Promise<IRecipeDTO[]> => {
@@ -69,4 +70,4 @@ export const recipeService = {
         //returns {url: string}
         return response.data;
     },*/
-};
+});

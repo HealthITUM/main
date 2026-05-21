@@ -1,7 +1,8 @@
-import { api } from "./api";
+//import { api } from "../../react-web/src/api";
 import type { IUserPlantDTO, IUserPlantCreateRequestDTO, ISensorDTO, IMeasurementDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
+import type { AxiosInstance } from "axios";
 //exports object with all user plants related API functions
-export const userPlantService = {
+export const userPlantService = (api: AxiosInstance) => ({
     //fetches all plants for logged in user
     getAll: async ():
     Promise<IUserPlantDTO[]> => {
@@ -99,4 +100,4 @@ export const userPlantService = {
         //DELETE /my/plants/:id/sensors/:sensorId
         await api.delete(`/my/plants/${plantId}/sensors/${sensorId}`);
     },
-};
+});
