@@ -10,19 +10,23 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
   [AppQueue.ScrapperResult]: async (data) => {
     console.log('[Scrapper Handler] Data from:', data.name);
 
-    const createData : ISpecieCreateModel = {
-      name : data.name,
-      description : data.description,
-      ideal_values : data.ideal_values,
-      imageUrl : data.imageUrl
-    }
+    try {
+      const createData : ISpecieCreateModel = {
+        name : data.name,
+        description : data.description,
+        ideal_values : data.ideal_values,
+        imageUrl : data.imageUrl
+      }
 
-    const response = await plantSpecieService.create(createData);
+      const response = await plantSpecieService.create(createData);
 
-    if (!response) {
-      console.log("[Scrapper Handler] Failed to create new PlantSpecie.");
-    } else {
-      console.log("[Scrapper Handler] New specie successfuly added!");
+      if (!response) {
+        console.log("[Scrapper Handler] Failed to create new PlantSpecie.");
+      } else {
+        console.log("[Scrapper Handler] New specie successfuly added!");
+      }
+    } catch (error) {
+      console.log('[Scrapper Handler] Error:', error);
     }
   },
   
@@ -41,7 +45,7 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
         timestamp : data.timestamp
       };
 
-      const response = await measurementService.create(data);
+      const response = await measurementService.create(createData);
 
       if (!response) {
         console.log("[Sensor Handler] Failed to create new Measurement.");

@@ -3,3 +3,7 @@ export interface IUserCreateModel {
     email: string;
     passwordHash: string;
 }
+
+export interface IUser extends IUserCreateModel {
+    id: number;
+}

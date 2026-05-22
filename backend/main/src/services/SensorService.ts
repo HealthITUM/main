@@ -3,16 +3,12 @@ import { sensorRepository } from "../repositories/SensorRepository.js";
 
 export class SensorService {
     async getSensors (plantId : number) : Promise<ISensorDTO[] | null> {
-        // TODO
-
         const sensors = await sensorRepository.getSensors(plantId);
         
         return sensors;
     }
 
     async getById (sensorId : number) : Promise<ISensorDTO | null> {
-        // TODO
-
         const sensor = await sensorRepository.getById(sensorId);
         
         return sensor;
@@ -27,8 +23,6 @@ export class SensorService {
     }
 
     async delete(sensorId : number, userId : number) : Promise<boolean>{
-        // TODO
-
         const response = await sensorRepository.delete(sensorId, userId);
 
         return response;

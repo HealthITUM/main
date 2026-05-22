@@ -1,8 +1,8 @@
 import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUserCreateModel } from "../models/User.js";
 import { userRepository } from "../repositories/UserRepository.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import type { IUserCreateModel } from "../models/User.js";
 
 export class UserService {
     async getProfile (id : number) : Promise<IUserDTO | null> {
@@ -15,6 +15,11 @@ export class UserService {
         const user = await userRepository.getByNickname(data.username);
 
         if (user == null){
+            return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash);
+        if (!isPasswordValid) {
             return null;
         }
 

@@ -1,5 +1,5 @@
 import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
-import type { IUserCreateModel } from "../models/User.js";
+import type { IUser, IUserCreateModel } from "../models/User.js";
 
 export class UserRepository {
     async getById(id : number) : Promise<IUserDTO | null> {
@@ -7,7 +7,7 @@ export class UserRepository {
         return null;
     }
 
-    async getByNickname(nickname : string) : Promise<IUserDTO | null>{
+    async getByNickname(nickname : string) : Promise<IUser | null>{
         // TODO
         return null;
     }
