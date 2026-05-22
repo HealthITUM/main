@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { userPlantService } from "@project/frontend-shared";
+import { userPlantService, useAuth } from "@project/frontend-shared";
 import type { IUserPlantDTO } from "@project/shared";
 import { api } from "../src/api";
 
@@ -11,6 +11,8 @@ export default function AddSensorPage() {
     const { id } = useParams();
     //navigation
     const navigate = useNavigate();
+
+    const { token } = useAuth();
     //plants fetched from backend
     //const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //demo plant
@@ -47,10 +49,30 @@ export default function AddSensorPage() {
 
         loadPlant();
     }, [id]); //reloads if plant id changes*/
+    //remove for backend
+    /*//is user logged in?
+    useEffect(() => {
+        if (!token) {
+            navigate("/login");
+        }
+    }, [token, navigate]);*/
     //runs when user clicks add sensor
     const handleCreateSensor = async () => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        if (!sensorName.trim()) {
+            setError("Sensor name is required");
+            return;
+        }
+
         //only if plant exists
-        if (!id) return;
+        if (!id) {
+            setError("Missing plant ID");
+            return;
+            }
 
         try {
             //disables button

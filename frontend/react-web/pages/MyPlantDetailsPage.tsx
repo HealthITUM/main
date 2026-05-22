@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { userPlantService } from "@project/frontend-shared";
+import { userPlantService, useAuth } from "@project/frontend-shared";
 import type { IUserPlantDTO, ISensorDTO } from "@project/shared";
+import { api } from "../src/api";
 
 export default function MyPlantDetailsPage() {
     //reads route param from URL - if /my/plants/123 id will be 123
     const { id } = useParams();
+    const { token } = useAuth();
+    //convert to boolean
+    const isLoggedIn = !!token;
     //navigation
     const navigate = useNavigate();
+    const plantService = userPlantService(api);
     //stores current plant details
     const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //stores sensors connected to this plant
@@ -18,17 +23,21 @@ export default function MyPlantDetailsPage() {
     const [error, setError] = useState<string | null>(null);
     //remove for backend
     /*useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
         //dependency is [id] - if id plant changes it reloads
-        const fetchData = async () => {
+        const load = async () => {
+            try{
             //safeguard if url has no id
-            if (!id) return;
+                if (!id) return;
 
-            try {
                 //backend: GET /my/plants/:id
-                const plantData = await userPlantService.getById(id);
+                const plantData = await plantService.getById(id);
                 setPlant(plantData);
                 //backend: GET /my/plants/:id/sensors
-                const sensorData = await userPlantService.getSensors(id);
+                const sensorData = await plantService.getSensors(id);
                 setSensors(sensorData);
 
             } catch {
@@ -38,8 +47,8 @@ export default function MyPlantDetailsPage() {
             }
         };
 
-        fetchData();
-    }, [id]);*/
+        load();
+    }, [id, token, navigate]);*/
     //demo for fake local data
     useEffect(() => {
         const demoPlant: IUserPlantDTO = {
@@ -81,7 +90,7 @@ export default function MyPlantDetailsPage() {
             //checks id
             if (!id) return;
             //backend: DELETE /my/plants/:id/sensors/:sensorId
-            await userPlantService.deleteSensor(id, String(sensorId));
+            await plantService.deleteSensor(id, String(sensorId));
             //removes deleted sensor from page
             setSensors((prev) =>
                 prev.filter((s) => s.id !== sensorId)

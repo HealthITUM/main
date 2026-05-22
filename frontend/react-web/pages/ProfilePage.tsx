@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { userService } from "@project/frontend-shared";
+import { userService, useAuth } from "@project/frontend-shared";
 import type { IUserDTO} from "@project/shared";
 import { useNavigate } from "react-router-dom";
 import { api } from "../src/api";
@@ -11,10 +11,17 @@ export default function ProfilePage() {
   //navigacija
   const navigate = useNavigate();
 
+  const { token, logout } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+
   const service = userService(api);
-  
-  //runs once when component is mount
+  //if user is logged in
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     //fetch user
     const loadUser = async () => {
       try {
@@ -23,12 +30,17 @@ export default function ProfilePage() {
         setUser(data);
       } catch (err) {
         console.error("Error loading user:", err);
+        navigate("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadUser();
-    //runs only once when page loads
-  }, []);
+    //runs for token and navigation
+  }, [token, navigate]);
+
+  if (loading) return <p>Loading...</p>
 
   if (!user) {
     return (
@@ -43,14 +55,26 @@ export default function ProfilePage() {
     <div>
       <nav className="navbar navbar-dark dark-green-navbar px-4">
         <span className="navbar-brand fw-bold">PlantIT</span>
+        <div className="ms-auto">
+          <button
+            className="btn dark-green-btn"
+            onClick={() => navigate("/")}
+          >
+            Home
+          </button>
 
-        <button
-          className="btn dark-green-btn"
-          onClick={() => navigate("/")}
-        >
-          Home
-        </button>
+          <button
+            className="btn btn-danger"
+            onClick={async () => {
+              await logout();
+              navigate("/login");
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </nav>
+
 
       <div className="container mt-5">
         <div className="row justify-content-center">

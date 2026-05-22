@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { recipeService } from "@project/frontend-shared";
+import { recipeService, useAuth } from "@project/frontend-shared";
 import type { IRecipeDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
+import { api } from "../src/api";
 
 export const RecipesPage = () => {
     //list of recipes from backend
@@ -12,21 +13,20 @@ export const RecipesPage = () => {
 
     // const [timeFilter, setTimeFilter] = useState("");
     // const [dietFilter, setDietFilter] = useState<"none" | "vegan" | "vegetarian">("none");
-
+    const recipeApi = recipeService(api);
     //login check
-    const token = localStorage.getItem("token");
-    //boolean
-    const isLoggedIn = !!token;
+    const { token, logout } = useAuth();
+    
     //navigation
     const navigate = useNavigate();
-    /* remove for backend
+    /* remove for backend*/
     //fetch data
-    useEffect(() => {
+    /*useEffect(() => {
         //load page
         const fetchRecipes = async () => {
             try {
                 //API call: GET /recipes
-                const data = await recipeService.getAll();
+                const data = await recipeApi.getAll();
                 setRecipes(data);
             } catch {
                 setError("Failed to load recipes");
@@ -71,6 +71,9 @@ export const RecipesPage = () => {
     });
     //remove for backend
     //if (loading) return <p>Loading recipes...</p>;
+    if (!loading && filteredRecipes.length === 0) {
+        return <p>No recipes found.</p>;
+    }
 
     return (
         <div>
@@ -101,7 +104,7 @@ export const RecipesPage = () => {
                         </button>
 
                         <ul className="dropdown-menu dropdown-menu-end green-dropdown">
-                            {!isLoggedIn ? (
+                            {!token ? (
                                 <>
                                     <li>
                                         <button className="dropdown-item" onClick={() => navigate("/login")}>
@@ -124,8 +127,8 @@ export const RecipesPage = () => {
                                     <li>
                                         <button
                                             className="dropdown-item text-danger"
-                                            onClick={() => {
-                                                localStorage.removeItem("token");
+                                            onClick={async() => {
+                                                await logout();
                                                 navigate("/login");
                                             }}
                                         >

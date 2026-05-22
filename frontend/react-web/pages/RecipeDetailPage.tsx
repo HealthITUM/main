@@ -14,17 +14,27 @@ export const RecipeDetailPage = () => {
     //start as null, later full object type
     const [recipe, setRecipe] = useState<IRecipeDTO | null>(null);
     const [loading, setLoading] = useState(true);
+    //errors
+    const [error, setError] = useState<string | null>(null);
     //fetch data - when page loads, change of id
     useEffect(() => {
         const fetchRecipe = async () => {
             //safety check - prevents API call if URL has no id
-            if (!id) return;
+            if (!id) {
+                setError("Invalid recipe id");
+                setLoading(false);
+                return;
+            }
 
             try {
                 //request: GET /recipes/:id
                 const data = await recipeApi.getById(id);
                 setRecipe(data);
-            } finally {
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load recipe");
+                setRecipe(null);
+            }finally {
                 setLoading(false);
             }
         };
@@ -33,6 +43,7 @@ export const RecipeDetailPage = () => {
     }, [id]);
 
     if (loading) return <p>Loading...</p>;
+    if (error) return <p className="text-danger">{error}</p>;
     if (!recipe) return <p>Recipe not found</p>;
 
     return (

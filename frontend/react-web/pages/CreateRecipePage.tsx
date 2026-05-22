@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { userService, recipeService } from "@project/frontend-shared";
+import { userService, recipeService, useAuth } from "@project/frontend-shared";
 import { useNavigate } from "react-router-dom";
 import type { IIngredientHasRecipeDTO, IUserDTO } from "@project/shared";
 import { api } from "../src/api";
 
 const recipeApi = recipeService(api);
+const userApi = userService(api);
 
 export const CreateRecipePage = () => {
     const navigate = useNavigate();
 
     //const currentUser = { id: "user-123" };
     //logged in user - required for authorId
+    const { token } = useAuth();
     const [user, setUser] = useState<IUserDTO | null>(null);
-    const [loading, setLoading] = useState(true);
 
     const [errors, setErrors] = useState<string[]>([]);
     const [name, setName] = useState("");
@@ -30,6 +31,16 @@ export const CreateRecipePage = () => {
     // const [plantIds, setPlantIds] = useState<string[]>([]);
 
     const [ingredients, setIngredients] = useState<IIngredientHasRecipeDTO[]>([]);
+    //prevents image preview leaks
+    useEffect(() => {
+        const currentPreview = imagePreview;
+
+        return () => {
+            if (currentPreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     // const [dietType, setDietType] =
     //     useState<"none" | "vegan" | "vegetarian">("none");
@@ -50,26 +61,28 @@ export const CreateRecipePage = () => {
         );
     };
     */
-   /*remove for backend
+   /*remove for backend*/
     //load user - important
-    useEffect(() => {
+    /*useEffect(() => {
         const loadUser = async () => {
             try {
+                if (!token){
+                    setUser(null);
+                    navigate("/login");
+                    return;
+                }
                 //get logged in user
-                const me = await userService.getMe();
+                const me = await userApi.getMe();
                 setUser(me);
             } catch {
                 //logout - redirect to login
-                setUser(null);
-                localStorage.removeItem("token");
+                await logout();
                 navigate("/login");
-            } finally {
-                setLoading(false);
-            }
+            } 
         };
 
         loadUser();
-    }, [navigate]);*/
+    }, [navigate, token]);*/
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //get selected file
@@ -163,7 +176,10 @@ export const CreateRecipePage = () => {
             return;
         }
         //ensure user exist
-        if (!user) return;
+        if (!token || !user) {
+            navigate("/login");
+            return;
+        }
 
         setErrors([]);
         //sendind text fields and file upload - formData
@@ -185,9 +201,12 @@ export const CreateRecipePage = () => {
         // dietType,
         
         //multipart request
-        const newRecipe = await recipeApi.create(formData);
-
-        navigate(`/recipes/${newRecipe.id}`);
+        try {
+            const newRecipe = await recipeApi.create(formData);
+            navigate(`/recipes/${newRecipe.id}`);
+        } catch {
+            setErrors(["Failed to create recipe"]);
+        }
     };
     //remove for backend
     //if (loading) return <p>Loading...</p>;

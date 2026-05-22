@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { userService } from "@project/frontend-shared";
+import { userService, useAuth } from "@project/frontend-shared";
 import type { IUserLoginRequestDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 import { api } from "../src/api";
-
 //save data from input
 export default function LoginPage() {
     //navigation - example to home page
     const navigate = useNavigate();
+    const { login } = useAuth();
+
     const [form, setForm] = useState<IUserLoginRequestDTO>({
         username: "",
         email: "",
@@ -32,7 +33,7 @@ export default function LoginPage() {
             //request to backend - API call
             const res = await service.login(form);
             //save token
-            localStorage.setItem("token", res.token);
+            await login(res.token);
 
             navigate("/");
         }catch (err: any){

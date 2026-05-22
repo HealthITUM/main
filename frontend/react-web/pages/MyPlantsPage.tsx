@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { userPlantService } from "../../shared/services/userPlantsServices";
-import { userService } from "../../shared/services/userServices";
+import { userPlantService, userService, useAuth } from "@project/frontend-shared";
 import type { IUserDTO, IUserPlantDTO } from "@project/shared";
 import { api } from "../src/api";
 
@@ -12,7 +11,7 @@ export default function MyPlantsPage() {
     //navigation
     const navigate = useNavigate();
     //authentication check - gets JWT token from browser storage
-    const token = localStorage.getItem("token");
+    const { token, logout } = useAuth();
     //converts value to boolean
     //is logged in shows correct account menu
     const isLoggedIn = !!token;
@@ -31,6 +30,10 @@ export default function MyPlantsPage() {
     //remove for backend
     //runs after componend is rendered
     /*useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
         //async function to call backend
         const loadUser = async () => {
             try {
@@ -39,7 +42,7 @@ export default function MyPlantsPage() {
                 setUser(me);
             } catch {
                 //invalid token - expired, missing, unauthorized request
-                localStorage.removeItem("token");
+                logout();
                 navigate("/login");
             } finally {
                 //mark user check complete
@@ -48,10 +51,9 @@ export default function MyPlantsPage() {
         };
 
         loadUser();
-    }, [navigate]); //runs once when page loads - checks if token is valid, fetches user info*/
+    }, [navigate, service, service]); //runs once when page loads - checks if token is valid, fetches user info*/
     //for user changes
     /*useEffect(() => {
-        //if (!user) return;
         //async function to call backend
         const fetchPlants = async () => {
             try {
@@ -67,7 +69,8 @@ export default function MyPlantsPage() {
         };
 
         fetchPlants();
-    }, [user]); //runs whenever user changes*/
+    }, []); //runs when page is loaded*/
+
     //filtered array for search text - which plants
     const filteredPlants = plants.filter((plant) =>
         //if empty it shows all
@@ -133,8 +136,8 @@ export default function MyPlantsPage() {
                                 <li>
                                     <button
                                         className="dropdown-item text-danger"
-                                        onClick={() => {
-                                            localStorage.removeItem("token");
+                                        onClick={async() => {
+                                            await logout();
                                             navigate("/login");
                                         }}
                                     >

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { specieService, userPlantService } from "@project/frontend-shared";
+import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
 import { api } from "../src/api";
 
 const userPlant = userPlantService(api);
-const specie = specieService;
+const specie = specieService(api);
 
 export default function EditPlantPage() {
     //reads plant ID from URL - so /my/plants/123/edit - id is 123
@@ -14,10 +14,6 @@ export default function EditPlantPage() {
     const navigate = useNavigate();
     //plant name
     const [name, setName] = useState("");
-    //image file - uploaded, null because user does not need to upload a new one
-    const [image, setImage] = useState<File | null>(null);
-    //image url for preview
-    const [imagePreview, setImagePreview] = useState("");
     //species from backend
     const [species, setSpecies] = useState<ISpecieDTO[]>([]);
     //currently selected plant specie
@@ -26,20 +22,34 @@ export default function EditPlantPage() {
     const [errors, setErrors] = useState<string[]>([]);
     //true while saving changes
     const [loading, setLoading] = useState(false);
+
+    const [imagePreview, setImagePreview] = useState<string>("");
     //true while initial plant data is loading
     const [pageLoading, setPageLoading] = useState(true);
+
+    const { token } = useAuth();
     //remove for backend
-    /*
+    /*//is user logged in?
     useEffect(() => {
+        if (!token) {
+            navigate("/login");
+        }
+    }, [token, navigate]);*/
+    //remove for backend
+    
+    /*useEffect(() => {
         const load = async () => {
             //stops if route param is missing
-            if (!id) return;
+            if (!id) {
+                setPageLoading(false);
+                return;
+            }
 
             try {
                 //loads API requests - get species and plant details
                 const [speciesData, plantData] = await Promise.all([
                     specie.getAll(),
-                    userPlant.getById(id),
+                    userPlant.getById(String(id)),
                 ]);
                 //stores dropdown options
                 setSpecies(speciesData);
@@ -62,17 +72,6 @@ export default function EditPlantPage() {
 
         load();
     }, [id]); //if plant id changes it reloads*/
-
-    const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-        //gets selected file
-        const file = e.target.files?.[0];
-        //stops if user cancels file dialog
-        if (!file) return;
-        //stores image for backend upload
-        setImage(file);
-        //shows selected image in browser
-        setImagePreview(URL.createObjectURL(file));
-    };
 
     const validate = () => {
         //validation errors
@@ -99,15 +98,6 @@ export default function EditPlantPage() {
         //saving
         setLoading(true);
         setErrors([]);
-        //form because image upload is possible
-        const formData = new FormData();
-    
-        formData.append("name", name);
-        formData.append("plant_specie", String(selectedSpecie.id));
-        //if user does not upload a new one it keeps old one
-        if (image) {
-            formData.append("image", image);
-        }
 
         try {
             //updates API call: PATCH /my/plants/:id
@@ -161,25 +151,13 @@ export default function EditPlantPage() {
                         onChange={(e) => setName(e.target.value)}
                     />
 
-                    <div className="mb-3">
-                        <input
-                            type="file"
-                            className="form-control dark-green-input"
-                            onChange={handleImage}
+                    {imagePreview && (
+                        <img
+                            src={imagePreview}
+                            alt="preview"
+                            style={{ width: "100%", marginTop: "10px", borderRadius: "10px" }}
                         />
-
-                        {imagePreview && (
-                            <img
-                                src={imagePreview}
-                                alt="preview"
-                                style={{
-                                    width: "100%",
-                                    marginTop: "10px",
-                                    borderRadius: "10px",
-                                }}
-                            />
-                        )}
-                    </div>
+                    )}
 
                     <div className="mb-3">
                         <label className="form-label fw-bold text-white">

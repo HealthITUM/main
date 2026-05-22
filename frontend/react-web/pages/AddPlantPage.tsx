@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { specieService, userPlantService } from "@project/frontend-shared";
+import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
 import { api } from "../src/api";
 
@@ -24,6 +24,27 @@ export default function CreatePlantPage() {
     const [errors, setErrors] = useState<string[]>([]);
     //tracks create request - disable button while saving
     const [loading, setLoading] = useState(false);
+
+    const [speciesLoading, setSpeciesLoading] = useState(true);
+    //remove for backend
+    /*const { token } = useAuth();
+    //is user logged in?
+    useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+    }, [token, navigate]);*/
+    //prevents image preview leaks
+    useEffect(() => {
+        const currentPreview = imagePreview;
+
+        return () => {
+            if (currentPreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
     //remove for backend
     /*useEffect(() => {
         //loads species from backend
@@ -34,6 +55,8 @@ export default function CreatePlantPage() {
                 setSpecies(data);
             } catch {
                 setErrors(["Failed to load species"]);
+            } finally {
+                setSpeciesLoading(false);
             }
         };
 
@@ -123,7 +146,6 @@ export default function CreatePlantPage() {
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    {/* NAME */}
                     <input
                         className="form-control dark-green-input mb-3"
                         placeholder="Plant name"
@@ -156,6 +178,9 @@ export default function CreatePlantPage() {
                             Species
                         </label>
 
+                        {speciesLoading ? (
+                            <p>Loading species...</p>
+                        ) : (
                         <select
                             className="form-select dark-green-select"
                             value={selectedSpecie?.id || ""}
@@ -173,6 +198,7 @@ export default function CreatePlantPage() {
                                 </option>
                             ))}
                         </select>
+                        )}
                     </div>
 
                     <button

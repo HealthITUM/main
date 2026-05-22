@@ -14,7 +14,6 @@ import EditPlantPage from "../pages/EditPlantPage"
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -29,7 +28,6 @@ function App() {
         <Route path="/my/plants/:id/add-sensor" element={<AddSensorPage />} />
         <Route path="/my/plants/:id/edit" element={<EditPlantPage />} />
       </Routes>
-    </BrowserRouter>
   )
 }
 

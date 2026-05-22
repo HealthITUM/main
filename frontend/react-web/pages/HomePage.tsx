@@ -1,18 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@project/frontend-shared";
 
 export default function HomePage() {
     //navigation - redirect without page reload
     const navigate = useNavigate();
-
     //authentication check - get token - JWT from browser storage
-    const token = localStorage.getItem("token");
-    //converst to boolean - so if user is logged in its true, if no - false
-    const isLoggedIn = !!token;
+    const { token, logout } = useAuth();
 
     return (
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
-                <a className="navbar-brand fw-bold" href="#" >
+                <a className="navbar-brand fw-bold"
+                    onClick={() => navigate("/")}
+                    style={{ cursor: "pointer"}}>
                     PlantIT
                 </a>
 
@@ -26,7 +26,7 @@ export default function HomePage() {
                     </button>
 
                     <ul className="dropdown-menu dropdown-menu-end green-dropdown">
-                        {!isLoggedIn ? (
+                        {!token ? (
                             <>
                                 <li>
                                     <button
@@ -60,8 +60,8 @@ export default function HomePage() {
                                 <li>
                                     <button
                                         className="dropdown-item text-danger"
-                                        onClick={() => {
-                                            localStorage.removeItem("token");
+                                        onClick={async() => {
+                                            await logout();
                                             navigate("/login");
                                         }}
                                         >

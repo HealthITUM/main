@@ -19,7 +19,9 @@ export default function RegisterPage() {
     //errors - validation, API errors - UI
     const [error, setError] = useState("");
 
-    const service = userService(api);
+    const userApi = userService(api);
+
+    const [loading, setLoading] = useState(false);
     
     //runs when button is clicked
     const handleRegister = async () => {
@@ -50,14 +52,17 @@ export default function RegisterPage() {
             return;
         }
 
+        setLoading(true);
+
         try {
             //send request - API call -> POST /user/register
-            await service.register(form);
+            await userApi.register(form);
             navigate("/login");
         }catch (err: any){
             //show error
-            console.log("Register error:", err);
             setError(err?.response?.data?.message || "Registration failed");
+        }finally {
+            setLoading(false);
         }
     };
 
