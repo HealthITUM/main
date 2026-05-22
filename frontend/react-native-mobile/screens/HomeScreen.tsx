@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@project/frontend-shared/AuthContext";
 import { styles } from "../src/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 

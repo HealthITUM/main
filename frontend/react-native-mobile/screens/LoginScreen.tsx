@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { userService } from "@project/frontend-shared";
 import type { IUserLoginRequestDTO } from "@project/shared";
 import { api } from "../src/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@project/frontend-shared/AuthContext";
 import { styles } from "../src/styles";
 
 export const LoginScreen = ({ navigation }: any) => {
