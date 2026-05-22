@@ -1,21 +1,21 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { NavigationContainer } from "@react-navigation/native";
+import { AuthProvider } from "../context/AuthContext";
+import { AppStack } from "../navigation/AppStack";
+//decides what user should see based on login state
+function Router() {
+  const token = "test-token";
+  //const { token } = useAuth();
+
+  return <AppStack />;
+}
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Test-app</Text>
-      <StatusBar style="auto" />
-    </View>
+    <AuthProvider>
+      <NavigationContainer>
+        <Router />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

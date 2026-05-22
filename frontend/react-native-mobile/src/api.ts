@@ -2,8 +2,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL,
-    withCredentials: true
+    //for expo 
+    baseURL: process.env.EXPO_PUBLIC_API_URL
 });
 
 api.interceptors.request.use(async (config) => {
