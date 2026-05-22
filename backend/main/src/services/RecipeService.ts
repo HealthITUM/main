@@ -4,32 +4,24 @@ import { recipeRepository } from "../repositories/RecipeRepository.js";
 
 export class RecipeService {
     async getRecipes () : Promise<IRecipeDTO[] | null> {
-        // TODO
-
         const recipes = await recipeRepository.getRecipes(); 
 
         return recipes;
     }
 
-    async getRecipeById (id : number) : Promise<IRecipeDTO | null> {
-        // TODO
-        
+    async getRecipeById (id : number) : Promise<IRecipeDTO | null> {        
         const recipe = await recipeRepository.getById(id);
 
         return recipe;
     }
 
-    async create (data : IRecipeCreateModel) : Promise<boolean> {
-        // TODO
-        
+    async create (data : IRecipeCreateModel) : Promise<boolean> {        
         const response = await recipeRepository.create(data);
 
         return response;
     }
 
-    async delete (recipeId : number, userId : number) : Promise<boolean> {
-        // TODO
-        
+    async delete (recipeId : number, userId : number) : Promise<boolean> {        
         const response = await recipeRepository.delete(recipeId, userId);
 
         return response;

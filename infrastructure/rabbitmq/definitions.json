@@ -15,36 +15,36 @@
     "user": "monolith_svc",
     "vhost": "/",
     "configure": "",
-    "write": "^((scrapper\\.task|pdet\\.task|notif\\.data|amq\\.topic).*)$", 
-    "read": "^(scrapper\\.result|pdet\\.result|sensor\\.data).*"
+    "write": "^(amq\\.topic|scrapper\\.task.*|pdet\\.task.*|notif\\.data.*)$", 
+      "read": "^(amq\\.topic|scrapper\\.result.*|pdet\\.result.*|sensor\\.data.*)$"
   },
   {
     "user": "scrapper_svc",
     "vhost": "/",
     "configure": "",
-    "write": "^(scrapper\\.result.*|amq\\.topic)$",
-    "read": "^scrapper\\.task.*"
+    "write": "^(amq\\.topic|scrapper\\.result.*)$",
+    "read": "^(amq\\.topic|scrapper\\.task.*)$"
   },
   {
     "user": "pdet_svc",
     "vhost": "/",
     "configure": "",
-    "write": "^(pdet\\.result.*|amq\\.topic)$",
-    "read": "^pdet\\.task.*"
+    "write": "^(amq\\.topic|pdet\\.result.*)$",
+    "read": "^(amq\\.topic|pdet\\.task.*)$"
   },
   {
     "user": "sensor_svc",
     "vhost": "/",
     "configure": "",
-    "write": "^(sensor\\.data.*|amq\\.topic)$",
-    "read": "" 
+    "write": "^(amq\\.topic|sensor\\.data.*)$",
+    "read": ""
   },
   {
     "user": "notification_svc",
     "vhost": "/",
     "configure": "",
     "write": "",
-    "read": "^notif\\.data.*"
+    "read": "^(amq\\.topic|notif\\.data.*)$"
   }
   ],
   "exchanges": [
