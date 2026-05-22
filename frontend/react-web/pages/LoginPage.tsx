@@ -83,6 +83,15 @@ export default function LoginPage() {
                     onClick={handleLogin}>Login
                 </button>
 
+                <button
+                    type="button"
+                    className="btn w-100 mt-2"
+                    onClick={() => navigate("/")}
+                    style={{ backgroundColor: "#8aa08a", color: "white" }}
+                >
+                    Continue without login
+                </button>
+
                 <p className="text-center mt-3 mb-0">
                     Don’t have an account yet? {" "}
                     <span

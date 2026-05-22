@@ -130,6 +130,15 @@ export default function RegisterPage() {
                     Register
                 </button>
 
+                <button
+                    type="button"
+                    className="btn w-100 mt-2"
+                    onClick={() => navigate("/")}
+                    style={{ backgroundColor: "#8aa08a", color: "white" }}
+                >
+                    Continue without account
+                </button>
+
                 <p className="text-center mt-3 mb-0">
                     Already have an account?{" "}
                     <span
