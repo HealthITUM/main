@@ -1,5 +1,9 @@
 export interface IUserCreateModel {
     username: string;
     email: string;
-    password_hash: string;
+    passwordHash: string;
+}
+
+export interface IUser extends IUserCreateModel {
+    id: number;
 }

@@ -53,7 +53,7 @@ model UserPlants {
   imagePath         String
   fkUserId          Int
   fkPlantSpeciesId  Int
-  user              Users @relation(fields: [fkUserId], references: [id])
+  user              Users @relation(fields: [fkUserId], references: [id], onDelete: Cascade)
   plantSpecies      PlantSpecies @relation(fields: [fkPlantSpeciesId], references: [id], onDelete: Cascade)
   sensors           Sensors[]
   measurements      Measurements[]
