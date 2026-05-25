@@ -90,7 +90,7 @@ export const RecipesPage = () => {
                             className="btn dark-green-btn ms-3"
                             onClick={() => navigate("/")}
                         >
-                            ← Home
+                            Back
                         </button>
                     </div>
 

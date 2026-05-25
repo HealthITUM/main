@@ -99,7 +99,7 @@ export default function MyPlantsPage() {
                         className="btn dark-green-btn ms-3"
                         onClick={() => navigate("/")}
                     >
-                        ← Back
+                        Back
                     </button>
                 </div>
 

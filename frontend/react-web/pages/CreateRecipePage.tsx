@@ -228,7 +228,7 @@ export const CreateRecipePage = () => {
                     className="btn dark-green-btn mb-3"
                     onClick={() => navigate("/recipes")}
                 >
-                    ← Back
+                    Back
                 </button>
 
                 {errors.length > 0 && (

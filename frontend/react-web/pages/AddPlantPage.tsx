@@ -132,7 +132,7 @@ export default function CreatePlantPage() {
                     className="btn dark-green-btn mb-3"
                     onClick={() => navigate("/my/plants")}
                 >
-                    ← Back
+                    Back
                 </button>
 
                 {errors.length > 0 && (

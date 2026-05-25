@@ -127,7 +127,7 @@ export default function MyPlantDetailsPage() {
                         className="btn dark-green-btn ms-3"
                         onClick={() => navigate("/my/plants")}
                     >
-                        ← Back
+                        Back
                     </button>
                 </div>
             </nav>
