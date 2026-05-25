@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -38,7 +33,7 @@ model Recipes {
   description   String
   imagePath     String
   fkUserId      Int
-  author        Users   @relation(fields: [fkUserId], references: [id])
+  author        Users   @relation(fields: [fkUserId], references: [id], onDelete: Cascade)
   plantSpecies  PlantSpecies[]
   ingredients   Ingredients[]
 }
@@ -47,9 +42,9 @@ model Ingredients {
   id            Int @id @default(autoincrement())
   name          String
   unit          String
-  amount        Int
+  amount        Float
   fkRecipesId   Int
-  recepie       Recipes @relation(fields: [fkRecipesId], references: [id])
+  recepie       Recipes @relation(fields: [fkRecipesId], references: [id], onDelete: Cascade)
 }
 
 model UserPlants {
@@ -58,19 +53,18 @@ model UserPlants {
   imagePath         String
   fkUserId          Int
   fkPlantSpeciesId  Int
-  user              Users @relation(fields: [fkUserId], references: [id])
-  plantSpecies      PlantSpecies @relation(fields: [fkPlantSpeciesId], references: [id])
+  user              Users @relation(fields: [fkUserId], references: [id], onDelete: Cascade)
+  plantSpecies      PlantSpecies @relation(fields: [fkPlantSpeciesId], references: [id], onDelete: Cascade)
   sensors           Sensors[]
   measurements      Measurements[]
 }
 
 model Sensors {
   id              Int      @id @default(autoincrement())
-  internalChipId  Int      @unique
   lastSeen        DateTime @default(now())
   online          Boolean  @default(false)
   fkUserPlantsId  Int?
-  userPlants      UserPlants? @relation(fields: [fkUserPlantsId], references: [id])
+  userPlants      UserPlants? @relation(fields: [fkUserPlantsId], references: [id], onDelete: SetNull)
 }
 
 model Measurements {
@@ -78,5 +72,5 @@ model Measurements {
   values          Json
   timestamp       DateTime @default(now())
   fkUserPlantsId  Int
-  userPlants      UserPlants @relation(fields: [fkUserPlantsId], references: [id])
+  userPlants      UserPlants @relation(fields: [fkUserPlantsId], references: [id], onDelete: Cascade)
 }

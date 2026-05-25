@@ -13,6 +13,7 @@ export interface IUserPlantCreateRequestDTO {
     name: string;
     image: File;
 }
+
 // PATCH /my/plants/:id. Request.
 export interface IUserPlantUpdateRequestDTO 
     extends Partial<Omit<IUserPlantCreateRequestDTO, 'image'>> {}
@@ -20,7 +21,7 @@ export interface IUserPlantUpdateRequestDTO
 // SENSORS.
 export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
     id: number;
-    internal_chip_id: string;
+    userPlantId: number;
     last_seen: Date;
     online: boolean;
 }

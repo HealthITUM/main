@@ -40,7 +40,7 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
 
     try {
       const createData : IMeasurementCreateModel = {
-        internal_chip_id : data.internal_chip_id,
+        plantId : data.plantId,
         values : data.ideal_values,
         timestamp : data.timestamp
       };
