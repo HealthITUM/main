@@ -17,6 +17,12 @@ export interface IIngredientHasRecipeDTO {
 export interface IRecipeCreateRequestDTO {
     name: string;
     description: string;
-    ingredients: IIngredientHasRecipeDTO[];
+    ingredients: IIngredientHasRecipeCreateRequestDTO[];
     image: File;
+}
+
+export interface IIngredientHasRecipeCreateRequestDTO {
+    name: string;
+    unit: string;
+    amount: number;
 }

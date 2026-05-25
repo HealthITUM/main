@@ -13,6 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - DEBUG=appName:*
+      - DATABASE_URL=${DATABASE_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,6 +42,8 @@ services:
   minio:
     image: minio/minio:latest
     container_name: plantit_minio
+    hostname:
+      minio
     restart: always
     ports:
       - "9000:9000"
@@ -70,7 +73,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      mc alias set my_s3 http://plantit_minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc alias set my_s3 http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
       mc mb --ignore-existing my_s3/plants;
       mc mb --ignore-existing my_s3/recipes;
       mc mb --ignore-existing my_s3/species;

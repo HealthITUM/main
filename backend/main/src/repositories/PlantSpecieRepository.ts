@@ -1,6 +1,7 @@
-import { prisma } from "../lib/prisma.js";
 import type { ISpeciesDTO } from "@project/shared";
 import type { ISpecieCreateModel } from "../models/Species.ts";
+import { getPublicUrl } from "../configs/storage.config.js";
+import { prisma } from "../lib/prisma.js";
 
 export class PlantSpecieRepository {
     async getSpecies() : Promise<ISpeciesDTO[] | null>{
@@ -10,13 +11,13 @@ export class PlantSpecieRepository {
             return null;
         }
 
-        const plantSpecies: ISpeciesDTO[] = result.map((result) => {
+        const plantSpecies: ISpeciesDTO[] = result.map((item : typeof result[number]) => {
             return {
-                id: Number(result?.id),
-                name: String(result?.name),
-                description: String(result?.description),
-                ideal_values: (result?.idealValues as Record<string, any>) ?? {},
-                imageUrl: String(result?.imagePath)
+                id: Number(item?.id),
+                name: String(item?.name),
+                description: String(item?.description),
+                ideal_values: (item?.idealValues as Record<string, any>) ?? {},
+                imageUrl: getPublicUrl(String(item?.imagePath))
             };
         });
 
@@ -37,7 +38,7 @@ export class PlantSpecieRepository {
             name: String(result?.name),
             description: String(result?.description),
             ideal_values: (result?.idealValues as Record<string, any>) ?? {},
-            imageUrl: String(result?.imagePath)
+            imageUrl: getPublicUrl(String(result?.imagePath))
         }
         
         return plant_specie;

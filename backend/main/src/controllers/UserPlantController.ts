@@ -60,7 +60,12 @@ class UserPlantController {
                 return res.status(400).json({ message: "Error: Image file is required!" });
             }
 
-            const {plantSpecieId, name} = req.body as IUserPlantCreateRequestDTO;
+            const plantSpecieId = parseInt(String(req.body.plantSpecieId), 10);
+            const name = req.body.name;
+
+            if (isNaN(plantSpecieId)) {
+                return res.status(400).json({ message: "Error: plantSpecieId must be a valid number!" });
+            }
 
             if (!plantSpecieId || !name) {
                 return res.status(400).json({ message: "Error: Critical fields are empty!" });
@@ -111,18 +116,17 @@ class UserPlantController {
                 return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
             }
 
-            const { plantSpecieId, name } = req.body as IUserPlantUpdateRequestDTO;
+            const { name } = req.body as IUserPlantUpdateRequestDTO;
                         
             const updateData: IUserPlantUpdateModel = {
                 id : parsedId
             };
 
-            if (plantSpecieId) updateData.plantSpecieId = plantSpecieId;
-            if (name) updateData.name = name;
-
-            if (Object.keys(updateData).length === 0) {
+            if (!name) {
                 return res.status(400).json({ message: "Error: No data provided for update." });
             }
+
+            updateData.name = name;
 
             const response = await userPlantService.update(updateData, userId)
 
@@ -158,7 +162,7 @@ class UserPlantController {
                 return res.status(400).json({message : "Error: Could not delete user."});
             }
 
-            return res.status(200).json({ message : "Success: UserPlant created!"})
+            return res.status(200).json({ message : "Success: UserPlant deleted!"})
 
         }
         catch (error){

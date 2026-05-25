@@ -21,7 +21,7 @@ export class UserRepository {
         return user;
     }
 
-    async getByNickname(nickname : string) : Promise<IUserDTO | null>{
+    async getByNickname(nickname : string) : Promise<IUser | null>{
         const result = await prisma.users.findUnique({
             where: {
                 username: nickname
@@ -30,22 +30,23 @@ export class UserRepository {
 
         if (!result) return null;
 
-        const user: IUserDTO = {
+        const user: IUser = {
             id: Number(result.id),
             username: result.username,
-            email: result.email
+            email: result.email,
+            passwordHash: result.password
         }
 
         return user;
     }
 
-    async create(data : IUserRegisterRequestDTO) : Promise<boolean> {
+    async create(data : IUserCreateModel) : Promise<boolean> {
         try {
             const newUser = await prisma.users.create({
                 data: {
                     username: data.username,
                     email: data.email,
-                    password: data.password
+                    password: data.passwordHash
                 }
             });
     

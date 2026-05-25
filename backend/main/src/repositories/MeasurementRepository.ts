@@ -14,12 +14,12 @@ export class MeasurementRepository {
             return null;
         }
      
-        const measurements: IMeasurementDTO[] = result.map((result) => {
+        const measurements: IMeasurementDTO[] = result.map((item : typeof result[number]) => {
             return {
-                id: Number(result?.id),
-                values: (result?.values as Record<string, any>) ?? {},
-                timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
-                plantId: result?.fkUserPlantsId 
+                id: Number(item?.id),
+                values: (item?.values as Record<string, any>) ?? {},
+                timestamp: item?.timestamp ? new Date(item.timestamp) : new Date(),
+                plantId: item?.fkUserPlantsId 
             };
         });
         

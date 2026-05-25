@@ -10,12 +10,12 @@ export class SensorRepository {
 
         if (!result) return null;
 
-        const sensors: ISensorDTO[] = result.map((result) => {
+        const sensors: ISensorDTO[] = result.map((item : typeof result[number]) => {
             return {
-                id: Number(result.id),
-                userPlantId: Number(result.fkUserPlantsId),
-                last_seen: result.lastSeen,
-                online: result.online
+                id: Number(item.id),
+                userPlantId: Number(item.fkUserPlantsId),
+                last_seen: item.lastSeen,
+                online: item.online
             }
         });
 
