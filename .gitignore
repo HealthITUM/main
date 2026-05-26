@@ -10,3 +10,5 @@ node_modules
 # Prisma
 backend/main/prisma/migrations/
 backend/main/src/generated/prisma
+# Services
+go.sum
