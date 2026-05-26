@@ -1,5 +1,5 @@
 //import { api } from "../../react-web/src/api";
-import type { IRecipeDTO } from "@project/shared";
+import type { IRecipeDTO, IRecipeCreateRequestDTO } from "@project/shared";
 import type { AxiosInstance } from "axios";
 //exports object with all recipe related API functions
 export const recipeService = (api: AxiosInstance) => ({
@@ -20,32 +20,25 @@ export const recipeService = (api: AxiosInstance) => ({
     },
     //create a new recipe + image upload
     //form data because we have text fields and file uploads
-    create: async (data: FormData
+    create: async (data: IRecipeCreateRequestDTO
     ): Promise<IRecipeDTO> => {
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("image", data.image);
+
+        formData.append(
+            "ingredients",
+            JSON.stringify(data.ingredients)
+        );
         //POST /recipes
-        const response = await api.post<IRecipeDTO>("/recipes", data, {
+        const response = await api.post<IRecipeDTO>("/recipes", formData, {
             //multipart request
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
         //returns IRecipeDTO
-        return response.data;
-    },
-    //update existing recipe
-    //form data dor image as well
-    update: async (
-        id: string,
-        data: FormData
-    ): Promise<IRecipeDTO> => {
-        //PATCH /recipes/:id
-        const response = await api.patch<IRecipeDTO>(`/recipes/${id}`, data, {
-            //multipart request
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-
         return response.data;
     },
     //deletes a recipe
