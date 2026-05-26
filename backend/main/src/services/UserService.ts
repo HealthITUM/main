@@ -55,6 +55,12 @@ export class UserService {
     }
 
     async update (data : IUserUpdateRequestDTO) : Promise<boolean> {
+        if (data.password) {
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(data.password, salt);
+            data.password = passwordHash;
+        }
+        
         const response = await userRepository.update(data);
 
         return response;
