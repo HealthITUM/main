@@ -68,5 +68,6 @@ void readSensors() {
   Serial.print(" | P: "); Serial.print(pressureBars, 4);
   Serial.print(" | H: "); Serial.print(bme.readHumidity(), 4);
   Serial.print(" | S: "); Serial.println(moisturePercent);
-
 }
+
+
