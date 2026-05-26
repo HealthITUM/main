@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { recipeService, useAuth } from "@project/frontend-shared";
-import type { IRecipeDTO } from "@project/shared";
+import { recipeService, useAuth, userService } from "@project/frontend-shared";
+import type { IRecipeDTO, IUserDTO } from "@project/shared";
 import { useNavigate } from "react-router-dom";
 import { api } from "../src/api";
 
-export const RecipesPage = () => {
+const userApi = userService(api);
+
+export default function RecipesPage() {
     //list of recipes from backend
     const [recipes, setRecipes] = useState<IRecipeDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -16,6 +18,7 @@ export const RecipesPage = () => {
     const recipeApi = recipeService(api);
     //login check
     const { token, logout } = useAuth();
+    const [user, setUser] = useState<IUserDTO | null>(null);
     
     //navigation
     const navigate = useNavigate();
@@ -37,6 +40,76 @@ export const RecipesPage = () => {
 
         fetchRecipes();
     }, []);*/
+
+    // fake data for frontend demo
+    useEffect(() => {
+        const fakeRecipes: IRecipeDTO[] = [
+            {
+                id: 1,
+                name: "Tomato Soup",
+                description: "Classic creamy tomato soup",
+                authorId: 2,
+                imageUrl:
+                    "https://images.unsplash.com/photo-1547592180-85f173990554",
+                ingredients: [
+                    {
+                        id: 3,
+                        name: "tomato",
+                        unit: "pcs",
+                        amount: 5,
+                    },
+                    {
+                        id: 4,
+                        name: "garlic",
+                        unit: "clove",
+                        amount: 2,
+                    },
+                ],
+            },
+            {
+                id: 2,
+                name: "Avocado Toast",
+                description: "Quick breakfast option",
+                authorId: 3,
+                imageUrl:
+                    "https://images.unsplash.com/photo-1551183053-bf91a1d81141",
+                ingredients: [
+                    {
+                        id: 5,
+                        name: "avocado",
+                        unit: "pcs",
+                        amount: 1,
+                    },
+                    {
+                        id: 6,
+                        name: "bread",
+                        unit: "slice",
+                        amount: 2,
+                    },
+                ],
+            },
+        ];
+
+        setRecipes(fakeRecipes);
+        setLoading(false);
+    }, []);
+
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                //if user is not logged in it stops
+                if (!token) return;
+                //api request - gets user
+                const me = await userApi.getMe();
+                //stores in state
+                setUser(me);
+            } catch {
+                setUser(null);
+            }
+        };
+        loadUser();
+    }, [token]); //runs if token changes
+
     //filter logic - creates a filtered version of recipes
     const filteredRecipes = recipes.filter((recipe) => {
         const matchesIngredient =
@@ -69,11 +142,21 @@ export const RecipesPage = () => {
 
         return matchesIngredient;
     });
+
+    const handleDelete = async (recipeId: number) => {
+        try {
+            //api request for delete
+            await recipeApi.delete(String(recipeId));
+            //deletes local view
+            setRecipes((prev) =>
+                prev.filter((r) => r.id !== recipeId)
+            );
+        } catch {
+            setError("Failed to delete recipe");
+        }
+    };
     //remove for backend
     //if (loading) return <p>Loading recipes...</p>;
-    if (!loading && filteredRecipes.length === 0) {
-        return <p>No recipes found.</p>;
-    }
 
     return (
         <div>
@@ -90,7 +173,7 @@ export const RecipesPage = () => {
                             className="btn dark-green-btn ms-3"
                             onClick={() => navigate("/")}
                         >
-                            ← Home
+                            Back
                         </button>
                     </div>
 
@@ -99,6 +182,7 @@ export const RecipesPage = () => {
                             className="btn dark-green-btn dropdown-toggle"
                             type="button"
                             data-bs-toggle="dropdown"
+                            style={{ backgroundColor: "rgba(255,255,255,0.2)"}}
                         >
                             Account
                         </button>
@@ -224,37 +308,94 @@ export const RecipesPage = () => {
                 {filteredRecipes.map((recipe) => (
                     <div
                         key={recipe.id}
-                        className="border p-3 mb-3 rounded shadow-sm"
+                        className="shadow-sm dark-green-card p-3 mb-4"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate(`/recipes/${recipe.id}`)}
                     >
-
                         {recipe.imageUrl && (
                             <img
                                 src={recipe.imageUrl}
                                 alt={recipe.name}
                                 style={{
                                     width: "100%",
-                                    height: "200px",
+                                    height: "320px",
                                     objectFit: "cover",
                                     borderRadius: "8px",
-                                    marginBottom: "10px"
+                                    marginBottom: "10px",
                                 }}
                             />
                         )}
 
                         <h3
-                            onClick={() => navigate(`/recipes/${recipe.id}`)}
-                            style={{ cursor: "pointer" }}
+                            style={{
+                                fontSize: 30,
+                                fontWeight: 700,
+                            }}
                         >
                             {recipe.name}
                         </h3>
 
-                        <p>{recipe.description}</p>
-                        <small>Author: {recipe.authorId}</small>
+                        <div style={{ marginBottom: 10 }}>
+                            <div
+                                style={{
+                                    color: "#9fbf9f",
+                                    fontSize: 20,
+                                    fontWeight: 700,
+                                    marginBottom: 4,
+                                }}
+                            >
+                                DESCRIPTION
+                            </div>
+
+                            <div style={{ color: "white", fontSize: 18 }}>
+                                {recipe.description}
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: 10 }}>
+                            <div
+                                style={{
+                                    color: "#9fbf9f",
+                                    fontSize: 20,
+                                    fontWeight: 700,
+                                    marginBottom: 4,
+                                }}
+                            >
+                                AUTHOR ID
+                            </div>
+
+                            <div style={{ color: "white", fontSize: 18 }}>
+                                {recipe.authorId}
+                            </div>
+                        </div>
+                        <div className="d-flex justify-content-start gap-2 w-100 mb-3 mt-2">
+                           {/*
+                           {token && recipe.authorId === user?.id && ( */}
+                                <button
+                                    className="btn dark-green-btn"
+                                    style={{
+                                        backgroundColor: "#7A2E2E",
+                                        color: "white",
+                                        border: "none",
+                                        padding: "8px 12px",
+                                        borderRadius: 8,
+                                        fontWeight: 600,
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        if (!window.confirm("Delete this recipe?")) return;
+
+                                        handleDelete(recipe.id);
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                           {/* )} */}
+                        </div>
                     </div>
                 ))}
-
             </div>
-
         </div>
     );
 };

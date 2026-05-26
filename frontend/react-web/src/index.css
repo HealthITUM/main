@@ -96,6 +96,7 @@ button:focus-visible {
   background-color: #4B6043;
   color: white;
   transition: all 0.25s ease;
+  border-radius: 20px;
 }
 
 .dark-green-card h4 {

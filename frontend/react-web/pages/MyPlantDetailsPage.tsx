@@ -7,6 +7,7 @@ import { api } from "../src/api";
 export default function MyPlantDetailsPage() {
     //reads route param from URL - if /my/plants/123 id will be 123
     const { id } = useParams();
+    //gets token
     const { token } = useAuth();
     //convert to boolean
     const isLoggedIn = !!token;
@@ -63,13 +64,13 @@ export default function MyPlantDetailsPage() {
         const demoSensors: ISensorDTO[] = [
             {
                 id: 1,
-                internal_chip_id: "ESP32-001",
+                userPlantId: 123,
                 online: true,
                 last_seen: new Date(),
             },
             {
                 id: 2,
-                internal_chip_id: "ESP32-002",
+                userPlantId: 123,
                 online: false,
                 last_seen: new Date(),
             },
@@ -103,6 +104,7 @@ export default function MyPlantDetailsPage() {
     //demo - without API call - removes local state
     const handleDeleteSensor = (sensorId: number) => {
         setSensors((prev) =>
+            //removes local state
             prev.filter((s) => s.id !== sensorId)
         );
     };
@@ -114,7 +116,6 @@ export default function MyPlantDetailsPage() {
     return (
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
-                <div className="d-flex align-items-center">
                     <a
                         className="navbar-brand fw-bold"
                         onClick={() => navigate("/home")}
@@ -127,9 +128,8 @@ export default function MyPlantDetailsPage() {
                         className="btn dark-green-btn ms-3"
                         onClick={() => navigate("/my/plants")}
                     >
-                        ← Back
+                        Back
                     </button>
-                </div>
             </nav>
 
             <div className="container mt-4">
@@ -140,7 +140,7 @@ export default function MyPlantDetailsPage() {
                         alt={plant.name}
                         style={{
                             width: "100%",
-                            maxHeight: "400px",
+                            maxHeight: "320px",
                             objectFit: "cover",
                             borderRadius: "12px",
                             marginBottom: "20px",
@@ -150,16 +150,20 @@ export default function MyPlantDetailsPage() {
 
                 <div className="dark-green-card p-4 shadow-sm mb-4">
                     <div className="d-flex justify-content-between align-items-start">
-                        <div>
+                       <div>
                             <h1 className="fw-bold">{plant.name}</h1>
 
-                            <p>
-                                <strong>Species:</strong> {plant.plantSpecieId}
-                            </p>
+                            <div className="mt-3">
+                                <div className="text-uppercase" style={{ fontSize: "20px", color: "#9fbf9f", fontWeight: 700 }}>
+                                Species ID
+                                </div>
+                                <div className="mb-2">{plant.plantSpecieId}</div>
 
-                            <p>
-                                <strong>ID:</strong> {plant.id}
-                            </p>
+                                <div className="text-uppercase" style={{ fontSize: "20px", color: "#9fbf9f", fontWeight: 700 }}>
+                                Plant ID
+                                </div>
+                                <div>{plant.id}</div>
+                            </div>
                         </div>
 
                         <button
@@ -198,18 +202,30 @@ export default function MyPlantDetailsPage() {
                                 key={sensor.id}
                                 className="border p-3 rounded mb-2"
                             >
-                                <p className="mb-1">
-                                    <strong>Name:</strong>{" "}
-                                    {sensor.internal_chip_id}
-                                </p>
+                                <div>
+                                    <div className="text-uppercase" style={{ fontSize: "20px", color: "#9fbf9f", fontWeight: 700 }}>
+                                        PlantId:
+                                    </div>
+                                    <div className="mb-2">{sensor.userPlantId}</div>
 
-                                <p className="mb-2">
-                                    <strong>Status:</strong>{" "}
-                                    {sensor.online ? "Online" : "Offline"}
-                                </p>
+                                    <div className="text-uppercase" style={{ fontSize: "20px", color: "#9fbf9f", fontWeight: 700 }}>
+                                        Status
+                                    </div>
+                                    <div className="mb-2">
+                                        {sensor.online ? "Online" : "Offline"}
+                                    </div>
+                                </div>
 
                                 <button
-                                    className="btn btn-danger btn-sm"
+                                    className="btn btn-sm"
+                                    style={{
+                                        backgroundColor: "#7A2E2E",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "10px",
+                                        padding: "8px 14px",
+                                        fontWeight: 600,
+                                    }}
                                     onClick={() =>
                                         handleDeleteSensor(sensor.id)
                                     }

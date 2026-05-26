@@ -21,6 +21,7 @@ export default function HomePage() {
                         className="btn dark-green-btn dropdown-toggle"
                         type="button"
                         data-bs-toggle="dropdown"
+                        style={{ backgroundColor: "rgba(255,255,255,0.2)"}}
                         >
                         Account
                     </button>
@@ -113,11 +114,10 @@ export default function HomePage() {
                         PlantIT helps you care for your plants, discover recipes and stay connected with nature.
                     </p>
 
-                    <p className="fw-bold">
-                        Download PlantIT app:
-                        <br />
-                        <a href="#">Download PlantIT App</a>
-                    </p>
+                    <a href="https://plantit.com/download" target="_blank" rel="noreferrer"
+                        className="mb-3 d-inline-block text-decoration-underline">
+                        Download PlantIT App
+                    </a>
 
                     <p>
                         <span className="highlight-label">Support:</span>

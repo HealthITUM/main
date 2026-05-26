@@ -7,8 +7,9 @@ import { api } from "../src/api";
 export default function LoginPage() {
     //navigation - example to home page
     const navigate = useNavigate();
+    //gets login function
     const { login } = useAuth();
-
+    //form info
     const [form, setForm] = useState<IUserLoginRequestDTO>({
         username: "",
         email: "",
@@ -34,7 +35,6 @@ export default function LoginPage() {
             const res = await service.login(form);
             //save token
             await login(res.token);
-
             navigate("/");
         }catch (err: any){
             console.log("Login error:", err);

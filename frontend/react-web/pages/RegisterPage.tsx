@@ -18,9 +18,8 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     //errors - validation, API errors - UI
     const [error, setError] = useState("");
-
+    //api for user
     const userApi = userService(api);
-
     const [loading, setLoading] = useState(false);
     
     //runs when button is clicked

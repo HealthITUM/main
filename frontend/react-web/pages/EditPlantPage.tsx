@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
 import type { ISpecieDTO } from "@project/shared";
 import { api } from "../src/api";
-
+//api for user and specie
 const userPlant = userPlantService(api);
 const specie = specieService(api);
 
@@ -23,10 +23,9 @@ export default function EditPlantPage() {
     //true while saving changes
     const [loading, setLoading] = useState(false);
 
-    const [imagePreview, setImagePreview] = useState<string>("");
     //true while initial plant data is loading
     const [pageLoading, setPageLoading] = useState(true);
-
+    //gets token
     const { token } = useAuth();
     //remove for backend
     /*//is user logged in?
@@ -55,7 +54,6 @@ export default function EditPlantPage() {
                 setSpecies(speciesData);
                 //prefils with existing name and image
                 setName(plantData.name);
-                setImagePreview(plantData.imageUrl || "");
                 //for dropdows: finds selected specie with id
                 const foundSpecie = speciesData.find(
                     (s) => s.id === plantData.plantSpecieId
@@ -116,80 +114,88 @@ export default function EditPlantPage() {
     //if (pageLoading) return <p>Loading...</p>;
 
     return (
-        <div className="container mt-4 d-flex justify-content-center">
-            <div
-                className="dark-green-card p-4 shadow-lg w-100"
-                style={{ maxWidth: "800px" }}
-            >
-                <h1 className="text-center mb-4 fw-bold">
-                    Edit Plant
-                </h1>
+        <div>
+            <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
+                <a
+                    className="navbar-brand fw-bold"
+                    onClick={() => navigate("/home")}
+                    style={{ cursor: "pointer" }}
+                >
+                    PlantIT
+                </a>
 
                 <button
-                    type="button"
-                    className="btn dark-green-btn mb-3"
-                    onClick={() => navigate(`/my/plants/${id}`)}
+                    className="btn dark-green-btn ms-3"
+                    onClick={() => navigate(-1)}
                 >
-                    ← Back
+                    Back
                 </button>
+            </nav>
 
-                {errors.length > 0 && (
-                    <div className="alert alert-danger mb-3">
-                        <ul className="mb-0 list-unstyled">
-                            {errors.map((err, i) => (
-                                <li key={i}>{err}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+            <div className="container mt-4 d-flex justify-content-center">
+                <div
+                    className="dark-green-card p-4 shadow-lg w-100"
+                    style={{ maxWidth: "800px" }}
+                >
+                    <h1 className="text-center mb-4 fw-bold">
+                        Edit Plant
+                    </h1>
 
-                <form onSubmit={handleSubmit}>
-                    <input
-                        className="form-control dark-green-input mb-3"
-                        placeholder="Plant name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-
-                    {imagePreview && (
-                        <img
-                            src={imagePreview}
-                            alt="preview"
-                            style={{ width: "100%", marginTop: "10px", borderRadius: "10px" }}
-                        />
+                    {errors.length > 0 && (
+                        <div className="alert alert-danger mb-3">
+                            <ul className="mb-0 list-unstyled">
+                                {errors.map((err, i) => (
+                                    <li key={i}>{err}</li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
+                    
 
-                    <div className="mb-3">
+                    <form onSubmit={handleSubmit}>
                         <label className="form-label fw-bold text-white">
-                            Species
+                            Plant name
                         </label>
 
-                        <select
-                            className="form-select dark-green-select"
-                            value={selectedSpecie?.id || ""}
-                            onChange={(e) => {
-                                const found = species.find(
-                                    (s) => s.id === Number(e.target.value)
-                                );
-                                setSelectedSpecie(found || null);
-                            }}
-                        >
-                            <option value="">Select species</option>
-                            {species.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                        <input
+                            className="form-control dark-green-input mb-3"
+                            placeholder="Plant name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
 
-                    <button
-                        className="btn dark-green-btn w-100 mt-3"
-                        disabled={loading}
-                    >
-                        {loading ? "Saving..." : "Save Changes"}
-                    </button>
-                </form>
+                        <div className="mb-3">
+                            <label className="form-label fw-bold text-white">
+                                Species
+                            </label>
+
+                            <select
+                                className="form-select dark-green-select"
+                                value={selectedSpecie?.id || ""}
+                                onChange={(e) => {
+                                    const found = species.find(
+                                        (s) => s.id === Number(e.target.value)
+                                    );
+                                    setSelectedSpecie(found || null);
+                                }}
+                            >
+                                <option value="">Select species</option>
+                                {species.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <button
+                            className="btn dark-green-btn w-100 mt-3"
+                            disabled={loading}
+                        >
+                            {loading ? "Saving..." : "Save Changes"}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

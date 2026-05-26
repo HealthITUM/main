@@ -3,18 +3,19 @@ import { userService, recipeService, useAuth } from "@project/frontend-shared";
 import { useNavigate } from "react-router-dom";
 import type { IIngredientHasRecipeDTO, IUserDTO } from "@project/shared";
 import { api } from "../src/api";
-
+//api for recipe and user
 const recipeApi = recipeService(api);
 const userApi = userService(api);
 
-export const CreateRecipePage = () => {
+export default function CreateRecipePage() {
     const navigate = useNavigate();
 
     //const currentUser = { id: "user-123" };
+    //gets token and logout function
+    const { token, logout} = useAuth();
     //logged in user - required for authorId
-    const { token } = useAuth();
     const [user, setUser] = useState<IUserDTO | null>(null);
-
+    //validation, api errors
     const [errors, setErrors] = useState<string[]>([]);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -37,7 +38,7 @@ export const CreateRecipePage = () => {
 
         return () => {
             if (currentPreview) {
-                URL.revokeObjectURL(imagePreview);
+                URL.revokeObjectURL(currentPreview);
             }
         };
     }, [imagePreview]);
@@ -180,29 +181,26 @@ export const CreateRecipePage = () => {
             navigate("/login");
             return;
         }
+        //unsures image
+        if (!imageFile) {
+            setErrors(["Image is required"]);
+            return;
+        }
 
         setErrors([]);
-        //sendind text fields and file upload - formData
-        const formData = new FormData();
-
-        formData.append("name", name);
-        formData.append("description", description);
-        formData.append("authorId", String(user.id));
-        formData.append("ingredients", JSON.stringify(ingredients));
-
-         if (imageFile) {
-            formData.append("image", imageFile);
-        }
-        //authorId: currentUser.id,
-        // steps,
-        // prepTime: Number(prepTime),
-        // cookTime: Number(cookTime),
-        // plantIds,
-        // dietType,
         
         //multipart request
         try {
-            const newRecipe = await recipeApi.create(formData);
+            const newRecipe = await recipeApi.create({
+                name,
+                description,
+                ingredients: ingredients.map((i) => ({
+                    name: i.name,
+                    unit: i.unit,
+                    amount: i.amount,
+                })),
+                image: imageFile,
+            });
             navigate(`/recipes/${newRecipe.id}`);
         } catch {
             setErrors(["Failed to create recipe"]);
@@ -213,169 +211,183 @@ export const CreateRecipePage = () => {
     //if (!user) return null;
 
     return (
-        <div className="container mt-4 d-flex justify-content-center">
-            <div
-                className="dark-green-card p-4 shadow-lg w-100"
-                style={{ maxWidth: "800px" }}
-            >
+        <div>
+            <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
+                <div className="d-flex align-items-center justify-content-between w-100">
+                    
+                    <a
+                        className="navbar-brand fw-bold"
+                        onClick={() => navigate("/home")}
+                        style={{ cursor: "pointer" }}
+                    >
+                        PlantIT
+                    </a>
 
-                <h1 className="text-center mb-4 fw-bold">
-                    Add Recipe
-                </h1>
-
-                <button
-                    type="button"
-                    className="btn dark-green-btn mb-3"
-                    onClick={() => navigate("/recipes")}
-                >
-                    ← Back
-                </button>
-
-                {errors.length > 0 && (
-                    <div className="alert alert-danger mb-3">
-                        <ul className="mb-0">
-                            {errors.map((err, i) => (
-                                <li key={i}>{err}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
-
-                    <input
-                        className="form-control dark-green-input mb-3"
-                        placeholder="Recipe name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-
-                    <textarea
-                        className="form-control dark-green-textarea mb-3"
-                        placeholder="Description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-
-                    <div className="mb-3">
-                        <input
-                            type="file"
-                            className="form-control dark-green-input"
-                            onChange={handleImage}
-                        />
-
-                        {imagePreview && (
-                            <img
-                                src={imagePreview}
-                                alt="preview"
-                                style={{
-                                    width: "100%",
-                                    marginTop: "10px",
-                                    borderRadius: "10px"
-                                }}
-                            />
-                        )}
-                    </div>
-
-                    {/*
-                    <div className="mb-3">
-                        <label className="form-label fw-bold text-white">
-                            Diet type
-                        </label>
-
-                        <select ...>
-                            ...
-                        </select>
-                    </div>
-                    */}
-
-                    {/*
-                    <div className="mb-3">
-                        <label className="form-label fw-bold text-white">
-                            Select plants
-                        </label>
-                        ...
-                    </div>
-                    */}
-
-                    {/*
-                    <div className="row mb-3">
-                        <input type="number" placeholder="Prep time" />
-                        <input type="number" placeholder="Cook time" />
-                    </div>
-                    */}
-
-                    <div className="mb-3">
-                        <label className="form-label fw-bold text-white">
-                            Ingredients
-                        </label>
-
-                        {ingredients.map((ing, index) => (
-                            <div key={ing.id} className="d-flex gap-2 mb-2">
-
-                                <input
-                                    className="form-control dark-green-input"
-                                    placeholder="Name"
-                                    value={ing.name}
-                                    onChange={(e) =>
-                                        updateIngredient(index, "name", e.target.value)
-                                    }
-                                />
-
-                                <input
-                                    className="form-control dark-green-input"
-                                    type="number"
-                                    value={ing.amount}
-                                    onChange={(e) =>
-                                        updateIngredient(index, "amount", Number(e.target.value))
-                                    }
-                                />
-
-                                <select
-                                    className="form-select dark-green-select"
-                                    value={ing.unit}
-                                    onChange={(e) =>
-                                        updateIngredient(index, "unit", e.target.value)
-                                    }
-                                >
-                                    <option value="pcs">pcs</option>
-                                    <option value="g">g</option>
-                                    <option value="ml">ml</option>
-                                </select>
-
-                                <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    onClick={() => removeIngredient(index)}
-                                >
-                                    X
-                                </button>
-                            </div>
-                        ))}
-
-                        <button
-                            type="button"
-                            className="btn dark-green-btn ms-4"
-                            onClick={addIngredient}
-                        >
-                            + Add ingredient
-                        </button>
-                    </div>
-
-                    {/*
-                    <div className="mb-3">
-                        <label className="form-label fw-bold text-white">
-                            Steps
-                        </label>
-                        ...
-                    </div>
-                    */}
-
-                    <button className="btn dark-green-btn w-100 mt-3">
-                        Create Recipe
+                    <button
+                        className="btn dark-green-btn"
+                        onClick={() => navigate("/recipes")}
+                    >
+                        Back
                     </button>
 
-                </form>
+                </div>
+            </nav>
+
+            <div className="container mt-4 d-flex justify-content-center">
+                <div
+                    className="dark-green-card p-4 shadow-lg w-100"
+                    style={{ maxWidth: "800px" }}
+                >
+
+                    <h1 className="text-center mb-4 fw-bold">
+                        Add Recipe
+                    </h1>
+
+                    {errors.length > 0 && (
+                        <div className="alert alert-danger mb-3">
+                            <ul className="mb-0">
+                                {errors.map((err, i) => (
+                                    <li key={i}>{err}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+
+                        <input
+                            className="form-control dark-green-input mb-3"
+                            placeholder="Recipe name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+
+                        <textarea
+                            className="form-control dark-green-textarea mb-3"
+                            placeholder="Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+
+                        <div className="mb-3">
+                            <input
+                                type="file"
+                                className="form-control dark-green-input"
+                                onChange={handleImage}
+                            />
+
+                            {imagePreview && (
+                                <img
+                                    src={imagePreview}
+                                    alt="preview"
+                                    style={{
+                                        width: "100%",
+                                        marginTop: "10px",
+                                        borderRadius: "10px"
+                                    }}
+                                />
+                            )}
+                        </div>
+
+                        {/*
+                        <div className="mb-3">
+                            <label className="form-label fw-bold text-white">
+                                Diet type
+                            </label>
+
+                            <select ...>
+                                ...
+                            </select>
+                        </div>
+                        */}
+
+                        {/*
+                        <div className="mb-3">
+                            <label className="form-label fw-bold text-white">
+                                Select plants
+                            </label>
+                            ...
+                        </div>
+                        */}
+
+                        {/*
+                        <div className="row mb-3">
+                            <input type="number" placeholder="Prep time" />
+                            <input type="number" placeholder="Cook time" />
+                        </div>
+                        */}
+
+                        <div className="mb-3">
+                            <label className="form-label fw-bold text-white">
+                                Ingredients
+                            </label>
+
+                            {ingredients.map((ing, index) => (
+                                <div key={ing.id} className="d-flex gap-2 mb-2">
+
+                                    <input
+                                        className="form-control dark-green-input"
+                                        placeholder="Name"
+                                        value={ing.name}
+                                        onChange={(e) =>
+                                            updateIngredient(index, "name", e.target.value)
+                                        }
+                                    />
+
+                                    <input
+                                        className="form-control dark-green-input"
+                                        type="number"
+                                        value={ing.amount}
+                                        onChange={(e) =>
+                                            updateIngredient(index, "amount", Number(e.target.value))
+                                        }
+                                    />
+
+                                    <select
+                                        className="form-select dark-green-select"
+                                        value={ing.unit}
+                                        onChange={(e) =>
+                                            updateIngredient(index, "unit", e.target.value)
+                                        }
+                                    >
+                                        <option value="pcs">pcs</option>
+                                        <option value="g">g</option>
+                                        <option value="ml">ml</option>
+                                    </select>
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger"
+                                        onClick={() => removeIngredient(index)}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                type="button"
+                                className="btn dark-green-btn ms-4"
+                                onClick={addIngredient}
+                            >
+                                + Add ingredient
+                            </button>
+                        </div>
+
+                        {/*
+                        <div className="mb-3">
+                            <label className="form-label fw-bold text-white">
+                                Steps
+                            </label>
+                            ...
+                        </div>
+                        */}
+
+                        <button className="btn dark-green-btn w-100 mt-3">
+                            Create Recipe
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

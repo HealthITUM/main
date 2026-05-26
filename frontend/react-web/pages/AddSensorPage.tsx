@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { userPlantService, useAuth } from "@project/frontend-shared";
 import type { IUserPlantDTO } from "@project/shared";
 import { api } from "../src/api";
-
+//creates api for user
 const userPlant = userPlantService(api);
 
 export default function AddSensorPage() {
@@ -11,7 +11,7 @@ export default function AddSensorPage() {
     const { id } = useParams();
     //navigation
     const navigate = useNavigate();
-
+    //gets token
     const { token } = useAuth();
     //plants fetched from backend
     //const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
@@ -94,39 +94,51 @@ export default function AddSensorPage() {
     //if (error) return <p className="text-danger">{error}</p>;
     //if (!plant) return <p>Plant not found</p>;
 
-    return (
-        <div className="container mt-4 d-flex justify-content-center">
-            <div className="dark-green-card p-4 shadow-lg w-100" style={{ maxWidth: "700px" }}>
-
-                <h2 className="fw-bold mb-3">
-                    Add Sensor
-                </h2>
-
-                <p className="mb-3">
-                    Plant: <strong>{plant.name}</strong>
-                </p>
-
-                <input
-                    className="form-control dark-green-input mb-3"
-                    placeholder="Sensor name"
-                    value={sensorName}
-                    onChange={(e) => setSensorName(e.target.value)}
-                />
-
-                <button
-                    className="btn dark-green-btn w-100"
-                    onClick={handleCreateSensor}
-                    disabled={saving}
+   return (
+        <div>
+            <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
+                <a
+                    className="navbar-brand fw-bold"
+                    onClick={() => navigate("/home")}
+                    style={{ cursor: "pointer" }}
                 >
-                    {saving ? "Adding sensor..." : "+ Add Sensor"}
-                </button>
+                    PlantIT
+                </a>
 
                 <button
-                    className="btn btn-secondary w-100 mt-2"
+                    className="btn dark-green-btn ms-3"
                     onClick={() => navigate(`/my/plants/${id}`)}
                 >
-                    Cancel
+                    Back
                 </button>
+            </nav>
+
+            <div className="container mt-4">
+                <div className="dark-green-card p-4 shadow-lg w-100" style={{ maxWidth: "700px" }}>
+
+                    <h2 className="fw-bold mb-3">
+                        Add Sensor
+                    </h2>
+
+                    <p className="mb-3">
+                        <strong>Plant:</strong> {plant.name}
+                    </p>
+
+                    <input
+                        className="form-control dark-green-input mb-3"
+                        placeholder="Sensor name"
+                        value={sensorName}
+                        onChange={(e) => setSensorName(e.target.value)}
+                    />
+
+                    <button
+                        className="btn dark-green-btn w-100"
+                        onClick={handleCreateSensor}
+                        disabled={saving}
+                    >
+                        {saving ? "Adding sensor..." : "+ Add Sensor"}
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,16 +1,17 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 import HomePage from "../pages/HomePage";
-import { RecipesPage } from "../pages/RecipesPage";
-import { RecipeDetailPage } from "../pages/RecipeDetailPage";
-import { CreateRecipePage } from "../pages/CreateRecipePage";
+import RecipesPage from "../pages/RecipesPage";
+import RecipeDetailPage from "../pages/RecipeDetailPage";
+import CreateRecipePage from "../pages/CreateRecipePage";
 import MyPlantsPage from "../pages/MyPlantsPage";
 import MyPlantDetailsPage from "../pages/MyPlantDetailsPage";
-import AddPlantPage from "../pages/AddPlantPage"
-import AddSensorPage from "../pages/AddSensorPage"
-import EditPlantPage from "../pages/EditPlantPage"
+import AddPlantPage from "../pages/AddPlantPage";
+import AddSensorPage from "../pages/AddSensorPage";
+import EditPlantPage from "../pages/EditPlantPage";
+import EditProfilePage from "../pages/EditProfilePage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/my/plants/add" element={<AddPlantPage />} />
         <Route path="/my/plants/:id/add-sensor" element={<AddSensorPage />} />
         <Route path="/my/plants/:id/edit" element={<EditPlantPage />} />
+        <Route path="/profile/edit" element={<EditProfilePage />} />
       </Routes>
   )
 }
