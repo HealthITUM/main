@@ -24,11 +24,17 @@ export interface IRecipeCreateRequestDTO {
     name: string;
     description: string;
     //authorId: string;
-    ingredients: IIngredientHasRecipeDTO[];
+    ingredients: IIngredientHasRecipeCreateRequestDTO[];
     //prepTime: number;
     //cookTime: number;
     //plantIds: string[];
     image: File;
     //steps: string[];
     //dietType: DietType;
+}
+
+export interface IIngredientHasRecipeCreateRequestDTO {
+    name: string;
+    unit: string;
+    amount: number;
 }

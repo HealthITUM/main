@@ -22,7 +22,7 @@ export interface IUserPlantUpdateRequestDTO
 // SENSORS.
 export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
     id: number;
-    internal_chip_id: string;
+    userPlantId: number;
     last_seen: Date;
     online: boolean;
 }
