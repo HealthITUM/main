@@ -193,7 +193,10 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
                                 marginBottom: 10,
                             }}
                         >
-                            Plant: {plant.name}
+                            <Text style={{ fontWeight: "800" }}>
+                                Plant:
+                            </Text>{" "}
+                            {plant.name}
                         </Text>
 
                         <TextInput

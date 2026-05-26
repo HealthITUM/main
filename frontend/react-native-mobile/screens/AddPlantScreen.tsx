@@ -57,6 +57,7 @@ export const AddPlantScreen = ({ navigation }: any) => {
         const result = await ImagePicker.launchImageLibraryAsync({
             //images only
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
             //highest quality
             quality: 1,
         });
@@ -206,7 +207,7 @@ export const AddPlantScreen = ({ navigation }: any) => {
                         />
                     ) : null}
 
-                    <Text style={{ color: "white", marginBottom: 5 }}>
+                    <Text style={{ color: "white", marginBottom: 5, fontWeight: "800" }}>
                         Species
                     </Text>
 

@@ -117,7 +117,7 @@ export const LoginScreen = ({ navigation }: any) => {
                                     left: 20,
                                     right: 20,
                                     marginTop: 40,
-                                    backgroundColor: "#7A2E2E",
+                                    backgroundColor: "#ff6b6b",
                                     padding: 12,
                                     borderRadius: 10,
                                     zIndex: 999,

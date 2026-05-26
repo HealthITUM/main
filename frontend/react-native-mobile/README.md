@@ -236,3 +236,36 @@ Example:
     navigation.navigate("PlantDetails", {
     id: item.id,
 });
+
+6. RECIPES
+Get All: fetches all recipes
+    - endpoint: GET /recipe
+    Returns: IRecipeDTO[]
+Flow: screen loads and api request is made. Data is stored in state.
+Example:
+    const data = await recipeApi.getAll();
+    setRecipes(data);
+
+GetById(id): fetches single recipe by ID
+    - Endpoint: GET /recipes/:id
+    Returns: IRecipeDTO
+Flow: user opens details screen, api request fetches recipes and UI renders result.
+Example: const recipe = await recipeApi.getById(id);
+
+Create(data): Creates a new recipe (supports image upload).
+    - Endpoint: POST /recipes
+    - Uses: multipart/form-data
+    Returns: IRecipeDTO
+Flow: user fills form, validation is run and form data is created. API request is sent and user is redirected to details.
+Example: await recipeApi.create({
+            name,
+            description,
+            ingredients,
+            image,
+            });
+
+Delete(id): Deletes a recipe.
+    - Endpoint: DELETE /recipes/:id
+    Returns: void
+Flow: User confirms deletion, API call is executed and local state is updated.
+Example: await recipeApi.delete(id);

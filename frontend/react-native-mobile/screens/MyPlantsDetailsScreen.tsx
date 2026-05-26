@@ -71,13 +71,13 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
         const demoSensors: ISensorDTO[] = [
             {
                 id: 1,
-                internal_chip_id: "ESP32-001",
+                userPlantId: 123,
                 online: true,
                 last_seen: new Date(),
             },
             {
                 id: 2,
-                internal_chip_id: "ESP32-002",
+                userPlantId: 123,
                 online: false,
                 last_seen: new Date(),
             },
@@ -125,7 +125,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
         );
     }
 
-    return (
+   return (
         <SafeAreaView style={styles.appContainer}>
 
             <View
@@ -168,16 +168,39 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                 )}
 
                 <View style={styles.darkGreenCard}>
-                    <Text style={[styles.title, { marginBottom: 10 }]}>
+                    <Text style={[styles.title, { marginBottom: 10, fontSize: 30 }]}>
                         {plant.name}
                     </Text>
 
-                    <Text style={styles.baseText}>
-                        Species ID: {plant.plantSpecieId}
+                    <Text
+                        style={{
+                            color: "#9fbf9f",
+                            fontSize: 15,
+                            marginBottom: 4,
+                            fontWeight: "700",
+                        }}
+                    >
+                        SPECIES ID
                     </Text>
 
-                    <Text style={styles.baseText}>
-                        ID: {plant.id}
+                    <Text style={[styles.baseText, { fontSize: 15 }]}>
+                        {plant.plantSpecieId}
+                    </Text>
+
+                    <Text
+                        style={{
+                            color: "#9fbf9f",
+                            fontSize: 15,
+                            marginTop: 10,
+                            marginBottom: 4,
+                            fontWeight: "700",
+                        }}
+                    >
+                        PLANT ID
+                    </Text>
+
+                    <Text style={[styles.baseText, { fontSize: 15 }]}>
+                        {plant.id}
                     </Text>
 
                     <TouchableOpacity
@@ -192,21 +215,17 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                     </TouchableOpacity>
                 </View>
 
-                <View
-                    style={[
-                        styles.darkGreenCard,
-                        { marginTop: 15 },
-                    ]}
-                >
+                <View style={[styles.darkGreenCard, { marginTop: 15 }]}>
+
                     <View
                         style={{
                             flexDirection: "row",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: 10,
+                            marginBottom: 15,
                         }}
                     >
-                        <Text style={styles.darkGreenCardTitle}>
+                        <Text style={[styles.darkGreenCardTitle, { fontSize: 20 }]}>
                             Sensors
                         </Text>
 
@@ -215,7 +234,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                             onPress={handleAddSensor}
                         >
                             <Text style={styles.darkGreenButtonText}>
-                                + Add
+                                + Add Sensor
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -236,12 +255,34 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                                     marginBottom: 10,
                                 }}
                             >
-                                <Text style={styles.baseText}>
-                                    Name: {sensor.internal_chip_id}
+                                <Text
+                                    style={{
+                                        color: "#9fbf9f",
+                                        fontSize: 15,
+                                        marginBottom: 4,
+                                        fontWeight: "700",
+                                    }}
+                                >
+                                    PLANT ID
                                 </Text>
 
                                 <Text style={styles.baseText}>
-                                    Status:{" "}
+                                    {sensor.userPlantId}
+                                </Text>
+
+                                <Text
+                                    style={{
+                                        color: "#9fbf9f",
+                                        fontSize: 15,
+                                        marginTop: 10,
+                                        marginBottom: 4,
+                                        fontWeight: "700",
+                                    }}
+                                >
+                                    STATUS
+                                </Text>
+
+                                <Text style={styles.baseText}>
                                     {sensor.online ? "Online" : "Offline"}
                                 </Text>
 
@@ -253,9 +294,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                                             backgroundColor: "#7A2E2E",
                                         },
                                     ]}
-                                    onPress={() =>
-                                        handleDeleteSensor(sensor.id)
-                                    }
+                                    onPress={() => handleDeleteSensor(sensor.id)}
                                 >
                                     <Text style={styles.darkGreenButtonText}>
                                         Delete sensor
@@ -265,6 +304,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                         ))
                     )}
                 </View>
+
             </ScrollView>
         </SafeAreaView>
     );

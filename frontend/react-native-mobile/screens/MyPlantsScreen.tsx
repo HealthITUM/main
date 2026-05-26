@@ -52,8 +52,24 @@ export const MyPlantsScreen = ({ navigation }: any) => {
         };
         loadUser();
     }, []);*/ //loads when page is opened
+    //fake data
+    useEffect(() => {
+        const fakePlants: IUserPlantDTO[] = [
+            {
+                id: 1,
+                name: "Monstera Deliciosa",
+                imageUrl:
+                    "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+                plantSpecieId: 101,
+            },
+        ];
 
-    //load plants
+        setPlants(fakePlants);
+        setLoadingPlants(false);
+    }, []);
+
+    //remove for backend
+    /*//load plants
     useEffect(() => {
         const fetchPlants = async () => {
             try {
@@ -68,7 +84,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
             }
         };
         fetchPlants();
-    }, []); //runs when page is opened
+    }, []); //runs when page is opened*/
 
     //filter
     const filteredPlants = plants.filter((plant) =>
@@ -155,24 +171,6 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                     </Text>
                     </TouchableOpacity>
                 </View>
-                
-                <TouchableOpacity
-                    style={[
-                        styles.darkGreenButton,
-                        {
-                            backgroundColor: "#658354",
-                        },
-                    ]}
-                    onPress={() =>
-                        navigation.navigate("PlantDetails", {
-                            id: 123, // fake ID for test, this button only for test
-                        })
-                    }
-                >
-                    <Text style={styles.darkGreenButtonText}>
-                        Details
-                    </Text>
-                </TouchableOpacity>
 
                 <View style={{ position: "relative" }}>
                     <TouchableOpacity
@@ -239,7 +237,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                                 navigation.navigate("Login");
                             }}
                             >
-                            <Text style={[styles.dropdownText, { color: "#b23b3b" }]}>
+                            <Text style={[styles.dropdownText, { color: "#7A2E2E" }]}>
                                 Logout
                             </Text>
                             </TouchableOpacity>
@@ -328,11 +326,11 @@ export const MyPlantsScreen = ({ navigation }: any) => {
 
                         </View>
 
-                        {error ? (
+                        {!!error && (
                             <View
                                 style={{
                                     backgroundColor:
-                                        "#7A2E2E",
+                                        "#ff6b6b",
                                     padding: 12,
                                     borderRadius: 10,
                                     marginBottom: 20,
@@ -347,7 +345,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                                     {error}
                                 </Text>
                             </View>
-                        ) : null}
+                        )}
 
                     </>
                 }
@@ -384,25 +382,24 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                             />
                         ) : null}
 
-                        <TouchableOpacity
-                            onPress={() =>
-                                navigation.navigate("PlantDetails", {
-                                    id: item.id,
-                                })
-                            }
-                        >
                             <Text
-                                style={[
-                                    styles.darkGreenCardTitle,
-                                    { textDecorationLine: "underline" },
-                                ]}
+                                style={[ styles.darkGreenCardTitle, { fontSize: 30 } ]}
                             >
                                 {item.name}
                             </Text>
-                        </TouchableOpacity>
 
-                        <Text style={styles.baseText}>
-                            Species ID:{" "}
+                        <Text
+                            style={{
+                                color: "#9fbf9f",
+                                fontSize: 18,
+                                marginBottom: 4,
+                                fontWeight: "700",
+                            }}
+                        >
+                            SPECIES ID
+                        </Text>
+
+                        <Text style={[styles.baseText, { fontSize: 15 }]}>
                             {item.plantSpecieId}
                         </Text>
 

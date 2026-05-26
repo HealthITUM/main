@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@project/frontend-shared/AuthContext";
 import { styles } from "../src/styles";
@@ -33,6 +33,17 @@ export const HomeScreen = ({ navigation }: any) => {
                     PlantIT
                 </Text>
 
+                <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+                
+                <TouchableOpacity
+                    style={styles.profileButton}
+                    onPress={() => navigation.navigate("Profile")}
+                >
+                    <Text style={styles.profileButtonText}>
+                        Profile
+                    </Text>
+                </TouchableOpacity>
+
                 <View style={{ position: "relative" }}>
                     <TouchableOpacity
                         style={styles.profileButton}
@@ -42,6 +53,7 @@ export const HomeScreen = ({ navigation }: any) => {
                             Account
                         </Text>
                     </TouchableOpacity>
+                </View>
 
                     {menuVisible && (
                         <View
@@ -106,7 +118,7 @@ export const HomeScreen = ({ navigation }: any) => {
                                         <Text
                                             style={[
                                                 styles.dropdownText,
-                                                { color: "#b23b3b" },
+                                                { color: "#7A2E2E" },
                                             ]}
                                         >
                                             Logout
@@ -119,7 +131,6 @@ export const HomeScreen = ({ navigation }: any) => {
                 </View>
             </View>
 
-            {/* CONTENT */}
             <ScrollView
                 style={{ flex: 1 }}
                 contentContainerStyle={{ paddingBottom: 40 }}
@@ -202,37 +213,53 @@ export const HomeScreen = ({ navigation }: any) => {
                 </View>
 
                 <View style={{ padding: 20 }}>
-                    <View style={styles.lighterCard}>
-                        <Text style={styles.lighterCardTitle}>
+                    <View style={[styles.darkGreenCard, { backgroundColor: "#A3C585" }]}>
+                        <Text
+                            style={[
+                                styles.darkGreenCardTitle,
+                                { fontSize: 22, fontWeight: "800", color: "#4B6043" },
+                            ]}
+                        >
                             Discover More
                         </Text>
 
-                        <Text style={styles.lighterCardText}>
-                            PlantIT helps you care for your plants,
-                            discover recipes and stay connected with
-                            nature.
+                        <Text style={[styles.baseText, { marginTop: 10 }]}>
+                            PlantIT helps you care for your plants, discover recipes and stay connected with nature.
                         </Text>
+
+                        <TouchableOpacity
+                            onPress={() => Linking.openURL("https://plantit.com/download")}
+                        >
+                            <Text
+                                style={{
+                                    color: "#4B6043",
+                                    fontWeight: "700",
+                                    textDecorationLine: "underline",
+                                    marginTop: 10,
+                                }}
+                            >
+                                Download PlantIT App
+                            </Text>
+                        </TouchableOpacity>
 
                         <Text
                             style={[
-                                styles.lighterCardText,
-                                { marginTop: 10 },
+                                styles.baseText,
+                                { marginTop: 15, fontWeight: "800", color: "#4B6043" },
                             ]}
                         >
-                            <Text style={{ fontWeight: "800" }}>
-                                Support:
-                            </Text>
+                            Support:
                         </Text>
 
-                        <Text style={styles.lighterCardText}>
-                            <Text style={{ fontWeight: "600" }}>
+                        <Text style={styles.baseText}>
+                            <Text style={{ fontWeight: "800", color: "#4B6043" }}>
                                 Email:{" "}
                             </Text>
                             support@plantit.com
                         </Text>
 
-                        <Text style={styles.lighterCardText}>
-                            <Text style={{ fontWeight: "600" }}>
+                        <Text style={styles.baseText}>
+                            <Text style={{ fontWeight: "800", color: "#4B6043" }}>
                                 Phone:{" "}
                             </Text>
                             +386 40 123 456

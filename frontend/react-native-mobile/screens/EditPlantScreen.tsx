@@ -187,8 +187,12 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
                             </View>
                         )}
 
+                        <Text style={{ color: "white", marginBottom: 5, fontWeight: "800" }}>
+                            Plant name
+                        </Text>
+
                         <TextInput
-                            style={[styles.input, { marginBottom: 10 }]}
+                            style={[styles.input, { marginBottom: 10, }]}
                             placeholder="Plant name"
                             value={name}
                             onChangeText={setName}
@@ -206,7 +210,7 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
                             />
                         ) : null}
 
-                        <Text style={{ color: "white", marginBottom: 5 }}>
+                        <Text style={{ color: "white", marginBottom: 5, fontWeight: "800" }}>
                             Species
                         </Text>
 

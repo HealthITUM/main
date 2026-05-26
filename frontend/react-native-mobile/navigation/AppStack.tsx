@@ -7,6 +7,11 @@ import { AddPlantScreen } from "../screens/AddPlantScreen"
 import { MyPlantDetailsScreen } from "../screens/MyPlantsDetailsScreen";
 import { EditPlantScreen } from "../screens/EditPlantScreen";
 import { AddSensorScreen } from "../screens/AddSensorScreen";
+import { RecipesScreen } from "../screens/RecipesScreen";
+import { AddRecipeScreen } from "../screens/AddRecipeScreen";
+import { RecipeDetailScreen } from "../screens/RecipeDetailScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+import { EditProfileScreen } from "../screens/EditProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,5 +25,10 @@ export const AppStack = () => (
     <Stack.Screen name="PlantDetails" component={MyPlantDetailsScreen} />
     <Stack.Screen name="EditPlant" component={EditPlantScreen} />
     <Stack.Screen name="AddSensor" component={AddSensorScreen} />
+    <Stack.Screen name="Recipes" component={RecipesScreen} />
+    <Stack.Screen name="AddRecipe" component={AddRecipeScreen} />
+    <Stack.Screen name="RecipeDetails" component={RecipeDetailScreen} />
+    <Stack.Screen name="Profile" component={ProfileScreen} />
+    <Stack.Screen name="EditProfile" component={EditProfileScreen} />
   </Stack.Navigator>
 );
