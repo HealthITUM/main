@@ -30,7 +30,7 @@ export const AddRecipeScreen = ({ navigation }: any) => {
     const [unitModalIndex, setUnitModalIndex] = useState<number | null>(null);
 
     //remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         const loadUser = async () => {
             try {
                 //if there is no token user is redirected to login screen
@@ -48,7 +48,7 @@ export const AddRecipeScreen = ({ navigation }: any) => {
             }
         };
         loadUser();
-    }, [token]);*/ //runs if token changes
+    }, [token]); //runs if token changes
     
     const pickImage = async () => {
         //opens phone galllery - waits for user selection
@@ -144,7 +144,7 @@ export const AddRecipeScreen = ({ navigation }: any) => {
 
         try {
             //request to backend
-            const newRecipe = await recipeApi.create({
+            await recipeApi.create({
                 //sends form data fields
                 name,
                 description,
@@ -158,7 +158,7 @@ export const AddRecipeScreen = ({ navigation }: any) => {
                 } as unknown as File) //creates object as file
                 : (undefined as unknown as File), //if no image -
             });
-            navigation.navigate("RecipeDetails", { id: newRecipe.id });
+            navigation.navigate("Recipes", { replace: true });
         } catch {
             Alert.alert("Error", "Failed to create recipe");
         } finally {

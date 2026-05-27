@@ -9,6 +9,15 @@ import { styles } from "../src/styles";
 const recipeApi = recipeService(api);
 const userApi = userService(api);
 
+const fixImageUrl = (url?: string) => {
+    if (!url) return undefined;
+
+    return url.replace(
+        "http://localhost:9000",
+        "http://172.20.10.5:9000"
+    );
+};
+
 export const RecipesScreen = ({ navigation }: any) => {
     //gets token and function to log out
     const { token, logout } = useAuth();
@@ -42,7 +51,7 @@ export const RecipesScreen = ({ navigation }: any) => {
         loadUser();
     }, [token]); //runs if token changes
     //remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         const loadRecipes = async () => {
             try {
                 const data = await recipeApi.getAll();
@@ -55,10 +64,10 @@ export const RecipesScreen = ({ navigation }: any) => {
         };
 
         loadRecipes();
-    }, []);*/
+    }, []);
 
     //fake data
-    useEffect(() => {
+    /*useEffect(() => {
         const fakeRecipes: IRecipeDTO[] = [
             {
                 id: 1,
@@ -88,7 +97,7 @@ export const RecipesScreen = ({ navigation }: any) => {
 
         setRecipes(fakeRecipes);
         setLoading(false);
-    }, []);
+    }, []);*/
 
     const filteredRecipes = recipes.filter((recipe) =>
         //if empty it shows all recipes
@@ -112,11 +121,11 @@ export const RecipesScreen = ({ navigation }: any) => {
     };
 
     const renderRecipe = ({ item }: { item: IRecipeDTO }) => {
-        /*//for showing delete button
+        //for showing delete button
         const isOwner =
             !!token &&
             !!user &&
-            item.authorId === user.id;*/
+            item.authorId === user.id;
 
         return (
             <TouchableOpacity
@@ -128,7 +137,7 @@ export const RecipesScreen = ({ navigation }: any) => {
             >
             {item.imageUrl ? (
                 <Image
-                    source={{ uri: item.imageUrl }}
+                    source={{ uri: fixImageUrl(item.imageUrl) }}
                     style={{
                         width: "100%",
                         height: 200,
@@ -177,7 +186,7 @@ export const RecipesScreen = ({ navigation }: any) => {
                 </Text>
             </View>
             
-                {/* {isOwner && ( */}
+                 {isOwner && (
                 <View
                     style={{
                         flexDirection: "row",
@@ -216,7 +225,7 @@ export const RecipesScreen = ({ navigation }: any) => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-                {/* )} */}
+                 )} 
             </TouchableOpacity>
         );
     };

@@ -24,7 +24,7 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
     //validaton, api errors
     const [error, setError] = useState<string | null>(null);
 
-    /*useEffect(() => {
+    useEffect(() => {
         const fetchRecipe = async () => {
             //if there is no id for plant it stops
             if (!id) {
@@ -50,7 +50,7 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
             }
         };
         fetchRecipe();
-    }, [id]);*/ //runs when id changes
+    }, [id]); //runs when id changes
 
     useEffect(() => {
         const loadUser = async () => {
@@ -69,7 +69,7 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
         loadUser();
     }, [token]);
     //fake data
-    useEffect(() => {
+    /*useEffect(() => {
         const fakeRecipe: IRecipeDTO = {
             id: Number(id ?? 1),
             name: "Spaghetti Bolognese",
@@ -86,8 +86,8 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
 
         setRecipe(fakeRecipe);
         setLoading(false);
-    }, [id]);
-
+    }, [id]);*/
+    
     if (loading) {
         return (
             <View style={styles.appContainer}>
@@ -111,6 +111,11 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
             </View>
         );
     }
+
+     const fixedRecipeImageUrl = recipe.imageUrl?.replace(
+        "http://localhost:9000",
+        "http://172.20.10.5:9000"
+    );
 
    return (
         <SafeAreaView style={styles.appContainer}>
@@ -142,9 +147,9 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
 
             <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 80 }}>
 
-                {recipe.imageUrl && (
+                {fixedRecipeImageUrl && (
                     <Image
-                        source={{ uri: recipe.imageUrl }}
+                        source={{ uri: fixedRecipeImageUrl }}
                         style={{
                             width: "100%",
                             height: 220,
