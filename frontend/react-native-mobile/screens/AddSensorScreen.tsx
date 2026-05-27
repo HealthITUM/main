@@ -16,14 +16,14 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
     //gets jwt token from authcontext - protects screen and api requests
     const { token } = useAuth();
     //real plant info
-    //const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
+    const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //demo plant
-    const [plant] = useState({
+    /*const [plant] = useState({
         id: 1,
         name: "Demo Plant",
         imageUrl: "",
         plantSpecieId: 1,
-    });
+    });*/
     //loading states
     const [loading, setLoading] = useState(false);
     //errors - validation, api errors
@@ -32,14 +32,14 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
     const [sensorName, setSensorName] = useState("");
 
     //remove for backend - fetches real plant data
-    /*
+    
     useEffect(() => {
         const loadPlant = async () => {
             try {
                 //starts loading
                 setLoading(true);
                 //backend: GET /my/plants/:id
-                const data = await userPlant.getById(id);
+                const data = await userPlant.getById(plantId);
                 //stores data
                 setPlant(data);
             } catch {
@@ -49,16 +49,16 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
 
         loadPlant();
     }, [plantId]); //runs if plant id is changed
-    */
+    
 
     //remove for backend - is user logged in?
-    /*
+    
     useEffect(() => {
         if (!token) {
             navigation.replace("Login");
         }
     }, [token, navigation]); //runs if token or navigation is changed
-    */
+    
     //validation
     const validate = () => {
         //stores validation errors

@@ -25,13 +25,13 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
     const [error, setError] = useState<string | null>(null);
     
     //add for backend - is user logged in?
-    /*useEffect(() => {
+    useEffect(() => {
         if (!token) {
             navigation.replace("Login");
         }
-    }, [token, navigation]);*/ //runs if token or navigation changes
+    }, [token, navigation]); //runs if token or navigation changes
 
-    /*useEffect(() => {
+    useEffect(() => {
         const load = async () => {
             try {
                 //checks if there is plant id - not - it stops loading
@@ -40,6 +40,8 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                 setLoading(true);
                 //backend: GET /user-plant/:id
                 const plantData = await userPlant.getById(String(id));
+                console.log("PLANT DATA:", plantData);
+                console.log("IMAGE URL:", plantData.imageUrl);
                 //stores plant in state
                 setPlant(plantData);
                 //gets sensors from backend
@@ -55,11 +57,11 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
             }
         };
         load();
-    }, [id]);*/ //reloads data if plant id changes
+    }, [id]); //reloads data if plant id changes
 
 
     //fake data for plant and sensors
-    useEffect(() => {
+    /*useEffect(() => {
         const demoPlant: IUserPlantDTO = {
             id: 123,
             name: "Monstera Deliciosa",
@@ -86,9 +88,9 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
         setPlant(demoPlant);
         setSensors(demoSensors);
         setLoading(false);
-    }, []);
+    }, []);*/
 
-    /*const handleDeleteSensor = async (sensorId: number) => {
+    const handleDeleteSensor = async (sensorId: number) => {
         try {
             //backend: DELETE /user-plant/:id/sensor/:sensorId
             await userPlant.deleteSensor(String(id), String(sensorId));
@@ -99,11 +101,11 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
         } catch {
             setError("Failed to delete sensor");
         }
-    };*/
-    //temporary for frontend - only delete
-    const handleDeleteSensor = (sensorId: number) => {
-        setSensors((prev) => prev.filter((s) => s.id !== sensorId));
     };
+    //temporary for frontend - only delete
+    /*const handleDeleteSensor = (sensorId: number) => {
+        setSensors((prev) => prev.filter((s) => s.id !== sensorId));
+    };*/
     //navigation to add sensor screen
     const handleAddSensor = () => {
         navigation.navigate("AddSensor", { plantId: id });
@@ -124,6 +126,11 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
             </SafeAreaView>
         );
     }
+
+    const fixedImageUrl = plant.imageUrl.replace(
+        "http://localhost:9000",
+        "http://172.20.10.5:9000"
+    );
 
    return (
         <SafeAreaView style={styles.appContainer}>
@@ -157,7 +164,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
 
                 {plant.imageUrl && (
                     <Image
-                        source={{ uri: plant.imageUrl }}
+                        source={{ uri: fixedImageUrl }}
                         style={{
                             width: "100%",
                             height: 220,

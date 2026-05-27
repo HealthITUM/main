@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { specieService, userPlantService, useAuth, } from "@project/frontend-shared";
-import type { ISpecieDTO } from "@project/shared";
+import type { ISpeciesDTO } from "@project/shared";
 import { api } from "../src/api";
 import { styles } from "../src/styles";
 //creates plant and specie api service
@@ -17,9 +17,9 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
     //plant name input
     const [name, setName] = useState("");
     //all species fetched from backend
-    const [species, setSpecies] = useState<ISpecieDTO[]>([]);
+    const [species, setSpecies] = useState<ISpeciesDTO[]>([]);
     //currently selected specie
-    const [selectedSpecie, setSelectedSpecie] = useState<ISpecieDTO | null>(null);
+    const [selectedSpecie, setSelectedSpecie] = useState<ISpeciesDTO | null>(null);
     //validation errors, api errors
     const [errors, setErrors] = useState<string[]>([]);
     //loading state
@@ -29,15 +29,17 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
     const [pageLoading, setPageLoading] = useState(true);
     //image url for preview
     const [imagePreview, setImagePreview] = useState("");
+    const [selectedSpecieId, setSelectedSpecieId] = useState<number | null>(null);
+    const [open, setOpen] = useState(false);
 
     // remove for backend - is user logged in?
-    /*
+    
     useEffect(() => {
         if (!token) {
             navigation.replace("Login");
         }
     }, [token, navigation]); //runs if token or navigation changes
-    */
+    
 
     //load plant + species
     useEffect(() => {
@@ -62,7 +64,13 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
                 //saves plant name
                 setName(plantData.name);
                 //saves image preview - displays existing plant image
-                setImagePreview(plantData.imageUrl || "");
+                setImagePreview(
+                    plantData.imageUrl?.replace(
+                        "http://localhost:9000",
+                        "http://172.20.10.5:9000"
+                    ) || ""
+                );
+                setSelectedSpecieId(plantData.plantSpecieId);
                 //finds matching plant species id
                 const found = speciesData.find(
                     //match condition - compares species id and plant species id
@@ -117,7 +125,8 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
         }
     };
     //remove for backend
-    //if (pageLoading) return <Text>Loading...</Text>;
+    if (pageLoading) return <Text>Loading...</Text>;
+
 
     return (
         <View style={styles.appContainer}>
@@ -214,33 +223,59 @@ export const EditPlantScreen = ({ route, navigation }: any) => {
                             Species
                         </Text>
 
-                        {speciesLoading ? (
-                            <Text style={{ color: "white" }}>
-                                Loading species...
-                            </Text>
-                        ) : (
-                            species.map((s) => (
-                                <TouchableOpacity
-                                    key={s.id}
-                                    onPress={() =>
-                                        setSelectedSpecie(s)
-                                    }
+                        <View style={{ position: "relative", zIndex: 2000 }}>
+
+                            <TouchableOpacity
+                                onPress={() => setOpen(true)}
+                                style={[
+                                    styles.input,
+                                    {
+                                        height: 44,
+                                        justifyContent: "center",
+                                        marginBottom: 10,
+                                    },
+                                ]}
+                            >
+                                <Text style={{ color: "#4B6043" }}>
+                                    {selectedSpecieId
+                                        ? species.find(s => s.id === selectedSpecieId)?.name
+                                        : "Select species"}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {open && (
+                                <View
                                     style={{
-                                        padding: 10,
+                                        position: "absolute",
+                                        top: 50,
+                                        left: 0,
+                                        right: 0,
+                                        backgroundColor: "#A3C585",
                                         borderRadius: 8,
-                                        marginBottom: 5,
-                                        backgroundColor:
-                                            selectedSpecie?.id === s.id
-                                                ? "#4a6b4a"
-                                                : "#2f4f2f",
+                                        zIndex: 9999,
+                                        elevation: 50,
+                                        maxHeight: 200,
                                     }}
                                 >
-                                    <Text style={{ color: "white" }}>
-                                        {s.name}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))
-                        )}
+                                    <ScrollView>
+                                        {species.map((s) => (
+                                            <TouchableOpacity
+                                                key={s.id}
+                                                onPress={() => {
+                                                    setSelectedSpecieId(Number(s.id));
+                                                    setOpen(false);
+                                                }}
+                                                style={{ padding: 12 }}
+                                            >
+                                                <Text style={{ color: "white" }}>
+                                                    {s.name}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            )}
+                        </View>
 
                         <TouchableOpacity
                             style={[

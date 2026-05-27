@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, } from "rea
 import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
-import type { ISpecieDTO } from "@project/shared";
+import type { ISpeciesDTO } from "@project/shared";
 import { api } from "../src/api";
 import { styles } from "../src/styles";
 //API service setup - we create plant and species API service
@@ -21,14 +21,14 @@ export const AddPlantScreen = ({ navigation }: any) => {
     //local image URI for preview
     const [imagePreview, setImagePreview] = useState("");
     //species fetched from backend
-    const [species, setSpecies] = useState<ISpecieDTO[]>([]);
-    //currently selected species
-    const [selectedSpecie, setSelectedSpecie] = useState<ISpecieDTO | null>(null);
+    const [species, setSpecies] = useState<ISpeciesDTO[]>([]);
     //validation/API errors
     const [errors, setErrors] = useState<string[]>([]);
     //sumbit and species loading
     const [loading, setLoading] = useState(false);
     const [speciesLoading, setSpeciesLoading] = useState(true);
+    const [selectedSpecieId, setSelectedSpecieId] = useState<number | null>(null);
+    const [open, setOpen] = useState(false);
 
     // species load
     useEffect(() => {
@@ -46,11 +46,11 @@ export const AddPlantScreen = ({ navigation }: any) => {
         load();
     }, []); //runs once when screen loads
     //remove for backend - is user logged in?
-    /*useEffect(() => {
+    useEffect(() => {
         if (!token) {
             navigation.replace("Login");
         }
-    }, [token, navigation]);*/ //runs if token or navigation is changed
+    }, [token, navigation]);//runs if token or navigation is changed
     //when user presses choose image
     const pickImage = async () => {
         //opens phone gallery
@@ -76,7 +76,7 @@ export const AddPlantScreen = ({ navigation }: any) => {
         const err: string[] = [];
         if (!name.trim()) err.push("Plant name is required.");
         if (!image) err.push("Image is required.");
-        if (!selectedSpecie) err.push("Please select a species.");
+        if (!selectedSpecieId) err.push("Please select a species.");
         return err;
     };
     //runs when user presses create plant
@@ -98,7 +98,7 @@ export const AddPlantScreen = ({ navigation }: any) => {
             //calls create - backend: POST /my/plants
             await userPlant.create({
                 name,
-                plantSpecieId: Number(selectedSpecie!.id),
+                plantSpecieId: Number(selectedSpecieId),
                 image: {
                     uri: image.uri,
                     name: image.fileName ?? "photo.jpg",
@@ -211,32 +211,59 @@ export const AddPlantScreen = ({ navigation }: any) => {
                         Species
                     </Text>
 
-                    {speciesLoading ? (
-                        <Text style={{ color: "white" }}>
-                            Loading species...
-                        </Text>
-                    ) : (
-                        species.map((s) => (
-                            <TouchableOpacity
-                                key={s.id}
-                                onPress={() => setSelectedSpecie(s)}
+                    <View style={{ position: "relative", zIndex: 2000 }}>
+
+                        <TouchableOpacity
+                            onPress={() => setOpen(true)}
+                            style={[
+                                styles.input,
+                                {
+                                    height: 44,
+                                    justifyContent: "center",
+                                    marginBottom: 10,
+                                },
+                            ]}
+                        >
+                            <Text style={{ color: "#4B6043" }}>
+                                {selectedSpecieId
+                                    ? species.find(s => s.id === selectedSpecieId)?.name
+                                    : "Select species"}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {open && (
+                            <View
                                 style={{
-                                    padding: 10,
+                                    position: "absolute",
+                                    top: 50,
+                                    left: 0,
+                                    right: 0,
+                                    backgroundColor: "#A3C585",
                                     borderRadius: 8,
-                                    marginBottom: 5,
-                                    backgroundColor:
-                                        selectedSpecie?.id === s.id
-                                            ? "#4a6b4a"
-                                            : "#2f4f2f",
+                                    zIndex: 9999,
+                                    elevation: 50,
+                                    maxHeight: 200,
                                 }}
                             >
-                                <Text style={{ color: "white" }}>
-                                    {s.name}
-                                </Text>
-                            </TouchableOpacity>
-                        ))
-                    )}
-
+                                <ScrollView>
+                                    {species.map((s) => (
+                                        <TouchableOpacity
+                                            key={s.id}
+                                            onPress={() => {
+                                                setSelectedSpecieId(Number(s.id));
+                                                setOpen(false);
+                                            }}
+                                            style={{ padding: 12 }}
+                                        >
+                                            <Text style={{ color: "white" }}>
+                                                {s.name}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                        )}
+                    </View>
                     <TouchableOpacity
                         style={[
                             styles.darkGreenButton,

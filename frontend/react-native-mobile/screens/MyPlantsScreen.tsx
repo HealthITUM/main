@@ -5,6 +5,8 @@ import { userPlantService, userService, useAuth, } from "@project/frontend-share
 import type { IUserDTO, IUserPlantDTO, } from "@project/shared";
 import { api } from "../src/api";
 import { styles } from "../src/styles";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 //creates api service instances for plants and service like get me
 const userPlant = userPlantService(api);
 const service = userService(api);
@@ -28,7 +30,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
     //control for dropdown menu
     const [menuVisible, setMenuVisible] = useState(false);
     //remove for backend
-    /*// load user
+    // load user
     useEffect(() => {
         //checks if there is token for user if no then redirects to login screen
         if (!token) {
@@ -51,9 +53,9 @@ export const MyPlantsScreen = ({ navigation }: any) => {
             }
         };
         loadUser();
-    }, []);*/ //loads when page is opened
+    }, []); //loads when page is opened
     //fake data
-    useEffect(() => {
+    /*useEffect(() => {
         const fakePlants: IUserPlantDTO[] = [
             {
                 id: 1,
@@ -66,25 +68,29 @@ export const MyPlantsScreen = ({ navigation }: any) => {
 
         setPlants(fakePlants);
         setLoadingPlants(false);
-    }, []);
+    }, []);*/
 
     //remove for backend
-    /*//load plants
-    useEffect(() => {
-        const fetchPlants = async () => {
-            try {
-                //backend for get plants
-                const data = await userPlant.getAll();
-                //stored data in plants
-                setPlants(data);
-            } catch {
-                setError("Failed to load plants");
-            } finally {
-                setLoadingPlants(false);
-            }
-        };
-        fetchPlants();
-    }, []); //runs when page is opened*/
+    //load plants
+    useFocusEffect(
+        useCallback(() => {
+            const fetchPlants = async () => {
+                try {
+                    setLoadingPlants(true);
+
+                    const data = await userPlant.getAll();
+                    setPlants(data);
+
+                } catch {
+                    setError("Failed to load plants");
+                } finally {
+                    setLoadingPlants(false);
+                }
+            };
+
+            fetchPlants();
+        }, [])
+    ); //runs when page is opened
 
     //filter
     const filteredPlants = plants.filter((plant) =>
@@ -132,7 +138,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
 
     //remove for backend
     //blocks ui until user and plants are loaded
-   /* if (loadingUser || loadingPlants) {
+    if (loadingUser || loadingPlants) {
         return (
             <SafeAreaView style={styles.appContainer}>
                 <Text style={styles.baseText}>
@@ -140,7 +146,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                 </Text>
             </SafeAreaView>
         );
-    }*/
+    }
 
     return (
     <SafeAreaView style={styles.appContainer}>
@@ -350,7 +356,13 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                     </>
                 }
 
-                renderItem={({ item }) => (
+                renderItem={({ item }) => { 
+                    const fixedImageUrl = item.imageUrl?.replace(
+                        "http://localhost:9000",
+                        "http://172.20.10.5:9000"
+                    );
+
+                return (
                     <TouchableOpacity
                         activeOpacity={0.9}
                         style={[
@@ -368,10 +380,10 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                             )
                         }
                     >
-                        {item.imageUrl ? (
+                        {fixedImageUrl ? (
                             <Image
                                 source={{
-                                    uri: item.imageUrl
+                                    uri: fixedImageUrl
                                 }}
                                 style={{
                                     width: "100%",
@@ -458,7 +470,7 @@ export const MyPlantsScreen = ({ navigation }: any) => {
                         </View>
 
                     </TouchableOpacity>
-                )}
+                )}}
             />
         </SafeAreaView>
     );
