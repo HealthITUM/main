@@ -27,7 +27,7 @@ export default function CreateRecipePage() {
     const [imagePreview, setImagePreview] = useState<string>("");
     //imagefile for real file backend
     const [imageFile, setImageFile] = useState<File | null>(null);
-
+    const [userLoading, setUserLoading] = useState(true);
     // const [steps, setSteps] = useState<string[]>([]);
     // const [plantIds, setPlantIds] = useState<string[]>([]);
 
@@ -64,7 +64,7 @@ export default function CreateRecipePage() {
     */
    /*remove for backend*/
     //load user - important
-    /*useEffect(() => {
+    useEffect(() => {
         const loadUser = async () => {
             try {
                 if (!token){
@@ -79,11 +79,12 @@ export default function CreateRecipePage() {
                 //logout - redirect to login
                 await logout();
                 navigate("/login");
-            } 
+            } finally {
+                setUserLoading(false);
+            }
         };
-
         loadUser();
-    }, [navigate, token]);*/
+    }, [navigate, token]);
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //get selected file
@@ -191,7 +192,7 @@ export default function CreateRecipePage() {
         
         //multipart request
         try {
-            const newRecipe = await recipeApi.create({
+            await recipeApi.create({
                 name,
                 description,
                 ingredients: ingredients.map((i) => ({
@@ -201,14 +202,14 @@ export default function CreateRecipePage() {
                 })),
                 image: imageFile,
             });
-            navigate(`/recipes/${newRecipe.id}`);
+            navigate("/recipes", { replace: true });
         } catch {
             setErrors(["Failed to create recipe"]);
         }
     };
     //remove for backend
-    //if (loading) return <p>Loading...</p>;
-    //if (!user) return null;
+    if (userLoading) return <p>Loading...</p>;
+    if (!user) return null;
 
     return (
         <div>

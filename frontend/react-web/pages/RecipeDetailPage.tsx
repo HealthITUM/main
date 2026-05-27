@@ -21,7 +21,7 @@ export default function RecipeDetailPage() {
     //errors
     const [error, setError] = useState<string | null>(null);
     //fetch data - when page loads, change of id - remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         const fetchRecipe = async () => {
             //safety check - prevents API call if URL has no id
             if (!id) {
@@ -42,9 +42,8 @@ export default function RecipeDetailPage() {
                 setLoading(false);
             }
         };
-
         fetchRecipe();
-    }, [id]);*/
+    }, [id]);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -62,7 +61,7 @@ export default function RecipeDetailPage() {
         loadUser();
     }, [token]); //runs if token changes
     //fake data
-    useEffect(() => {
+    /*useEffect(() => {
         if (!id) {
             setError("Invalid recipe id");
             setLoading(false);
@@ -85,11 +84,12 @@ export default function RecipeDetailPage() {
 
         setRecipe(fakeRecipe);
         setLoading(false);
-    }, [id]);
+    }, [id]);*/
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p className="text-danger">{error}</p>;
     if (!recipe) return <p>Recipe not found</p>;
+    if (!user) return null;
 
    return (
         <>

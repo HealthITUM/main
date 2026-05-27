@@ -65,6 +65,8 @@ export default function RegisterPage() {
         }
     };
 
+    if (loading) return <p>Loading...</p>;
+
     return (
         <div className="container d-flex justify-content-center align-items-center vh-100">
             <div className="dark-green-card shadow p-4" style={{ width: "400px" }}>
