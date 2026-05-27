@@ -1,15 +1,17 @@
-import type { Storage } from "@project/frontend-shared";
+import type { Storage } from "@project/frontend-shared/storage";
 
 export const storage: Storage = {
-  async getItem(key: string) {
+  getItem: (key: string) => {
     return Promise.resolve(localStorage.getItem(key));
   },
 
-  async setItem(key: string, value: string) {
+  setItem: (key: string, value: string) => {
     localStorage.setItem(key, value);
+    return Promise.resolve();
   },
 
-  async removeItem(key: string) {
+  removeItem: (key: string) => {
     localStorage.removeItem(key);
+    return Promise.resolve();
   },
 };
