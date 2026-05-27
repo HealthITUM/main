@@ -78,7 +78,7 @@ export const userPlantService = (api: AxiosInstance) => ({
     getMeasurements: async (plantId: string):
     Promise<IMeasurementDTO[]> => {
         //GET /my/plants/:id/measurement
-        const response = await api.get<IMeasurementDTO[]>(`/my/plants/${plantId}/measurement`);
+        const response = await api.get<IMeasurementDTO[]>(`/my/plants/${plantId}/measurements`);
         //returns: IMeasurementDTO[]
         return response.data;
     },
