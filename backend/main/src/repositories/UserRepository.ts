@@ -63,10 +63,7 @@ export class UserRepository {
             where: {
                 id: Number(data.id),
             },
-            data: {
-                username: String(data.username),
-                password: String(data.password)
-            }
+            data: data
         });
 
         if (updatedUserPlant.count === 0) {
