@@ -9,8 +9,6 @@ export default function MyPlantDetailsPage() {
     const { id } = useParams();
     //gets token
     const { token } = useAuth();
-    //convert to boolean
-    const isLoggedIn = !!token;
     //navigation
     const navigate = useNavigate();
     const plantService = userPlantService(api);
@@ -23,7 +21,7 @@ export default function MyPlantDetailsPage() {
     //stores API errors
     const [error, setError] = useState<string | null>(null);
     //remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         if (!token) {
             navigate("/login");
             return;
@@ -49,9 +47,9 @@ export default function MyPlantDetailsPage() {
         };
 
         load();
-    }, [id, token, navigate]);*/
+    }, [id, token, navigate]);
     //demo for fake local data
-    useEffect(() => {
+    /*useEffect(() => {
         const demoPlant: IUserPlantDTO = {
             id: 123,
             name: "Monstera Deliciosa",
@@ -79,14 +77,14 @@ export default function MyPlantDetailsPage() {
         setPlant(demoPlant);
         setSensors(demoSensors);
         setLoading(false);
-    }, []);
+    }, []);*/
     //happens when user clicks add sensor -> opens add sensor page
     const handleAddSensor = () => {
         if (!id) return;
         navigate(`/my/plants/${id}/add-sensor`);
     };
     //remove for backend
-    /*const handleDeleteSensor = async (sensorId: number) => {
+    const handleDeleteSensor = async (sensorId: number) => {
         try {
             //checks id
             if (!id) return;
@@ -100,14 +98,14 @@ export default function MyPlantDetailsPage() {
         } catch {
             console.log("Failed to delete sensor");
         }
-    };*/
+    };
     //demo - without API call - removes local state
-    const handleDeleteSensor = (sensorId: number) => {
+    /*const handleDeleteSensor = (sensorId: number) => {
         setSensors((prev) =>
             //removes local state
             prev.filter((s) => s.id !== sensorId)
         );
-    };
+    };*/
 
     if (loading) return <p>Loading ...</p>;
     if (error) return <p className="text-danger">{error}</p>;

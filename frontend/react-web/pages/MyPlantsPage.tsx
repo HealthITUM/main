@@ -29,7 +29,7 @@ export default function MyPlantsPage() {
     const [nameFilter, setNameFilter] = useState("");
     //remove for backend
     //runs after componend is rendered
-    /*+useEffect(() => {
+    useEffect(() => {
         if (!token) {
             navigate("/login");
             return;
@@ -51,9 +51,9 @@ export default function MyPlantsPage() {
         };
 
         loadUser();
-    }, [navigate, service, service]); //runs once when page loads - checks if token is valid, fetches user info*/
+    }, [navigate, service, service]); //runs once when page loads - checks if token is valid, fetches user info
     //for user changes
-    /*useEffect(() => {
+    useEffect(() => {
         //async function to call backend
         const fetchPlants = async () => {
             try {
@@ -69,9 +69,9 @@ export default function MyPlantsPage() {
         };
 
         fetchPlants();
-    }, []); //runs when page is loaded*/
+    }, []); //runs when page is loaded
     //fake data
-    useEffect(() => {
+    /*useEffect(() => {
         const fakePlants: IUserPlantDTO[] = [
             {
                 id: 1,
@@ -84,7 +84,7 @@ export default function MyPlantsPage() {
 
         setPlants(fakePlants);
         setLoadingPlants(false);
-    }, []);
+    }, []);*/
 
     //filtered array for search text - which plants
     const filteredPlants = plants.filter((plant) =>
@@ -94,9 +94,9 @@ export default function MyPlantsPage() {
         plant.name.toLowerCase().includes(nameFilter.toLowerCase())
     );
     //remove for backend
-    //if (loadingUser) return <p>Loading user...</p>;
-    //if (!user) return null;
-    //if (loadingPlants) return <p>Loading plants...</p>;
+    if (loadingUser) return <p>Loading user...</p>;
+    if (!user) return null;
+    if (loadingPlants) return <p>Loading plants...</p>;
 
     return (
         <div>

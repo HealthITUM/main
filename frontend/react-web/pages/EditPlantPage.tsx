@@ -28,15 +28,15 @@ export default function EditPlantPage() {
     //gets token
     const { token } = useAuth();
     //remove for backend
-    /*//is user logged in?
+    //is user logged in?
     useEffect(() => {
         if (!token) {
             navigate("/login");
         }
-    }, [token, navigate]);*/
+    }, [token, navigate]);
     //remove for backend
     
-    /*useEffect(() => {
+    useEffect(() => {
         const load = async () => {
             //stops if route param is missing
             if (!id) {
@@ -69,7 +69,7 @@ export default function EditPlantPage() {
         };
 
         load();
-    }, [id]); //if plant id changes it reloads*/
+    }, [id]); //if plant id changes it reloads
 
     const validate = () => {
         //validation errors
@@ -103,7 +103,7 @@ export default function EditPlantPage() {
                 name,
                 plantSpecieId: selectedSpecie.id
             });
-            navigate(`/my/plants/${id}`);
+            navigate(-1);
         } catch {
             setErrors(["Failed to update plant"]);
         } finally {
@@ -111,7 +111,7 @@ export default function EditPlantPage() {
         }
     };
     //remove for backend
-    //if (pageLoading) return <p>Loading...</p>;
+    if (pageLoading) return <p>Loading...</p>;
 
     return (
         <div>

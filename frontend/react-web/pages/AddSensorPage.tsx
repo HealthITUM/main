@@ -14,14 +14,14 @@ export default function AddSensorPage() {
     //gets token
     const { token } = useAuth();
     //plants fetched from backend
-    //const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
+    const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //demo plant
-    const [plant] = useState<IUserPlantDTO>({
+    /*const [plant] = useState<IUserPlantDTO>({
         id: 1,
         name: "Demo Plant",
         imageUrl: "",
         plantSpecieId: 1 
-    });
+    });*/
     //loading while plant is fetched
     const [loading, setLoading] = useState(true);
     //stores errors
@@ -31,7 +31,7 @@ export default function AddSensorPage() {
     //stores input name
     const [sensorName, setSensorName] = useState("");
     //remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         const loadPlant = async () => {
             //stops if route param is missing
             if (!id) return;
@@ -48,14 +48,14 @@ export default function AddSensorPage() {
         };
 
         loadPlant();
-    }, [id]); //reloads if plant id changes*/
+    }, [id]); //reloads if plant id changes
     //remove for backend
-    /*//is user logged in?
+    //is user logged in?
     useEffect(() => {
         if (!token) {
             navigate("/login");
         }
-    }, [token, navigate]);*/
+    }, [token, navigate]);
     //runs when user clicks add sensor
     const handleCreateSensor = async () => {
         if (!token) {
@@ -90,9 +90,9 @@ export default function AddSensorPage() {
         }
     };
     //remove for backend
-    //if (loading) return <p>Loading...</p>;
-    //if (error) return <p className="text-danger">{error}</p>;
-    //if (!plant) return <p>Plant not found</p>;
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p className="text-danger">{error}</p>;
+    if (!plant) return <p>Plant not found</p>;
 
    return (
         <div>

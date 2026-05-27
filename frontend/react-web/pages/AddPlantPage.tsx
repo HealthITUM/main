@@ -27,14 +27,14 @@ export default function CreatePlantPage() {
     const [speciesLoading, setSpeciesLoading] = useState(true);
     //remove for backend
     //gets token
-    /*const { token } = useAuth();
+    const { token } = useAuth();
     //is user logged in?
     useEffect(() => {
         if (!token) {
             navigate("/login");
             return;
         }
-    }, [token, navigate]);*/
+    }, [token, navigate]);
     //prevents image preview leaks
     useEffect(() => {
         const currentPreview = imagePreview;
@@ -46,7 +46,7 @@ export default function CreatePlantPage() {
         };
     }, [imagePreview]);
     //remove for backend
-    /*useEffect(() => {
+    useEffect(() => {
         //loads species from backend
         const load = async () => {
             try {
@@ -61,7 +61,7 @@ export default function CreatePlantPage() {
         };
 
         load();
-    }, []); //runs once only when page loads*/
+    }, []); //runs once only when page loads
     //runs when user selects file
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         //gets first selected file
