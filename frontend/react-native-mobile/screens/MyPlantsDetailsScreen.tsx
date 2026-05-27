@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute } from "@react-navigation/native";
-import { IUserPlantDTO, ISensorDTO } from "@project/shared";
+import { IUserPlantDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
 import { userPlantService, useAuth } from "@project/frontend-shared";
 import { styles } from "../src/styles";
 import { api } from "../src/api";
@@ -19,6 +19,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
     const [plant, setPlant] = useState<IUserPlantDTO | null>(null);
     //sensors list
     const [sensors, setSensors] = useState<ISensorDTO[]>([]);
+    const [measurements, setMeasurements] = useState<IMeasurementDTO[]>([]);
     //loading state
     const [loading, setLoading] = useState(true);
     //validation and api errors
@@ -48,6 +49,10 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                 const sensorData = await userPlant.getSensors(String(id));
                 //stores sensors
                 setSensors(sensorData);
+                //gets measurements from backend
+                const measurementData = await userPlant.getMeasurements(String(id));
+                //stores measurements
+                setMeasurements(measurementData);
                 //removes previous errors
                 setError(null);
             } catch (e) {
@@ -307,6 +312,44 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                                         Delete sensor
                                     </Text>
                                 </TouchableOpacity>
+                            </View>
+                        ))
+                    )}
+                </View>
+                <View style={[styles.darkGreenCard, { marginTop: 15 }]}>
+                    <Text style={[styles.darkGreenCardTitle, { fontSize: 20, marginBottom: 10 }]}>
+                        Measurements
+                    </Text>
+
+                    {measurements.length === 0 ? (
+                        <Text style={styles.baseText}>No measurements available</Text>
+                    ) : (
+                        measurements.map((m) => (
+                            <View
+                                key={m.id}
+                                style={{
+                                    borderWidth: 1,
+                                    borderColor: "#2f4f2f",
+                                    padding: 10,
+                                    borderRadius: 8,
+                                    marginBottom: 10,
+                                }}
+                            >
+                                <Text style={{ color: "#9fbf9f", fontWeight: "700" }}>
+                                    TIME
+                                </Text>
+
+                                <Text style={styles.baseText}>
+                                    {new Date(m.timestamp).toLocaleString()}
+                                </Text>
+
+                                <Text style={{ color: "#9fbf9f", fontWeight: "700", marginTop: 8 }}>
+                                    VALUES
+                                </Text>
+
+                                <Text style={styles.baseText}>
+                                    {JSON.stringify(m.values, null, 2)}
+                                </Text>
                             </View>
                         ))
                     )}

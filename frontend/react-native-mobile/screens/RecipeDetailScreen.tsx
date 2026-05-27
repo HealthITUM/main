@@ -112,7 +112,7 @@ export const RecipeDetailScreen = ({ navigation }: any) => {
         );
     }
 
-     const fixedRecipeImageUrl = recipe.imageUrl?.replace(
+    const fixedRecipeImageUrl = recipe.imageUrl?.replace(
         "http://localhost:9000",
         "http://172.20.10.5:9000"
     );
