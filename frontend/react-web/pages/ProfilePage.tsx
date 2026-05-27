@@ -7,7 +7,7 @@ import { api } from "../src/api";
 //relies on GET /user/me
 export default function ProfilePage() {
   //user - currently logged in user - starts as null - later IUserDTO
-  //const [user, setUser] = useState<IUserDTO | null>(null);
+  const [user, setUser] = useState<IUserDTO | null>(null);
   //navigacija
   const navigate = useNavigate();
   //gets token and logout function
@@ -16,7 +16,7 @@ export default function ProfilePage() {
   //api for user
   const service = userService(api);
   //if user is logged in
-  /*useEffect(() => {
+  useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
@@ -37,23 +37,23 @@ export default function ProfilePage() {
 
     loadUser();
     //runs for token and navigation
-  }, [token, navigate]);*/
+  }, [token, navigate]);
 
-  //if (loading) return <p>Loading...</p>
+  if (loading) return <p>Loading...</p>
 
-  /*if (!user) {
+  if (!user) {
     return (
       <div className="container text-center mt-5">
         <div className="spinner-border text-success" role="status" />
         <p className="mt-3 text-muted">Loading profile...</p>
       </div>
     );
-  }*/
-  const user: IUserDTO = {
+  }
+  /*const user: IUserDTO = {
     id: 1,
     username: "plantlover",
     email: "plantlover@plantit.com",
-  };
+  };*/
 
   return (
     <div>

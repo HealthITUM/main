@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
-import type { ISpecieDTO } from "@project/shared";
+import type { ISpeciesDTO } from "@project/shared";
 import { api } from "../src/api";
 //api for user and specie
 const userPlant = userPlantService(api);
@@ -15,9 +15,9 @@ export default function EditPlantPage() {
     //plant name
     const [name, setName] = useState("");
     //species from backend
-    const [species, setSpecies] = useState<ISpecieDTO[]>([]);
+    const [species, setSpecies] = useState<ISpeciesDTO[]>([]);
     //currently selected plant specie
-    const [selectedSpecie, setSelectedSpecie] = useState<ISpecieDTO | null>(null);
+    const [selectedSpecie, setSelectedSpecie] = useState<ISpeciesDTO | null>(null);
     //validation, API errors
     const [errors, setErrors] = useState<string[]>([]);
     //true while saving changes

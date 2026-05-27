@@ -60,7 +60,7 @@ export default function HomePage() {
 
                                 <li>
                                     <button
-                                        className="dropdown-item text-danger"
+                                        className="dropdown-item"
                                         onClick={async() => {
                                             await logout();
                                             navigate("/login");

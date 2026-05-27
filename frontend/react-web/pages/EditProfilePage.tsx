@@ -19,7 +19,7 @@ export default function EditProfilePage() {
     const [errors, setErrors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
-    /*useEffect(() => {
+    useEffect(() => {
         //if user is not logged in - redirect to login
         if (!token) {
         navigate("/login");
@@ -39,7 +39,7 @@ export default function EditProfilePage() {
             }
         };
         load();
-    }, [token, navigate]);*/ //runs if token or navigation is changed
+    }, [token, navigate]); //runs if token or navigation is changed
 
     const validate = () => {
         //empty error list
@@ -97,7 +97,7 @@ export default function EditProfilePage() {
         }
     };
     //fake data
-    if (!user) {
+    /*if (!user) {
         setUser({
             id: 1,
             username: "plantlover",
@@ -105,7 +105,7 @@ export default function EditProfilePage() {
         });
 
         setUsername("plantlover");
-        }
+        }*/
 
     return (
         <div>

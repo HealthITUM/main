@@ -24,7 +24,7 @@ export default function RecipesPage() {
     const navigate = useNavigate();
     /* remove for backend*/
     //fetch data
-    /*useEffect(() => {
+    useEffect(() => {
         //load page
         const fetchRecipes = async () => {
             try {
@@ -39,10 +39,10 @@ export default function RecipesPage() {
         };
 
         fetchRecipes();
-    }, []);*/
+    }, []);
 
     // fake data for frontend demo
-    useEffect(() => {
+    /*useEffect(() => {
         const fakeRecipes: IRecipeDTO[] = [
             {
                 id: 1,
@@ -92,7 +92,7 @@ export default function RecipesPage() {
 
         setRecipes(fakeRecipes);
         setLoading(false);
-    }, []);
+    }, []);*/
 
     useEffect(() => {
         const loadUser = async () => {
@@ -156,7 +156,7 @@ export default function RecipesPage() {
         }
     };
     //remove for backend
-    //if (loading) return <p>Loading recipes...</p>;
+    if (loading) return <p>Loading recipes...</p>;
 
     return (
         <div>
@@ -210,7 +210,7 @@ export default function RecipesPage() {
                                     </li>
                                     <li>
                                         <button
-                                            className="dropdown-item text-danger"
+                                            className="dropdown-item"
                                             onClick={async() => {
                                                 await logout();
                                                 navigate("/login");
@@ -369,8 +369,8 @@ export default function RecipesPage() {
                             </div>
                         </div>
                         <div className="d-flex justify-content-start gap-2 w-100 mb-3 mt-2">
-                           {/*
-                           {token && recipe.authorId === user?.id && ( */}
+                        
+                           {token && recipe.authorId === user?.id && ( 
                                 <button
                                     className="btn dark-green-btn"
                                     style={{
@@ -391,7 +391,7 @@ export default function RecipesPage() {
                                 >
                                     Delete
                                 </button>
-                           {/* )} */}
+                            )} 
                         </div>
                     </div>
                 ))}

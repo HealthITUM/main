@@ -59,6 +59,19 @@ export default function LoginPage() {
                         }
                     />
                 </div>
+                
+                <div className="mb-3">
+                    <label className="form-label">Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Enter email"
+                        value={form.email}
+                        onChange={(e) =>
+                            setForm({ ...form, email: e.target.value })
+                        }
+                    />
+                </div>
 
                 <div className="mb-3">
                     <label className="form-label">Password</label>

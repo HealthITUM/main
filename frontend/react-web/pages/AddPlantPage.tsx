@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { specieService, userPlantService, useAuth } from "@project/frontend-shared";
-import type { ISpecieDTO } from "@project/shared";
+import type { ISpeciesDTO } from "@project/shared";
 import { api } from "../src/api";
 //creates apu for species and user
 const userPlant = userPlantService(api);
@@ -17,9 +17,9 @@ export default function CreatePlantPage() {
     //preview URL so image can be shown before upload
     const [imagePreview, setImagePreview] = useState<string>("");
     //species from backend
-    const [species, setSpecies] = useState<ISpecieDTO[]>([]);
+    const [species, setSpecies] = useState<ISpeciesDTO[]>([]);
     //currentyl selected species - dropdows
-    const [selectedSpecie, setSelectedSpecie] = useState<ISpecieDTO | null>(null);
+    const [selectedSpecie, setSelectedSpecie] = useState<ISpeciesDTO | null>(null);
     //validation, API errors
     const [errors, setErrors] = useState<string[]>([]);
     //tracks create request - disable button while saving
