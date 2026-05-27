@@ -1,0 +1,687 @@
+openapi: 3.0.0
+
+info:
+  title: PlantIT - OpenAPI
+  description: PlantIT OpenAPI rules
+  version: 1.0.0
+
+tags:
+  - name: Users
+  - name: Plants
+  - name: Sensors
+  - name: Measurements
+  - name: Species
+  - name: Recipes
+
+servers:
+  - url: <URL>/api
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # user endpoint
+
+  /user/me:
+    get:
+      tags: [Users]
+      operationId: getCurrentUser
+      summary: Get current user
+      description: Return authenticated user data
+      responses:
+        200:
+          description: User data returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      tags: [Users]
+      operationId: updateCurrentUser
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+            example:
+              username: "newname"
+              email: "new@mail.com"
+      responses:
+        200:
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /user/login:
+    post:
+      tags: [Users]
+      operationId: loginUser
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /user/register:
+    post:
+      tags: [Users]
+      operationId: registerUser
+      summary: Register user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  # plants endpoint
+
+  /my/plants:
+    get:
+      tags: [Plants]
+      operationId: getUserPlants
+      summary: Get user plants
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of plants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Plants]
+      operationId: createPlant
+      summary: Create plant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantCreateRequest'
+      responses:
+        201:
+          description: Plant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /my/plants/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Plants]
+      operationId: getPlantById
+      summary: Get plant by Id
+      responses:
+        200:
+          description: Plant found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      tags: [Plants]
+      operationId: updatePlant
+      summary: Update plant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantUpdateRequest'
+      responses:
+        200:
+          description: Updated plant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      tags: [Plants]
+      operationId: deletePlant
+      summary: Delete plant
+      responses:
+        204:
+          description: Deleted
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #sensors endpoints
+
+  /my/plants/{id}/sensors:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Sensors]
+      operationId: getPlantSensors
+      summary: Get sensors for plant
+      responses:
+        200:
+          description: Sensors list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SensorResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Sensors]
+      operationId: addSensor
+      summary: Add sensor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorCreateRequest'
+      responses:
+        201:
+          description: Added new sensor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #measurements endpoint
+
+  /my/plants/{id}/measurements:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Measurements]
+      operationId: getPlantMeasurements
+      summary: Get measurements
+      responses:
+        200:
+          description: Measurements list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeasurementResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #species endpoint
+
+  /species:
+    get:
+      tags: [Species]
+      operationId: getSpecies
+      summary: Get species
+      security: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Species list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpeciesResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /species/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SpeciesId'
+
+    get:
+      tags: [Species]
+      operationId: getSpeciesById
+      summary: Get species by ID
+      security: []
+      responses:
+        200:
+          description: Species found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeciesResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #recipe endpoint
+
+  /recipes:
+    get:
+      tags: [Recipes]
+      operationId: getRecipes
+      summary: Get recipes
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Recipes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Recipes]
+      operationId: createRecipe
+      summary: Create recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreateRequest'
+      responses:
+        201:
+          description: Recipe created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /recipes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RecipeId'
+
+    get:
+      tags: [Recipes]
+      operationId: getRecipeById
+      summary: Get recipe by ID
+      security: []
+      responses:
+        200:
+          description: Recipe found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+#components
+
+components:
+  #security token
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PlantId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    SpeciesId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    RecipeId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    #errors, sucess
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+  ##requests, error response
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    PlantCreateRequest:
+      type: object
+      required: [name, speciesId]
+      properties:
+        name:
+          type: string
+        speciesId:
+          type: integer
+        location:
+          type: string
+
+    PlantUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+
+    SensorCreateRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+
+    RecipeCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    #responses
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    PlantResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        speciesId:
+          type: integer
+        location:
+          type: string
+
+    SensorResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+
+    RecipeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+
+    SpeciesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    MeasurementResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          type: number
+        type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+#EXPLANATION: shared contract between backend and fronted: defines what endpoint exist, what they expect and what they return
+#backend use: OpenAPI is blueprint for implementation - for GET /user/me backend must implement: app.get("/api/user/me",...)
+#for security so bearerAuth: [] backend needs to check JWT token and reject with 401 if it is invalid
+#frontend use: to know which endpoint exists, what APIs are available and which actions are possible
+
+#request: get and delete usually dont have it, post and patch almost always
+#it sends data from frontend to backend - it tells which data endpoint needs, which are required, their format
+#part in endpoints - requestBody... tells how body of request should look like - required true tells that body is required, content for format of data were sending - frontend JSON
+#Application/json - body will be json, schema: how json looks - we can see that at the end - recipeCreateRequest...
+
+#response: ddescribes what frontend sends back to backend as well as what backend sends frontend! - Status code, data format and structure JSON
+#without it front end guesses, doesnt know what it gets back
+#so request is what we send, response is what we get back
+
+#parameters for id - OpenAPI needs to know it exist, where it is - path, which type it is - integer
+#we need them because endpoint does not tell us what id is, if it is string/int and if it is required
+#query parameters - in: query -> example: /recipes?page=1&limit=10 - page and limit are quary parameters
+#parameters: filtering, paging, sorting, searching without sending request body

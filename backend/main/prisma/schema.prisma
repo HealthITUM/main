@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,5 +5,72 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  recipes  Recipes[]
+  plants    UserPlants[]
+}
+
+model PlantSpecies {
+  id            Int     @id @default(autoincrement())
+  name          String  
+  description   String
+  idealValues   Json
+  imagePath     String  @unique
+  recipes       Recipes[]
+  userPlants    UserPlants[]     
+}
+
+model Recipes {
+  id            Int     @id @default(autoincrement())
+  dishName      String              
+  description   String
+  imagePath     String
+  fkUserId      Int
+  author        Users   @relation(fields: [fkUserId], references: [id], onDelete: Cascade)
+  plantSpecies  PlantSpecies[]
+  ingredients   Ingredients[]
+}
+
+model Ingredients {
+  id            Int @id @default(autoincrement())
+  name          String
+  unit          String
+  amount        Float
+  fkRecipesId   Int
+  recepie       Recipes @relation(fields: [fkRecipesId], references: [id], onDelete: Cascade)
+}
+
+model UserPlants {
+  id                Int @id @default(autoincrement())
+  name              String
+  imagePath         String
+  fkUserId          Int
+  fkPlantSpeciesId  Int
+  user              Users @relation(fields: [fkUserId], references: [id], onDelete: Cascade)
+  plantSpecies      PlantSpecies @relation(fields: [fkPlantSpeciesId], references: [id], onDelete: Cascade)
+  sensors           Sensors[]
+  measurements      Measurements[]
+}
+
+model Sensors {
+  id              Int      @id @default(autoincrement())
+  lastSeen        DateTime @default(now())
+  online          Boolean  @default(false)
+  fkUserPlantsId  Int?
+  userPlants      UserPlants? @relation(fields: [fkUserPlantsId], references: [id], onDelete: SetNull)
+}
+
+model Measurements {
+  id              Int     @id @default(autoincrement())
+  values          Json
+  timestamp       DateTime @default(now())
+  fkUserPlantsId  Int
+  userPlants      UserPlants @relation(fields: [fkUserPlantsId], references: [id], onDelete: Cascade)
 }

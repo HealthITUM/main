@@ -1,0 +1,76 @@
+{
+  "rabbit_version": "3.12.0",
+  "users": [
+    { "name": "admin", "password_hash": "VedKPvHJX0o3ECXY+arni2zJ5kbtmhV84/iCR4AOH2zhCirx", "tags": ["administrator"] },
+    { "name": "monolith_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags":[] }, 
+    { "name": "scrapper_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
+    { "name": "sensor_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
+    { "name": "notification_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": []},
+    { "name": "pdet_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] }
+  ],
+  "vhosts": [{ "name": "/" }],
+  "permissions": [
+    { "user": "admin", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*" },
+    {
+    "user": "monolith_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|scrapper\\.task.*|pdet\\.task.*|notif\\.data.*)$", 
+      "read": "^(amq\\.topic|scrapper\\.result.*|pdet\\.result.*|sensor\\.data.*)$"
+  },
+  {
+    "user": "scrapper_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|scrapper\\.result.*)$",
+    "read": "^(amq\\.topic|scrapper\\.task.*)$"
+  },
+  {
+    "user": "pdet_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|pdet\\.result.*)$",
+    "read": "^(amq\\.topic|pdet\\.task.*)$"
+  },
+  {
+    "user": "sensor_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|sensor\\.data.*)$",
+    "read": ""
+  },
+  {
+    "user": "notification_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "",
+    "read": "^(amq\\.topic|notif\\.data.*)$"
+  }
+  ],
+  "exchanges": [
+    {
+      "name": "amq.topic",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    { "name": "scrapper.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "scrapper.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "pdet.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "pdet.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "sensor.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "notif.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} }
+  ],
+  "bindings": [
+    { "source": "amq.topic", "vhost": "/", "destination": "scrapper.result.queue", "destination_type": "queue", "routing_key": "scrapper.result.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "scrapper.task.queue", "destination_type": "queue", "routing_key": "scrapper.task.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "pdet.result.queue", "destination_type": "queue", "routing_key": "pdet.result.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "pdet.task.queue", "destination_type": "queue", "routing_key": "pdet.task.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "sensor.data.queue", "destination_type": "queue", "routing_key": "sensor.data.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "notif.data.queue", "destination_type": "queue", "routing_key": "notif.data.#", "arguments": {} }
+  ]
+}

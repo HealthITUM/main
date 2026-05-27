@@ -1,5 +1,3 @@
-//import type { ISpecieDTO } from "./SpeciesDTO";
-
 export interface IUserPlantDTO { // Base class.
     id: number;
     plantSpecieId: number;
@@ -15,10 +13,11 @@ export interface IUserPlantCreateRequestDTO {
     name: string;
     image: File;
 }
+
 // PATCH /my/plants/:id. Request.
 export interface IUserPlantUpdateRequestDTO 
     extends Partial<Omit<IUserPlantCreateRequestDTO, 'image'>> {}
-
+    
 // SENSORS.
 export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
     id: number;
