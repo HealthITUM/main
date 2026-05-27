@@ -34,15 +34,6 @@ export const HomeScreen = ({ navigation }: any) => {
                 </Text>
 
                 <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-                
-                <TouchableOpacity
-                    style={styles.profileButton}
-                    onPress={() => navigation.navigate("Profile")}
-                >
-                    <Text style={styles.profileButtonText}>
-                        Profile
-                    </Text>
-                </TouchableOpacity>
 
                 <View style={{ position: "relative" }}>
                     <TouchableOpacity
