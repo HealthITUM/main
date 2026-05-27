@@ -80,6 +80,18 @@ export const LoginScreen = ({ navigation }: any) => {
                     </View>
 
                     <View style={{ marginTop: 16 }}>
+                        <Text style={styles.baseText}>Email</Text>
+                        <TextInput
+                            style={[styles.input, { marginTop: 8 }]}
+                            placeholder="Enter email"
+                            value={form.email}
+                            onChangeText={(text) =>
+                                setForm({ ...form, email: text })
+                            }
+                        />
+                    </View>
+
+                    <View style={{ marginTop: 16 }}>
                         <Text style={styles.baseText}>Password</Text>
                         <TextInput
                             style={[styles.input, { marginTop: 8 }]}

@@ -22,7 +22,7 @@ export const EditProfileScreen = ({ navigation }: any) => {
     //profile fetch
     const [fetching, setFetching] = useState(true);
 
-    /*useEffect(() => {
+    useEffect(() => {
         const load = async () => {
             //no token - redirects to login
             if (!token) {
@@ -44,7 +44,7 @@ export const EditProfileScreen = ({ navigation }: any) => {
             }
         };
         load();
-    }, [token, navigation]);*/
+    }, [token, navigation]);
 
     const validate = () => {
         //error list
@@ -96,7 +96,7 @@ export const EditProfileScreen = ({ navigation }: any) => {
         }
     };
 
-    /*if (fetching) {
+    if (fetching) {
         return (
             <View style={[styles.appContainer, { justifyContent: "center", alignItems: "center" }]}>
                 <ActivityIndicator size="large" color="#4B6043" />
@@ -105,9 +105,9 @@ export const EditProfileScreen = ({ navigation }: any) => {
                 </Text>
             </View>
         );
-    }*/
+    }
     //fake data
-    if (!user) {
+    /*if (!user) {
         setUser({
             id: 1,
             username: "plantlover",
@@ -115,7 +115,7 @@ export const EditProfileScreen = ({ navigation }: any) => {
         });
 
         setUsername("plantlover");
-    }
+    }*/
 
     return (
         <SafeAreaView style={styles.appContainer}>

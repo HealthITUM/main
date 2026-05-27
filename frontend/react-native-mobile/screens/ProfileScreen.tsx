@@ -12,10 +12,10 @@ export const ProfileScreen = ({ navigation }: any) => {
     //gets token, logout
     const { token, logout } = useAuth();
     //currently logged in
-    //const [user, setUser] = useState<IUserDTO | null>(null);
+    const [user, setUser] = useState<IUserDTO | null>(null);
     const [loading, setLoading] = useState(true);
 
-    /*useEffect(() => {
+    useEffect(() => {
         const loadUser = async () => {
             //if user is not logged in - redirect login
             if (!token) {
@@ -36,7 +36,7 @@ export const ProfileScreen = ({ navigation }: any) => {
             }
         };
         loadUser();
-    }, [token, navigation]);*/ //runs if token or navigation changes
+    }, [token, navigation]); //runs if token or navigation changes
 
     const handleLogout = async () => {
         try {
@@ -48,7 +48,7 @@ export const ProfileScreen = ({ navigation }: any) => {
         }
     };
 
-    /*if (loading) {
+    if (loading) {
         return (
             <View style={[styles.appContainer, { justifyContent: "center", alignItems: "center" }]}>
                 <ActivityIndicator size="large" color="#4B6043" />
@@ -59,13 +59,13 @@ export const ProfileScreen = ({ navigation }: any) => {
         );
     }
 
-    if (!user) return null;*/
+    if (!user) return null;
     //fake data
-    const user: IUserDTO = {
+    /*const user: IUserDTO = {
         id: 1,
         username: "plantlover",
         email: "plantlover@plantit.com",
-    };
+    };*/
 
     return (
         <SafeAreaView style={styles.appContainer}>
