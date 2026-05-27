@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { userPlantService, useAuth } from "@project/frontend-shared";
-import type { IUserPlantDTO, ISensorDTO } from "@project/shared";
+import type { IUserPlantDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
 import { api } from "../src/api";
 
 export default function MyPlantDetailsPage() {
@@ -17,6 +17,7 @@ export default function MyPlantDetailsPage() {
     //stores sensors connected to this plant
     const [sensors, setSensors] = useState<ISensorDTO[]>([]);
     //loading state: shows text when loading
+    const [measurements, setMeasurements] = useState<IMeasurementDTO[]>([]);
     const [loading, setLoading] = useState(true);
     //stores API errors
     const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,9 @@ export default function MyPlantDetailsPage() {
                 //backend: GET /my/plants/:id/sensors
                 const sensorData = await plantService.getSensors(id);
                 setSensors(sensorData);
-
+                //backend: GET /my/plants/:id/measurements
+                const measurementData = await plantService.getMeasurements(id);
+                setMeasurements(measurementData);
             } catch {
                 setError("Failed to load plant details");
             } finally {
@@ -234,6 +237,32 @@ export default function MyPlantDetailsPage() {
                         ))
                     )}
                 </div>
+                 <div className="dark-green-card p-4 shadow-sm mt-4">
+                        <h3 className="fw-bold mb-3">Measurements</h3>
+
+                        {measurements.length === 0 ? (
+                            <p>No measurements available.</p>
+                        ) : (
+                            measurements.map((m) => (
+                                <div key={m.id} className="border p-3 rounded mb-2">
+                                    <div className="text-uppercase" style={{ fontSize: "16px", color: "#9fbf9f", fontWeight: 700 }}>
+                                        Timestamp
+                                    </div>
+                                    <div className="mb-2">
+                                        {new Date(m.timestamp).toLocaleString()}
+                                    </div>
+
+                                    <div className="text-uppercase" style={{ fontSize: "16px", color: "#9fbf9f", fontWeight: 700 }}>
+                                        Values
+                                    </div>
+
+                                    <pre style={{ margin: 0 }}>
+                                        {JSON.stringify(m.values, null, 2)}
+                                    </pre>
+                                </div>
+                            ))
+                        )}
+                    </div>
             </div>
         </div>
     );
