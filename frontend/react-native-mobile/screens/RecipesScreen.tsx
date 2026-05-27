@@ -260,7 +260,7 @@ export const RecipesScreen = ({ navigation }: any) => {
        
                            <TouchableOpacity
                            style={styles.darkGreenButton}
-                           onPress={() => navigation.goBack()}
+                           onPress={() => navigation.navigate("Home")}
                            >
                            <Text style={styles.darkGreenButtonText}>
                                Back

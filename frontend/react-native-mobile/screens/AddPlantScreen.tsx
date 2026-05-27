@@ -32,6 +32,7 @@ export const AddPlantScreen = ({ navigation }: any) => {
 
     // species load
     useEffect(() => {
+        requestPermissions();
         const load = async () => {
             try {
                 //backend: GET /species
@@ -68,6 +69,29 @@ export const AddPlantScreen = ({ navigation }: any) => {
             //image is stored - used for upload and preview rendering
             setImage(file);
             setImagePreview(file.uri);
+        }
+    };
+
+    const takePhoto = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const file = result.assets[0];
+            setImage(file);
+            setImagePreview(file.uri);
+        }
+    };
+
+    const requestPermissions = async () => {
+        const media = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const camera = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (!media.granted || !camera.granted) {
+            alert("Permissions are required to use this feature.");
         }
     };
 
@@ -186,14 +210,25 @@ export const AddPlantScreen = ({ navigation }: any) => {
                         onChangeText={setName}
                     />
 
-                    <TouchableOpacity
-                        style={[styles.darkGreenButton, { marginBottom: 10 }]}
-                        onPress={pickImage}
-                    >
-                        <Text style={styles.darkGreenButtonText}>
-                            Choose Image
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
+                        <TouchableOpacity
+                            style={[styles.darkGreenButton, { flex: 1 , justifyContent: "center", alignItems: "center" }]}
+                            onPress={pickImage}
+                        >
+                            <Text style={styles.darkGreenButtonText}>
+                                Choose Image from Gallery
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.darkGreenButton, { flex: 1, justifyContent: "center", alignItems: "center" }]}
+                            onPress={takePhoto}
+                        >
+                            <Text style={styles.darkGreenButtonText}>
+                                Take Photo
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
 
                     {imagePreview ? (
                         <Image

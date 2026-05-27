@@ -31,6 +31,7 @@ export const AddRecipeScreen = ({ navigation }: any) => {
 
     //remove for backend
     useEffect(() => {
+        requestPermissions();
         const loadUser = async () => {
             try {
                 //if there is no token user is redirected to login screen
@@ -68,6 +69,27 @@ export const AddRecipeScreen = ({ navigation }: any) => {
             setImage(file);
             //saves image URL for UI preview
             setImagePreview(file.uri);
+        }
+    };
+
+    const takePhoto = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            quality: 1,
+        });
+        if (!result.canceled) {
+            const file = result.assets[0];
+            setImage(file);
+            setImagePreview(file.uri);
+        }
+    };
+
+    const requestPermissions = async () => {
+        const media = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const camera = await ImagePicker.requestCameraPermissionsAsync();
+    
+        if (!media.granted || !camera.granted) {
+            alert("Permissions are required to use this feature.");
         }
     };
 
@@ -243,14 +265,25 @@ export const AddRecipeScreen = ({ navigation }: any) => {
                             multiline
                         />
 
-                        <TouchableOpacity
-                            style={[styles.darkGreenButton, { marginBottom: 10 }]}
-                            onPress={pickImage}
-                        >
-                            <Text style={styles.darkGreenButtonText}>
-                                Choose Image
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
+                            <TouchableOpacity
+                                style={[styles.darkGreenButton, { flex: 1, alignItems: "center", justifyContent: "center" }]}
+                                onPress={pickImage}
+                            >
+                                <Text style={styles.darkGreenButtonText}>
+                                    Choose Image from Gallery
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.darkGreenButton, { flex: 1, alignItems: "center", justifyContent: "center" }]}
+                                onPress={takePhoto}
+                            >
+                                <Text style={styles.darkGreenButtonText}>
+                                    Take Photo
+                                </Text>
+                            </TouchableOpacity>
+
+                        </View>
 
                         {imagePreview ? (
                             <Image
