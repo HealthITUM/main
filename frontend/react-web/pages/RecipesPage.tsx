@@ -165,9 +165,9 @@ export default function RecipesPage() {
 
                 <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
                     <div className="d-flex align-items-center">
-                        <a className="navbar-brand fw-bold" href="#">
+                        <div className="navbar-brand fw-bold">
                             PlantIT
-                        </a>
+                        </div>
 
                         <button
                             className="btn dark-green-btn ms-3"

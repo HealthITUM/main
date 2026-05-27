@@ -10,11 +10,9 @@ export default function HomePage() {
     return (
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
-                <a className="navbar-brand fw-bold"
-                    onClick={() => navigate("/")}
-                    style={{ cursor: "pointer"}}>
+                <div className="navbar-brand fw-bold">
                     PlantIT
-                </a>
+                </div>
 
                 <div className="ms-auto dropdown">
                     <button

@@ -215,14 +215,9 @@ export default function CreateRecipePage() {
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
                 <div className="d-flex align-items-center justify-content-between w-100">
-                    
-                    <a
-                        className="navbar-brand fw-bold"
-                        onClick={() => navigate("/home")}
-                        style={{ cursor: "pointer" }}
-                    >
+                    <div className="navbar-brand fw-bold">
                         PlantIT
-                    </a>
+                    </div>
 
                     <button
                         className="btn dark-green-btn"
