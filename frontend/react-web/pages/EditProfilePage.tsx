@@ -77,11 +77,14 @@ export default function EditProfilePage() {
         setErrors([]);
 
         try {
+        const cleanUsername = username.trim();
+        const cleanPassword =
+             password.trim().length > 0 ? password.trim() : undefined;
         const payload: IUserUpdateRequestDTO = {
             //includes username if its not empty
-            ...(username.trim() ? { username: username.trim() } : {}),
+            ...(cleanUsername ? { username: cleanUsername } : {}),
             //includes if user typed it
-            ...(password ? { password } : {}),
+            ...(cleanPassword ? { password: cleanPassword } : {}),
         };
         //update request to backend
         await service.updateMe(payload);
