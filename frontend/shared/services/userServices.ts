@@ -8,7 +8,7 @@ export const userService = (api: AxiosInstance) => ({
     register: async (userData: IUserRegisterRequestDTO)
     : Promise<void> => {
         //API call - POST /user/register - sends user data to backend
-        const response = await api.post<void>("/user/register", userData);
+        await api.post<void>("/user/register", userData);
     },
 
     //authentication - user, returns token
@@ -36,7 +36,7 @@ export const userService = (api: AxiosInstance) => ({
     updateMe: async (userData: IUserUpdateRequestDTO
     ): Promise<void> => {
         //API call - partial update - only provided fields
-        const response = await api.patch<void>(
+        await api.patch<void>(
             "/user/me",
             userData);
     },
