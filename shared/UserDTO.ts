@@ -28,3 +28,8 @@ export interface IUserLoginResponseDTO extends IUserDTO { // BACKEND -> FRONTEND
 export interface IUserUpdateRequestDTO extends Partial<IUserDTO> { // FRONTEND -> BACKEND. UPDATE.
     password?: string;
 }
+
+// POST user/fcm-token. Request.
+export interface IUserFcmTokenRequestDTO {
+    token : string;
+}

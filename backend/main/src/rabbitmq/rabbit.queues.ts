@@ -1,7 +1,8 @@
 export enum AppQueue { // gets
   ScrapperResult = 'scrapper.result.queue',
   PlantDetectionResult = 'pdet.result.queue',
-  SensorData = 'sensor.data.queue'
+  SensorData = 'sensor.data.queue',
+  NotificationErrors = 'notif.error.queue'
 }
 
 export enum RoutingKey { // sends

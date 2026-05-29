@@ -30,7 +30,7 @@ export class UserPlantRepository {
         const result = await prisma.userPlants.findUnique({
             where: {
                 id: plantId,
-                fkUserId: userId
+                userId : userId
             }
         });
 
