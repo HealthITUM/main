@@ -81,11 +81,6 @@ export default function MyPlantDetailsPage() {
         setSensors(demoSensors);
         setLoading(false);
     }, []);*/
-    //happens when user clicks add sensor -> opens add sensor page
-    const handleAddSensor = () => {
-        if (!id) return;
-        navigate(`/my/plants/${id}/add-sensor`);
-    };
     //remove for backend
     const handleDeleteSensor = async (sensorId: number) => {
         try {
@@ -182,13 +177,6 @@ export default function MyPlantDetailsPage() {
 
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <h3 className="fw-bold mb-0">Sensors</h3>
-
-                        <button
-                            className="btn dark-green-btn"
-                            onClick={handleAddSensor}
-                        >
-                            + Add Sensor
-                        </button>
                     </div>
 
                     {sensors.length === 0 ? (
