@@ -16,7 +16,7 @@ export class PlantSpecieService {
     async create (data : ISpecieCreateModel) : Promise<boolean> {
         const response = await plantSpecieRepository.create(data);
 
-        return false;
+        return response;
     }
 }
 

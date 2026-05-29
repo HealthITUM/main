@@ -104,6 +104,20 @@ services:
         limits:
           memory: 1gb
 
+  scrapper:
+    build:
+      context: ./backend/services/Scrapper
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    restart: "no"
+
 volumes:
   postgres-data:
   minio_data:
