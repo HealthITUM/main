@@ -9,7 +9,6 @@ import CreateRecipePage from "../pages/CreateRecipePage";
 import MyPlantsPage from "../pages/MyPlantsPage";
 import MyPlantDetailsPage from "../pages/MyPlantDetailsPage";
 import AddPlantPage from "../pages/AddPlantPage";
-import AddSensorPage from "../pages/AddSensorPage";
 import EditPlantPage from "../pages/EditPlantPage";
 import EditProfilePage from "../pages/EditProfilePage";
 
@@ -26,7 +25,6 @@ function App() {
         <Route path="/my/plants" element={<MyPlantsPage />} />
         <Route path="/my/plants/:id" element={<MyPlantDetailsPage />} />
         <Route path="/my/plants/add" element={<AddPlantPage />} />
-        <Route path="/my/plants/:id/add-sensor" element={<AddSensorPage />} />
         <Route path="/my/plants/:id/edit" element={<EditPlantPage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
       </Routes>

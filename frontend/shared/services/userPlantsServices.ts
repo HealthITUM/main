@@ -28,7 +28,7 @@ export const userPlantService = (api: AxiosInstance) => ({
             formData.append("plantSpecieId", String(data.plantSpecieId));
             formData.append("image", data.image);
             //backend: POST /my/plants
-            const response = await api.post<void>("/my/plants", formData, {
+            await api.post<void>("/my/plants", formData, {
                 //multipart request
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -44,7 +44,7 @@ export const userPlantService = (api: AxiosInstance) => ({
         //formData: FormData
     ): Promise<void> => {
         //backend PATCH /my/plants/:id
-        const response = await api.patch<void>(
+        await api.patch<void>(
             `/my/plants/${id}`,
             //formData,
             data

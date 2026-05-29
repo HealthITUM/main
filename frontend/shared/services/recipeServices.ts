@@ -32,7 +32,7 @@ export const recipeService = (api: AxiosInstance) => ({
             JSON.stringify(data.ingredients)
         );
         //POST /recipes
-        const response = await api.post<void>("/recipes", formData, {
+        await api.post<void>("/recipes", formData, {
             //multipart request
             headers: {
                 "Content-Type": "multipart/form-data",
