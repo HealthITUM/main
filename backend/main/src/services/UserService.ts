@@ -1,5 +1,5 @@
 import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
-import type { IUserCreateModel } from "../models/User.js";
+import type { IUserCreateModel, IUserFcmTokenAssignModel } from "../models/User.js";
 import { userRepository } from "../repositories/UserRepository.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -51,6 +51,11 @@ export class UserService {
 
         const response = await userRepository.create(user);
 
+        return response;
+    }
+
+    async assignFcmToken (data : IUserFcmTokenAssignModel) : Promise<boolean> {
+        const response = await userRepository.assignFcmToken(data);
         return response;
     }
 

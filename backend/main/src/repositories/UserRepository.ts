@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
-import type { IUser, IUserCreateModel } from "../models/User.js";
+import type { IUser, IUserCreateModel, IUserFcmTokenAssignModel } from "../models/User.js";
 
 export class UserRepository {
     async getById(id : number) : Promise<IUserDTO | null> {
@@ -58,18 +58,31 @@ export class UserRepository {
         }
     }
 
-    async update(data : IUserUpdateRequestDTO) : Promise<boolean> {
-        const updatedUserPlant = await prisma.users.updateMany({
+    async assignFcmToken(data : IUserFcmTokenAssignModel) : Promise<boolean> {
+        const updatedUser = await prisma.users.updateMany({
             where: {
                 id: Number(data.id),
             },
             data: {
-                username: String(data.username),
-                password: String(data.password)
+                fcmToken : data.fcmToken
             }
         });
 
-        if (updatedUserPlant.count === 0) {
+        if (updatedUser.count === 0) {
+            return false;
+        }
+        return true;
+    }
+
+    async update(data : IUserUpdateRequestDTO) : Promise<boolean> {
+        const updatedUsers = await prisma.users.updateMany({
+            where: {
+                id: Number(data.id),
+            },
+            data : data
+        });
+
+        if (updatedUsers.count === 0) {
             return false;
         }
         return true;

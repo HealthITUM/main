@@ -4,6 +4,11 @@ export interface IUserCreateModel {
     passwordHash: string;
 }
 
+export interface IUserFcmTokenAssignModel {
+    id : number;
+    fcmToken : string;
+}
+
 export interface IUser extends IUserCreateModel {
     id: number;
 }
