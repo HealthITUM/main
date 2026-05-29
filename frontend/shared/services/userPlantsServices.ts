@@ -20,7 +20,7 @@ export const userPlantService = (api: AxiosInstance) => ({
     //creates a new plant with image upload - thats why important: formData
     create: async (
         data: IUserPlantCreateRequestDTO
-    ): Promise<IUserPlantDTO> => {
+    ): Promise<void> => {
             //we use formdata because we are sending a FILE
             const formData = new FormData();
             //multipart/form-data request
@@ -28,15 +28,13 @@ export const userPlantService = (api: AxiosInstance) => ({
             formData.append("plantSpecieId", String(data.plantSpecieId));
             formData.append("image", data.image);
             //backend: POST /my/plants
-            const response = await api.post<IUserPlantDTO>("/my/plants", formData, {
+            const response = await api.post<void>("/my/plants", formData, {
                 //multipart request
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             }
         );
-        //returns IUserPlantDTO
-        return response.data;
     },
     //updates existing plant - image optional
     //formData: for image upload - optional
@@ -44,9 +42,9 @@ export const userPlantService = (api: AxiosInstance) => ({
         id: string,
         data: IUserPlantUpdateRequestDTO
         //formData: FormData
-    ): Promise<IUserPlantDTO> => {
+    ): Promise<void> => {
         //backend PATCH /my/plants/:id
-        const response = await api.patch<IUserPlantDTO>(
+        const response = await api.patch<void>(
             `/my/plants/${id}`,
             //formData,
             data
@@ -57,7 +55,6 @@ export const userPlantService = (api: AxiosInstance) => ({
                 },
             }*/
         );
-        return response.data;
     },
     //delete plant
     delete: async (id: string):

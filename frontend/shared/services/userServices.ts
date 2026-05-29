@@ -6,10 +6,9 @@ import type { AxiosInstance } from "axios";
 export const userService = (api: AxiosInstance) => ({
     //create a new user account
     register: async (userData: IUserRegisterRequestDTO)
-    : Promise<IUserDTO> => {
+    : Promise<void> => {
         //API call - POST /user/register - sends user data to backend
-        const response = await api.post<IUserDTO>("/user/register", userData);
-        return response.data;
+        const response = await api.post<void>("/user/register", userData);
     },
 
     //authentication - user, returns token
@@ -35,11 +34,10 @@ export const userService = (api: AxiosInstance) => ({
 
     //update currently logged in user data
     updateMe: async (userData: IUserUpdateRequestDTO
-    ): Promise<IUserDTO> => {
+    ): Promise<void> => {
         //API call - partial update - only provided fields
-        const response = await api.patch<IUserDTO>(
+        const response = await api.patch<void>(
             "/user/me",
             userData);
-        return response.data;
     },
 });

@@ -21,7 +21,7 @@ export const recipeService = (api: AxiosInstance) => ({
     //create a new recipe + image upload
     //form data because we have text fields and file uploads
     create: async (data: IRecipeCreateRequestDTO
-    ): Promise<IRecipeDTO> => {
+    ): Promise<void> => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("description", data.description);
@@ -32,14 +32,12 @@ export const recipeService = (api: AxiosInstance) => ({
             JSON.stringify(data.ingredients)
         );
         //POST /recipes
-        const response = await api.post<IRecipeDTO>("/recipes", formData, {
+        const response = await api.post<void>("/recipes", formData, {
             //multipart request
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
-        //returns IRecipeDTO
-        return response.data;
     },
     //deletes a recipe
     delete: async (id: string):
