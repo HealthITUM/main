@@ -133,8 +133,8 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
     }
 
     const fixedImageUrl = plant.imageUrl.replace(
-        "http://localhost:9000",
-        "http://172.20.10.5:9000"
+        process.env.EXPO_PUBLIC_STORAGE_URL_LOCAL!,
+        process.env.EXPO_PUBLIC_STORAGE_URL!
     );
 
    return (

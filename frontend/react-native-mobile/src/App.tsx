@@ -9,10 +9,12 @@ import {
   sendTokenToBackend,
 } from "../src/notificationService";
 
+setStorage(storage);
+
 function Router() {
   const { token } = useAuth();
 
-  useEffect(() => {
+  /*useEffect(() => {
     const setupNotifications = async () => {
       // if we have JWT-token in memory- sending fcm token to backend
       if (token) {
@@ -25,7 +27,7 @@ function Router() {
     };
 
     setupNotifications();
-  }, [token]); // any time when token is updated (login or auto-load)
+  }, [token]); // any time when token is updated (login or auto-load)*/
 
   return <AppStack />;
 }
