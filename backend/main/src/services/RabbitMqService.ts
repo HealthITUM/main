@@ -81,4 +81,4 @@ export class QueueService {
     }
 }
 
-export const queueService = new QueueService();
+export const rabbitService = new QueueService();

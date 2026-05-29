@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
-import type { IUser, IUserCreateModel, IUserFcmTokenAssignModel } from "../models/User.js";
+import type { IUser, IUserCreateModel, IUserFcmTokenModel } from "../models/User.js";
 
 export class UserRepository {
     async getById(id : number) : Promise<IUserDTO | null> {
@@ -58,7 +58,7 @@ export class UserRepository {
         }
     }
 
-    async assignFcmToken(data : IUserFcmTokenAssignModel) : Promise<boolean> {
+    async assignFcmToken(data : IUserFcmTokenModel) : Promise<boolean> {
         const updatedUser = await prisma.users.updateMany({
             where: {
                 id: Number(data.id),
@@ -72,6 +72,25 @@ export class UserRepository {
             return false;
         }
         return true;
+    }
+
+    async removeFcmToken(userId : number) : Promise<boolean> {
+        try {
+            const updatedUser = await prisma.users.update({
+                where: {
+                    id: userId,
+                },
+                data: {
+                    fcmToken: null
+                }
+            });
+    
+            return !!updatedUser;
+
+        } catch (error) {
+            console.error(`Failed to remove FCM token for user ${userId}:`, error);
+            return false;
+        }
     }
 
     async update(data : IUserUpdateRequestDTO) : Promise<boolean> {

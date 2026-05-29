@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import type { AuthRequest } from "../middleware/auth.js";
 import type { IUserUpdateRequestDTO } from '@project/shared';
 import { userService } from '../services/UserService.js';
-import type { IUserFcmTokenAssignModel } from '../models/User.js';
+import type { IUserFcmTokenModel } from '../models/User.js';
 
 class UserController {
     getProfile = async (req: AuthRequest, res: Response) => {
@@ -72,11 +72,11 @@ class UserController {
                 return res.status(400).json({ message: "Error: FCM Token is empty!"});
             }
 
-            const data : IUserFcmTokenAssignModel = {
+            const data : IUserFcmTokenModel = {
                 id : userId,
                 fcmToken : token
             }
-            
+
             const response = await userService.assignFcmToken(data);
 
             if (!response){

@@ -3,6 +3,7 @@ import type { IMeasurementCreateModel } from "../models/Measurement.js";
 import { plantSpecieService } from "../services/PlantSpecieService.js";
 import { measurementService } from "../services/MeasurementService.js";
 import { AppQueue } from "./rabbit.queues.js";
+import { userService } from "../services/UserService.js";
 
 type MessageHandler = (content: any) => Promise<void>;
 
@@ -41,7 +42,7 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
     try {
       const createData : IMeasurementCreateModel = {
         plantId : data.plantId,
-        values : data.ideal_values,
+        values : data.values,
         timestamp : data.timestamp
       };
 
@@ -54,6 +55,28 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
       }
     } catch (error) {
       console.log('[Sensor Handler] Error:', error);
+    }
+  },
+
+  [AppQueue.NotificationErrors]: async (data) => {
+    console.log('[Notifications Errors Handler] Data:', data);
+
+    try {
+      const userId : number = data.user_id;
+
+      if (!userId) {
+        console.log('[Notifications Errors Handler] UserID came empty.')
+      } else {
+          const response = await userService.removeFcmToken(userId);
+          
+          if (!response) {
+            console.log("[Notifications Errors Handler] Failed to remove FCM Token from user: ", userId);
+          } else {
+            console.log("[Notifications Errors Handler] Token removed.");
+          }
+      }
+    } catch (error) {
+      console.log('[Notifications Errors Handler] Error:', error);
     }
   }
 };
