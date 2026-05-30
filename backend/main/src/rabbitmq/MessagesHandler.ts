@@ -62,7 +62,7 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
     console.log('[Notifications Errors Handler] Data:', data);
 
     try {
-      const userId : number = data.user_id;
+      const userId : number = data.userId;
 
       if (!userId) {
         console.log('[Notifications Errors Handler] UserID came empty.')
