@@ -118,6 +118,23 @@ services:
       - ./.env
     restart: "no"
 
+  notification-service:
+    build:
+      context: ./backend/services/Notifications
+      dockerfile: Dockerfile
+    container_name: notification_service
+    restart: always
+    env_file:
+      - ./.env 
+    environment:
+      - RABBITMQ_URL_NOTIF=${RABBITMQ_URL_NOTIF}
+      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH}
+    volumes:
+      - ./backend/services/Notifications/internal/config:/app/config
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   postgres-data:
   minio_data:

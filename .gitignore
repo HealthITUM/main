@@ -14,3 +14,4 @@ backend/main/src/generated/prisma
 go.sum
 # Firebase
 google-services.json
+firebase-credentials.json
