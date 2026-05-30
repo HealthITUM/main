@@ -30,6 +30,14 @@ export interface ISensorCreateRequestDTO { // POST my/plants/:id/sensors
     userPlantId : number;
 }
 
+export interface ISensorCreateResponseDTO { // POST my/plants/:id/sensors
+    userPlantId : number;
+    mosquitto_url : string;
+    mosquitto_user : string;
+    mosquitto_password : string;
+    mosquitto_port : string;
+}
+
 // MEASUREMENT. GET my/plants/:id/measurement
 export interface IMeasurementDTO {
     id: number;

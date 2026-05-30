@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import { sensorService } from '../services/SensorService.js';
 import type { ISensorCreateModel } from '../models/Sensor.js';
+import type { ISensorCreateResponseDTO } from '@project/shared';
 
 class SensorController {
     getSensors = async (req: AuthRequest, res: Response) => {
@@ -81,7 +82,15 @@ class SensorController {
                 return res.status(400).json({ message: "Error: Failed to add Sensor!"})
             }
 
-            return res.status(200).json({ message: "Success: Sensor added!"});
+            const responseData : ISensorCreateResponseDTO = {
+                userPlantId : parsedId,
+                mosquitto_url : (process.env.PUBLIC_URL ? process.env.PUBLIC_URL : "empty" ),
+                mosquitto_user : (process.env.MOSQUITTO_USER ? process.env.MOSQUITTO_USER : "empty" ),
+                mosquitto_password : (process.env.MOSQUITTO_PASSWORD ? process.env.MOSQUITTO_PASSWORD : "empty" ),
+                mosquitto_port : (process.env.MOSQUITTO_PORT ? process.env.MOSQUITTO_PORT : "1883" )
+            }
+
+            return res.status(200).json(responseData);
         }
         catch (error){
             return res.status(500).json({ message : "Error on the server." });
