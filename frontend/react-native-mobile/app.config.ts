@@ -6,11 +6,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "react-native-app",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "../assets/icon.jpg",
+  icon: "./assets/icon.jpg",
   userInterfaceStyle: "light",
   newArchEnabled: true,
   splash: {
-    image: "../assets/icon.jpg",
+    image: "./assets/icon.jpg",
     resizeMode: "contain",
     backgroundColor: "#ffffff"
   },
@@ -19,15 +19,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: process.env.FIREBASE_PACKAGE_NAME || "com.com.com", 
-    googleServicesFile: "./google-services.json",
+    googleServicesFile: process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
     adaptiveIcon: {
-      foregroundImage: "../assets/icon.jpg",
+      foregroundImage: "./assets/icon.jpg",
       backgroundColor: "#ffffff"
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false
   },
   web: {
-    favicon: "../assets/icon.jpg"
+    favicon: "./assets/icon.jpg"
+  },
+  extra: {
+    eas: {
+      projectId: "39501265-d4db-4cf0-8ec3-f86bdc88dbfb"
+    }
   }
 });

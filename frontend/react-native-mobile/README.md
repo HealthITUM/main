@@ -269,3 +269,10 @@ Delete(id): Deletes a recipe.
     Returns: void
 Flow: User confirms deletion, API call is executed and local state is updated.
 Example: await recipeApi.delete(id);
+
+.apk - run
+npm install -g eas-cli - needs to be downloaded
+You need to create account on expo.dev.
+Then you log in: npm install -g eas-cli
+Inicialize EAS: eas build:configure
+Build APK: eas build -p android --profile preview - takes and while and they you get link to download this app :3
