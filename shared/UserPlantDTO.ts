@@ -26,6 +26,10 @@ export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
     online: boolean;
 }
 
+export interface ISensorCreateRequestDTO { // POST my/plants/:id/sensors
+    userPlantId : number;
+}
+
 // MEASUREMENT. GET my/plants/:id/measurement
 export interface IMeasurementDTO {
     id: number;

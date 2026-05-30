@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import { sensorService } from '../services/SensorService.js';
+import type { ISensorCreateModel } from '../models/Sensor.js';
 
 class SensorController {
     getSensors = async (req: AuthRequest, res: Response) => {
@@ -58,7 +59,29 @@ class SensorController {
 
     create = async (req : AuthRequest, res : Response) => {
         try {
-            // TODO
+            const requestPlantId = req.params.plantId;
+            
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const data : ISensorCreateModel = {
+                userPlantId : parsedId
+            }
+
+            const response = await sensorService.create(data)
+
+            if (!response) {
+                return res.status(400).json({ message: "Error: Failed to add Sensor!"})
+            }
+
+            return res.status(200).json({ message: "Success: Sensor added!"});
         }
         catch (error){
             return res.status(500).json({ message : "Error on the server." });
@@ -80,11 +103,13 @@ class SensorController {
                 return res.status(400).json({ message: "Error: SensorID must be a valid number!" });
             }
 
-            const response = await sensorService.delete(parsedId, userId);
+            const response = await sensorService.delete(parsedId);
 
             if (!response) {
                 return res.status(400).json({ message: "Error: Failed to delete Sensor!"})
             }
+
+            return res.status(200).json({ message: "Success: Sensor deleted!"});
         }
         catch (error){
             return res.status(500).json({ message : "Error on the server." });

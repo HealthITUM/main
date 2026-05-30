@@ -79,7 +79,7 @@ export class UserPlantRepository {
             return true;
             
         } catch (error) {
-            console.error("Failed to delete sensor:", error);
+            console.error("Failed to delete user plant:", error);
             return false;
         }
     }

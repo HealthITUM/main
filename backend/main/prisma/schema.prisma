@@ -64,7 +64,7 @@ model Sensors {
   id              Int      @id @default(autoincrement())
   lastSeen        DateTime @default(now())
   online          Boolean  @default(false)
-  fkUserPlantsId  Int?
+  fkUserPlantsId  Int?     @unique
   userPlants      UserPlants? @relation(fields: [fkUserPlantsId], references: [id], onDelete: SetNull)
 }
 

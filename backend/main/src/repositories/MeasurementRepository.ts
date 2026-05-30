@@ -58,7 +58,7 @@ export class MeasurementRepository {
             return !!newMeasurements;
 
         } catch (error) {
-            console.error("Failed to create plant species:", error);
+            console.error("Failed to create measurement:", error);
             return false;
         }
     }
