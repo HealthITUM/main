@@ -16,4 +16,5 @@ go.sum
 google-services.json
 firebase-credentials.json
 # Mosquitto
-password.txtinfrastructure/mosquitto/data/mosquitto.db
+password.txt
+mosquitto.db
