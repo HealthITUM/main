@@ -36,7 +36,7 @@
     "user": "sensor_svc",
     "vhost": "/",
     "configure": "",
-    "write": "^(sensor\\.data.*|amq\\.topic)$",
+    "write": "^(sensor\\.data.*|amq\\.topic|amq\\.default|^)$",
     "read": "" 
   },
   {
