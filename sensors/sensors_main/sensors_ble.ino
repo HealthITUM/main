@@ -9,13 +9,26 @@ class WiFiCallback : public BLECharacteristicCallbacks {
       int firstComma = value.indexOf(',');
       int secondComma = value.indexOf(',', firstComma + 1);
       int thirdComma = value.indexOf(',', secondComma + 1);
+      int fourthComma = value.indexOf(',', thirdComma + 1);
+      int fifthComma = value.indexOf(',', fourthComma + 1);
+      int sixthComma = value.indexOf(',', fifthComma + 1);
 
-      if (firstComma == -1 || secondComma == -1 || thirdComma == -1) return;
+      if (firstComma == -1 || secondComma == -1 || thirdComma == -1 || fourthComma == -1 || fifthComma == -1 || sixthComma == -1) return;
 
       wifiSSID = value.substring(0, firstComma);
       wifiPassword = value.substring(firstComma + 1, secondComma);
       plantId = value.substring(secondComma + 1, thirdComma);
-      mosquittoAddr = value.substring(thirdComma + 1);
+      mosquittoAddr = value.substring(thirdComma + 1, fourthComma);
+      mqttUser = value.substring(fourthComma + 1, fifthComma);
+      mqttPass = value.substring(fifthComma + 1, sixthComma);
+      mqttPort = value.substring(sixthComma + 1);
+      if (mqttPort == ""){
+        mqttPort = "1883";
+      }
+
+      clientId = clientIdPrefix + plantId;
+      publishPath = publishPathPrefix + clientId;
+      statusPath = statusPathPrefix + clientId;
 
       saveCredentials();
 

@@ -4,13 +4,16 @@ void wifiLoop(){
 
 void onWiFiDisconnect(WiFiEvent_t event, WiFiEventInfo_t info) {
   if (!isWifiActive) return;
-  stopWifi();
-  Serial.println("Wifi disconnected");
+  // stopWifi();
+  // Serial.println("Wifi disconnected");
 }
 
 void startWifi() {
   if (isWifiActive) return;
 
+  WiFi.disconnect(true);
+
+  delay(100);
   Serial.println("Starting wifi");
 
   WiFi.mode(WIFI_STA);

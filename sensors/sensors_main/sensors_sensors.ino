@@ -4,9 +4,14 @@ void setupSensors(){
   lightMeter.begin();
   analogReadResolution(12);
   pinMode(ANALOG_PIN, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 void sensorsLoop(){
 
+}
+
+bool isButtonPressed() {
+  return digitalRead(BUTTON_PIN) == LOW;
 }
 
 sensorReading readSensors() {
@@ -14,15 +19,12 @@ sensorReading readSensors() {
   moisture = constrain(moisture, 0, 100);
 
   float temp = bme.readTemperature();
-  float humidity = bme.readHumidity();
   float light = lightMeter.readLightLevel();
 
   sensorReading reading;
 
-  reading.plantId = plantId.c_str();
   reading.moisture = moisture;
   reading.temperature = bme.readTemperature();
-  reading.humidity = bme.readHumidity();
   reading.light = lightMeter.readLightLevel();
   
   Serial.println("Sensors read");

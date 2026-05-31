@@ -10,25 +10,22 @@
 #include <BLEUtils.h>
 #include "FS.h"
 #include "LittleFS.h"
+#include "mbedtls/aes.h"
 
 // ------------ SENSORS ----------
 
 struct sensorReading {
-  const char* plantId;
   float light;
   float moisture;
-  float humidity;
   float temperature;
 
   String toString() {
     JsonDocument doc;
 
-    doc["plantId"] = plantId;
     doc["light"] = light;
     doc["moisture"] = moisture;
     doc["temperature"] = temperature;
-    doc["humidity"] = humidity;
-  
+
     String jsonPayload;
     serializeJson(doc, jsonPayload);
 
@@ -40,6 +37,7 @@ struct sensorReading {
 #define I2C_SCL 5
 #define ANALOG_PIN 6
 #define RGB_LED_PIN 48
+#define BUTTON_PIN 7
 
 Adafruit_BME280 bme;
 BH1750 lightMeter;
@@ -61,8 +59,15 @@ String plantId = "";
 String wifiSSID = "";
 String wifiPassword = "";
 String mosquittoAddr = "";
-String clientIdprefix = "Plant_";
-String publishPath = "home/plants/sensors";
+String mqttUser = "";
+String mqttPass = "";
+String mqttPort = "";
+String clientIdPrefix = "Plant_";
+String publishPathPrefix = "sensors/data/";
+String statusPathPrefix = "sensors/status/";
+String clientId = "";
+String statusPath = "";
+String publishPath = "";
 unsigned long msgTime = 10000;
 unsigned long lastMqttRetry = 0;
 const unsigned long mqttRetryInterval = 5000;
@@ -106,7 +111,9 @@ void setup() {
   wifiPassword.reserve(50);
   mosquittoAddr.reserve(100);
   publishPath.reserve(100);
-  clientIdprefix.reserve(25);
+  clientIdPrefix.reserve(25);
+  mqttPass.reserve(10);
+  clientId.reserve(20);
 
 
   Serial.begin(115200);
@@ -128,6 +135,13 @@ void loop() {
     if (command == 'p') {
       resetButtonPressed();
     }
+    else if (command == 'l'){
+      Serial.println(mqttPort);
+    }
+  }
+
+  if (isButtonPressed()){
+    resetButtonPressed();
   }
 
   bluetoothLoop();
