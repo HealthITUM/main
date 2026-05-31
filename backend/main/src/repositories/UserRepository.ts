@@ -53,7 +53,7 @@ export class UserRepository {
             return !!newUser;
 
         } catch (error) {
-            console.error("Failed to create plant species:", error);
+            console.error("Failed to create user:", error);
             return false;
         }
     }
