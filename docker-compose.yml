@@ -82,6 +82,7 @@ services:
       mc anonymous set download my_s3/species;
       echo 'Buckets created';
       "
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -103,6 +104,36 @@ services:
       resources:
         limits:
           memory: 1gb
+  
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infrastructure/mosquitto/config:/mosquitto/config
+      - ./infrastructure/mosquitto/data:/mosquitto/data
+      - ./infrastructure/mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=Europe/Ljubljana
+
+  ingestor:
+    build: ./backend/services/ingestor 
+    container_name: ingestor
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_SENSORS=${RABBITMQ_URL_SENSORS}
+      - RABBITMQ_DATA_QUEUE=${RABBITMQ_DATA_QUEUE}
+      - RABBITMQ_SILENCE_TIME=${RABBITMQ_SILENCE_TIME}
+      - RABBITMQ_STATUS_QUEUE=${RABBITMQ_STATUS_QUEUE}
 
   scrapper:
     build:
@@ -136,7 +167,7 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres-data:
-  minio_data:
-    driver: local
+  # postgres-data:
+  # minio_data:
+  #   driver: local
   rabbitmq_data:
