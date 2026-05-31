@@ -1,7 +1,7 @@
+import { prisma } from "../lib/prisma.js";
 import type { IUserPlantDTO } from "@project/shared";
 import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
 import { getPublicUrl } from "../configs/storage.config.js";
-import { prisma } from "../lib/prisma.js";
 
 export class UserPlantRepository {
     async getPlants(userId : number) : Promise<IUserPlantDTO[] | null>{
@@ -30,7 +30,7 @@ export class UserPlantRepository {
         const result = await prisma.userPlants.findUnique({
             where: {
                 id: plantId,
-                fkUserId: userId
+                userId : userId
             }
         });
 
@@ -79,7 +79,7 @@ export class UserPlantRepository {
             return true;
             
         } catch (error) {
-            console.error("Failed to delete sensor:", error);
+            console.error("Failed to delete user plant:", error);
             return false;
         }
     }

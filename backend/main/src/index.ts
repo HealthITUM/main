@@ -5,14 +5,15 @@ import type { Request, Response } from 'express';
 import userPlantRouter from "./routes/UserPlantRoute.js";
 import recipeRouter from "./routes/RecipeRoute.js";
 import plantSpecieRouter from "./routes/PlantSpecieRoute.js";
-import { queueService } from './services/RabbitMqService.js';
-import { plantSpecieController } from './controllers/PlantSpecieController.js';
+import { rabbitService } from './services/RabbitMqService.js';
 import { plantSpecieService } from './services/PlantSpecieService.js';
 import type { ISpecieCreateModel } from './models/Species.js';
+import type { INotificationDataModel } from './models/RabbitMqModels.js';
+import { queueSenders } from './rabbitmq/QueueSender.js';
 
 dotenv.config();
 
-queueService.init();
+rabbitService.init();
 
 const app = express();
 app.use(express.json());
@@ -36,6 +37,18 @@ app.post("/api/species/", async (req: Request, res : Response) => {
     imageUrl : "https://images.pexels.com/photos/2347496/pexels-photo-2347496.jpeg?auto=compress&cs=tinysrgb&w=600"
   }
   plantSpecieService.create(data);
+  return res.status(200).json({ message : "SUCCESS"});
+});
+
+app.post("/api/notif/", async (req: Request, res : Response) => {
+  const data : INotificationDataModel = {
+    userId : 1,
+    token : "123",
+    title : "TEST_TITLE",
+    body : "TEST_BODY"
+  }
+
+  queueSenders.sendNotification(data);
   return res.status(200).json({ message : "SUCCESS"});
 });
 

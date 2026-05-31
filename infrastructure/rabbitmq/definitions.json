@@ -1,12 +1,12 @@
 {
   "rabbit_version": "3.12.0",
   "users": [
-    { "name": "admin", "password_hash": "VedKPvHJX0o3ECXY+arni2zJ5kbtmhV84/iCR4AOH2zhCirx", "tags": ["administrator"] },
-    { "name": "monolith_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags":[] }, 
-    { "name": "scrapper_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
-    { "name": "sensor_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
-    { "name": "notification_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": []},
-    { "name": "pdet_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] }
+    { "name": "admin", "password_hash": "B9Udrj7+fsMQBd9tEkuN0KOlOVxhfDV7EnIJUNVEfwgVhT6+", "tags": ["administrator"] },
+    { "name": "monolith_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags":[] }, 
+    { "name": "scrapper_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "sensor_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "notification_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": []},
+    { "name": "pdet_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] }
   ],
   "vhosts": [{ "name": "/" }],
   "permissions": [
@@ -16,7 +16,7 @@
     "vhost": "/",
     "configure": "",
     "write": "^(amq\\.topic|scrapper\\.task.*|pdet\\.task.*|notif\\.data.*)$", 
-      "read": "^(amq\\.topic|scrapper\\.result.*|pdet\\.result.*|sensor\\.data.*)$"
+    "read": "^(amq\\.topic|scrapper\\.result.*|pdet\\.result.*|sensor\\.data.*|notif\\.error.*)$"
   },
   {
     "user": "scrapper_svc",
@@ -43,7 +43,7 @@
     "user": "notification_svc",
     "vhost": "/",
     "configure": "",
-    "write": "",
+    "write": "^(amq\\.topic|notif\\.error.*)$",
     "read": "^(amq\\.topic|notif\\.data.*)$"
   }
   ],
@@ -60,10 +60,11 @@
   "queues": [
     { "name": "scrapper.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-message-ttl" : 60000, "x-max-length": 100} },
     { "name": "scrapper.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
-    { "name": "pdet.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
-    { "name": "pdet.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "pdet.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 500000, "x-max-length": 100} },
+    { "name": "pdet.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 500000, "x-max-length": 100} },
     { "name": "sensor.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
-    { "name": "notif.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} }
+    { "name": "notif.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "notif.error.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 600000, "x-max-length": 100} }
   ],
   "bindings": [
     { "source": "amq.topic", "vhost": "/", "destination": "scrapper.result.queue", "destination_type": "queue", "routing_key": "scrapper.result.#", "arguments": {} },
@@ -71,6 +72,7 @@
     { "source": "amq.topic", "vhost": "/", "destination": "pdet.result.queue", "destination_type": "queue", "routing_key": "pdet.result.#", "arguments": {} },
     { "source": "amq.topic", "vhost": "/", "destination": "pdet.task.queue", "destination_type": "queue", "routing_key": "pdet.task.#", "arguments": {} },
     { "source": "amq.topic", "vhost": "/", "destination": "sensor.data.queue", "destination_type": "queue", "routing_key": "sensor.data.#", "arguments": {} },
-    { "source": "amq.topic", "vhost": "/", "destination": "notif.data.queue", "destination_type": "queue", "routing_key": "notif.data.#", "arguments": {} }
+    { "source": "amq.topic", "vhost": "/", "destination": "notif.data.queue", "destination_type": "queue", "routing_key": "notif.data.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "notif.error.queue", "destination_type": "queue", "routing_key": "notif.error.#", "arguments": {} }
   ]
 }

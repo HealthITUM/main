@@ -50,7 +50,7 @@ export class RecipeRepository {
             return null;
         }
 
-        const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item) => {
+        const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item: typeof result.ingredients[number]) => {
             return {
                 id: Number(item?.id),
                 name: String(item?.name),
