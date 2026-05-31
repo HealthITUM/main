@@ -10,3 +10,8 @@ node_modules
 # Prisma
 backend/main/prisma/migrations/
 backend/main/src/generated/prisma
+# Services
+go.sum
+# Firebase
+google-services.json
+firebase-credentials.json

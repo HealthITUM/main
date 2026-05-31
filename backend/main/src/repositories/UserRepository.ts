@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUser, IUserCreateModel, IUserFcmTokenModel } from "../models/User.js";
 
 export class UserRepository {
     async getById(id : number) : Promise<IUserDTO | null> {
@@ -20,7 +21,7 @@ export class UserRepository {
         return user;
     }
 
-    async getByNickname(nickname : string) : Promise<IUserDTO | null>{
+    async getByNickname(nickname : string) : Promise<IUser | null>{
         const result = await prisma.users.findUnique({
             where: {
                 username: nickname
@@ -29,45 +30,78 @@ export class UserRepository {
 
         if (!result) return null;
 
-        const user: IUserDTO = {
+        const user: IUser = {
             id: Number(result.id),
             username: result.username,
-            email: result.email
+            email: result.email,
+            passwordHash: result.password
         }
 
         return user;
     }
 
-    async create(data : IUserRegisterRequestDTO) : Promise<boolean> {
+    async create(data : IUserCreateModel) : Promise<boolean> {
         try {
             const newUser = await prisma.users.create({
                 data: {
                     username: data.username,
                     email: data.email,
-                    password: data.password
+                    password: data.passwordHash
                 }
             });
     
             return !!newUser;
 
         } catch (error) {
-            console.error("Failed to create plant species:", error);
+            console.error("Failed to create user:", error);
+            return false;
+        }
+    }
+
+    async assignFcmToken(data : IUserFcmTokenModel) : Promise<boolean> {
+        const updatedUser = await prisma.users.updateMany({
+            where: {
+                id: Number(data.id),
+            },
+            data: {
+                fcmToken : data.fcmToken
+            }
+        });
+
+        if (updatedUser.count === 0) {
+            return false;
+        }
+        return true;
+    }
+
+    async removeFcmToken(userId : number) : Promise<boolean> {
+        try {
+            const updatedUser = await prisma.users.update({
+                where: {
+                    id: userId,
+                },
+                data: {
+                    fcmToken: null
+                }
+            });
+    
+            return !!updatedUser;
+
+        } catch (error) {
+            console.error(`Failed to remove FCM token for user ${userId}:`, error);
             return false;
         }
     }
 
     async update(data : IUserUpdateRequestDTO) : Promise<boolean> {
-        const updatedUserPlant = await prisma.users.updateMany({
+        const updatedUsers = await prisma.users.updateMany({
             where: {
                 id: Number(data.id),
             },
-            data: {
-                username: String(data.username),
-                password: String(data.password)
-            }
+            data : data
         });
 
-        if (updatedUserPlant.count === 0) {
+        if (updatedUsers.count === 0) {
             return false;
         }
         return true;

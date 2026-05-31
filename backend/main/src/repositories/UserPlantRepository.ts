@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma.js";
 import type { IUserPlantDTO } from "@project/shared";
 import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
+import { getPublicUrl } from "../configs/storage.config.js";
+import { prisma } from "../lib/prisma.js";
 
 export class UserPlantRepository {
     async getPlants(userId : number) : Promise<IUserPlantDTO[] | null>{
@@ -13,12 +15,12 @@ export class UserPlantRepository {
 
         if (!result) return null;
 
-        const plants: IUserPlantDTO[] = result.map((result) => {
+        const plants: IUserPlantDTO[] = result.map((item : typeof result[number]) => {
             return {
-                id: result.id,
-                plantSpecieId: result.fkPlantSpeciesId,
-                name: result.name,
-                imageUrl: result.imagePath
+                id: item.id,
+                plantSpecieId: item.fkPlantSpeciesId,
+                name: item.name,
+                imageUrl: getPublicUrl(String(item.imagePath))
             }
         });
 
@@ -29,7 +31,7 @@ export class UserPlantRepository {
         const result = await prisma.userPlants.findUnique({
             where: {
                 id: plantId,
-                fkUserId: userId
+                userId : userId
             }
         });
 
@@ -39,7 +41,7 @@ export class UserPlantRepository {
             id: Number(result.id),
             plantSpecieId: result.fkPlantSpeciesId,
             name: result.name,
-            imageUrl: result.imagePath
+            imageUrl: getPublicUrl(String(result?.imagePath))
         }
 
         return userPlant;
@@ -78,7 +80,7 @@ export class UserPlantRepository {
             return true;
             
         } catch (error) {
-            console.error("Failed to delete sensor:", error);
+            console.error("Failed to delete user plant:", error);
             return false;
         }
     }
@@ -90,8 +92,7 @@ export class UserPlantRepository {
                 fkUserId: userId
             },
             data: {
-                name: String(data.name),
-                fkPlantSpeciesId: Number(data.plantSpecieId),
+                name: String(data.name)
             }
         });
 

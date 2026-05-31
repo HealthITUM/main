@@ -1,6 +1,7 @@
 import type { IRecipeDTO } from "@project/shared";
 import type { IRecipeCreateModel } from "../models/Recipe.js";
 import type { IIngredientHasRecipeDTO } from "@project/shared"
+import { getPublicUrl } from "../configs/storage.config.js";
 import { prisma } from "../lib/prisma.js";
 
 export class RecipeRepository {
@@ -16,22 +17,22 @@ export class RecipeRepository {
             return null;
         }
         
-        const recipes: IRecipeDTO[] = result.map((result) => {
-            const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item) => {
+        const recipes: IRecipeDTO[] = result.map((item : typeof result[number]) => {
+            const ingredients: IIngredientHasRecipeDTO[] = (item.ingredients || []).map((ing: typeof item.ingredients[number]) => {
                 return {
-                    id: Number(item?.id),
-                    name: String(item?.name),
-                    unit: String(item?.unit),
-                    amount: Number(item?.amount)
+                    id: Number(ing?.id),
+                    name: String(ing?.name),
+                    unit: String(ing?.unit),
+                    amount: Number(ing?.amount)
                 };
             });
 
             return {
-                id: Number(result?.id),
-                name: String(result?.dishName),
-                description: String(result?.description),
-                authorId: Number(result?.fkUserId),
-                imageUrl: String(result?.imagePath),
+                id: Number(item?.id),
+                name: String(item?.dishName),
+                description: String(item?.description),
+                authorId: Number(item?.fkUserId),
+                imageUrl: getPublicUrl(String(item?.imagePath)),
                 ingredients: ingredients
             };
         });
@@ -49,7 +50,7 @@ export class RecipeRepository {
             return null;
         }
 
-        const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item) => {
+        const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item: typeof result.ingredients[number]) => {
             return {
                 id: Number(item?.id),
                 name: String(item?.name),
@@ -63,7 +64,7 @@ export class RecipeRepository {
             name: String(result?.dishName),
             description: String(result?.description),
             authorId: Number(result?.fkUserId),
-            imageUrl: String(result?.imagePath),
+            imageUrl: getPublicUrl(String(result?.imagePath)),
             ingredients: ingredients
         };
         
@@ -81,8 +82,10 @@ export class RecipeRepository {
                         connect: { id: data.authorId }
                     },
                     ingredients: {
-                        connect: data.ingredients.map((ingredient) => ({
-                            id: ingredient.id
+                        create: data.ingredients.map((ingredient) => ({
+                            name : ingredient.name,
+                            amount : ingredient.amount,
+                            unit : ingredient.unit,
                         }))
                     }
                 }

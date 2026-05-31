@@ -30,11 +30,16 @@ export const uploadFile = async (
 
     // Creating direct link for an image. For browser link should be localhost and not minio.
     const publicHost = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
-    return `${publicHost}/${bucket}/${objectName}`;
+    return `${bucket}/${objectName}`;
   } catch (error) {
     console.error(`[MinIO Error] Error while loading an image ${objectName} into the ${bucket}:`, error);
     throw new Error('Failed to upload file to storage');
   }
+};
+
+export const getPublicUrl = (imagePath: string): string => {
+    const publicHost = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+    return `${publicHost}/${imagePath}`;
 };
 
 export const parseJsonField = (fieldName: string) => {

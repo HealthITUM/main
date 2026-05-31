@@ -12,9 +12,9 @@ COPY shared/package*.json ./shared/
 RUN npm ci
 
 COPY backend/main/prisma ./backend/main/prisma/
+COPY backend/main/prisma.config.ts ./backend/main/prisma.config.ts
 RUN npx prisma generate --schema=./backend/main/prisma/schema.prisma
 
-# Копируем СОВЕРШЕННО ВЕСЬ исходный код (включая shared и backend)
 COPY . .
 
 RUN npm run build --workspace=backend/main
@@ -35,6 +35,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/shared ./shared
+COPY --from=builder /app/backend/main/prisma.config.ts ./backend/main/prisma.config.ts
 COPY --from=builder /app/backend/main/package*.json ./backend/main/
 COPY --from=builder /app/backend/main/dist ./backend/main/dist
 COPY --from=builder /app/backend/main/prisma ./backend/main/prisma
@@ -43,4 +44,4 @@ COPY --from=builder /app/backend/main/prisma ./backend/main/prisma
 EXPOSE 3001
 
 # Run JS-build
-CMD ["npm", "run", "start", "--workspace=backend/main"]
+CMD ["sh", "-c", "npx prisma db push --config=./backend/main/prisma.config.ts && npm run start --workspace=backend/main"]

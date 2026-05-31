@@ -17,3 +17,6 @@ coverage
 .idea
 
 *.log
+
+go.sum
+plants_dataset.json
