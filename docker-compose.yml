@@ -138,6 +138,7 @@ services:
   scrapper:
     build:
       context: ./backend/services/Scrapper
+    container_name: scrapper
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -167,7 +168,7 @@ services:
         condition: service_healthy
 
 volumes:
-  # postgres-data:
-  # minio_data:
-  #   driver: local
+  postgres-data:
+  minio_data:
+    driver: local
   rabbitmq_data:

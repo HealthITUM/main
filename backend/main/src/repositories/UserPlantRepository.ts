@@ -2,7 +2,6 @@ import { prisma } from "../lib/prisma.js";
 import type { IUserPlantDTO } from "@project/shared";
 import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
 import { getPublicUrl } from "../configs/storage.config.js";
-import { prisma } from "../lib/prisma.js";
 
 export class UserPlantRepository {
     async getPlants(userId : number) : Promise<IUserPlantDTO[] | null>{

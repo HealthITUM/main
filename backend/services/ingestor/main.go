@@ -38,7 +38,7 @@ type OutgoingPayload struct {
 	Type      string       `json:"type"`
 	Timestamp string       `json:"timestamp"`
 	Values    PlantMetrics `json:"values"`
-	PlantID   string 	   `json:"plantId"`
+	PlantID   int          `json:"plantId"`
 }
 
 type PlantMetrics struct {
@@ -51,7 +51,7 @@ type StatusAlertPayload struct {
 	Type     string `json:"type"`
 	Online   bool   `json:"online"`
 	LastSeen string `json:"last_seen"`
-	PlantID  string `json:"plantId"`
+	PlantID  int    `json:"plantId"`
 }
 
 func main() {
@@ -75,7 +75,7 @@ func main() {
 
 	statusQueueName = os.Getenv("RABBITMQ_STATUS_QUEUE")
 	if statusQueueName == "" {
-		statusQueueName = "sensor.status.queue"
+		statusQueueName = "sensor.data.queue"
 	}
 
 	rabbitmqURL := os.Getenv("RABBITMQ_URL_SENSORS")
@@ -146,6 +146,11 @@ func onMessageReceived(client mqtt.Client, msg mqtt.Message) {
 
 	if actionType == "status" {
 		if payloadStr == "online" {
+			plantIdInt, err := strconv.Atoi(plantId)
+			if err != nil {
+				log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+				return
+			}
 			log.Printf("[STATUS] %s is ONLINE. Starting watchdog timer.", plantId)
 			resetWatchdogTimer(plantId)
 
@@ -154,12 +159,12 @@ func onMessageReceived(client mqtt.Client, msg mqtt.Message) {
 					Type:     "status",
 					Online:   true,
 					LastSeen: time.Now().UTC().Format(time.RFC3339),
-					PlantID:  plantId,
+					PlantID:  plantIdInt,
 				}
 				finalJSON, _ := json.Marshal(onlineAlert)
 
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				err := rmqChannel.PublishWithContext(ctx, "", statusQueueName, false, false,
+				err := rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.status", false, false,
 					amqp.Publishing{
 						ContentType: "application/json",
 						Body:        finalJSON,
@@ -197,8 +202,14 @@ func onMessageReceived(client mqtt.Client, msg mqtt.Message) {
 			return
 		}
 
+		plantIdInt, err := strconv.Atoi(plantId)
+		if err != nil {
+			log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+			return
+		}
+
 		output := OutgoingPayload{
-			PlantID: plantId,
+			PlantID:   plantIdInt,
 			Type:      actionType,
 			Timestamp: time.Now().UTC().Format(time.RFC3339),
 			Values: PlantMetrics{
@@ -218,7 +229,7 @@ func onMessageReceived(client mqtt.Client, msg mqtt.Message) {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 
-			err = rmqChannel.PublishWithContext(ctx, "", dataQueueName, false, false,
+			err = rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.telemetry", false, false,
 				amqp.Publishing{
 					ContentType: "application/json",
 					Body:        finalJSON,
@@ -280,11 +291,17 @@ func stopWatchdogTimer(plantId string) {
 
 func handlePlantSilence(plantId string) {
 	if rmqChannel != nil {
+		plantIdInt, err := strconv.Atoi(plantId)
+		if err != nil {
+			log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+			return
+		}
+
 		alert := StatusAlertPayload{
 			Type:     "status",
 			Online:   false,
 			LastSeen: time.Now().UTC().Format(time.RFC3339),
-			PlantID:  plantId,
+			PlantID:  plantIdInt,
 		}
 
 		finalJSON, err := json.Marshal(alert)
@@ -296,7 +313,7 @@ func handlePlantSilence(plantId string) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err = rmqChannel.PublishWithContext(ctx, "", statusQueueName, false, false,
+		err = rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.status", false, false,
 			amqp.Publishing{
 				ContentType: "application/json",
 				Body:        finalJSON,

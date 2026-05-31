@@ -1,12 +1,12 @@
 {
   "rabbit_version": "3.12.0",
   "users": [
-    { "name": "admin", "password_hash": "VedKPvHJX0o3ECXY+arni2zJ5kbtmhV84/iCR4AOH2zhCirx", "tags": ["administrator"] },
-    { "name": "monolith_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags":[] }, 
-    { "name": "scrapper_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
-    { "name": "sensor_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] },
-    { "name": "notification_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": []},
-    { "name": "pdet_svc", "password_hash": "cu/R2pWnCvkIVNLwinyBCzK3mRKBir2BHi3EFhV0d00z4rUi", "tags": [] }
+    { "name": "admin", "password_hash": "B9Udrj7+fsMQBd9tEkuN0KOlOVxhfDV7EnIJUNVEfwgVhT6+", "tags": ["administrator"] },
+    { "name": "monolith_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags":[] }, 
+    { "name": "scrapper_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "sensor_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "notification_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": []},
+    { "name": "pdet_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] }
   ],
   "vhosts": [{ "name": "/" }],
   "permissions": [
