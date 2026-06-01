@@ -10,19 +10,24 @@ import { plantSpecieService } from './services/PlantSpecieService.js';
 import type { ISpecieCreateModel } from './models/Species.js';
 import type { INotificationDataModel } from './models/RabbitMqModels.js';
 import { queueSenders } from './rabbitmq/QueueSender.js';
+import cors from 'cors';
 
 dotenv.config();
 
 rabbitService.init();
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", userRouter);
 app.use("/api/my/plants", userPlantRouter);
 app.use("/api/recipes", recipeRouter);
-app.use("/api/species", plantSpecieRouter);
+//app.use("/api/species", plantSpecieRouter);
 
 app.post("/api/species/", async (req: Request, res : Response) => {
   const ideal_values : Record<string, any> = {
@@ -39,6 +44,8 @@ app.post("/api/species/", async (req: Request, res : Response) => {
   plantSpecieService.create(data);
   return res.status(200).json({ message : "SUCCESS"});
 });
+
+app.use("/api/species", plantSpecieRouter);
 
 app.post("/api/notif/", async (req: Request, res : Response) => {
   const data : INotificationDataModel = {
