@@ -1,5 +1,5 @@
 export interface IMeasurementCreateModel {
-    plantId: string;
+    plantId: number;
     values: Record<string, any>;
     timestamp: Date;
 }

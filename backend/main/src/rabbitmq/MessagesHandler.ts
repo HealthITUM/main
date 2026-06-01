@@ -3,6 +3,9 @@ import type { IMeasurementCreateModel } from "../models/Measurement.js";
 import { plantSpecieService } from "../services/PlantSpecieService.js";
 import { measurementService } from "../services/MeasurementService.js";
 import { AppQueue } from "./rabbit.queues.js";
+import { userService } from "../services/UserService.js";
+import type { ISensorUpdateModel } from "../models/Sensor.js";
+import { sensorService } from "../services/SensorService.js";
 
 type MessageHandler = (content: any) => Promise<void>;
 
@@ -39,21 +42,62 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
     console.log('[Sensor Handler] Data:', data);
 
     try {
-      const createData : IMeasurementCreateModel = {
+      if (data.type == "data"){
+        const createData : IMeasurementCreateModel = {
         plantId : data.plantId,
-        values : data.ideal_values,
+        values : data.values,
         timestamp : data.timestamp
-      };
+        };
 
-      const response = await measurementService.create(createData);
+        const response = await measurementService.create(createData);
 
-      if (!response) {
-        console.log("[Sensor Handler] Failed to create new Measurement.");
+        if (!response) {
+          console.log("[Sensor Handler] Failed to create new Measurement.");
+        } else {
+          console.log("[Sensor Handler] New measurement successfuly added!");
+        }
+      } else if (data.type == "status"){
+        const statusUpdateData : ISensorUpdateModel = {
+          userPlantId : data.plantId,
+          online : data.online,
+          last_seen : data.timestamp
+        } 
+
+        const response = sensorService.updateSensorStatus(statusUpdateData);
+
+        if (!response) {
+          console.log("[Sensor Handler] Failed to update status of sensor :", statusUpdateData.userPlantId);
+        } else {
+          console.log("[Sensor Handler] Success. Status of sensor: ", statusUpdateData.userPlantId, " is updated to: ", statusUpdateData.online);
+        }
       } else {
-        console.log("[Sensor Handler] New measurement successfuly added!");
+        console.log("[Sensor Handler] Unknown type.")
       }
+      
     } catch (error) {
       console.log('[Sensor Handler] Error:', error);
+    }
+  },
+
+  [AppQueue.NotificationErrors]: async (data) => {
+    console.log('[Notifications Errors Handler] Data:', data);
+
+    try {
+      const userId : number = data.userId;
+
+      if (!userId) {
+        console.log('[Notifications Errors Handler] UserID came empty.')
+      } else {
+          const response = await userService.removeFcmToken(userId);
+          
+          if (!response) {
+            console.log("[Notifications Errors Handler] Failed to remove FCM Token from user: ", userId);
+          } else {
+            console.log("[Notifications Errors Handler] Token removed.");
+          }
+      }
+    } catch (error) {
+      console.log('[Notifications Errors Handler] Error:', error);
     }
   }
 };

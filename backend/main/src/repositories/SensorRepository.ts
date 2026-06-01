@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import type { ISensorCreateModel } from "../models/Sensor.js";
+import type { ISensorCreateModel, ISensorUpdateModel } from "../models/Sensor.js";
 import type { ISensorDTO } from "@project/shared";
 
 export class SensorRepository {
@@ -39,6 +39,25 @@ export class SensorRepository {
         return sensor;
     }
 
+    async userPlantHasSensor(userPlantId : number) : Promise<boolean> {
+        try {
+            const userPlant = await prisma.sensors.findUnique({
+                where : {
+                    fkUserPlantsId: userPlantId
+                }
+            });
+
+            if (!userPlant) {
+                return false;
+            }
+            console.log("User Plant already have a sensor.");
+            return true;
+        } catch (error) {
+            console.error("Failed find sensor with that id:", error);
+            return false;
+        }
+    }
+
     async create(data : ISensorCreateModel) : Promise<boolean> {
         try {
             const newSensor = await prisma.sensors.create({
@@ -52,19 +71,36 @@ export class SensorRepository {
             return !!newSensor;
 
         } catch (error) {
-            console.error("Failed to create plant species:", error);
+            console.error("Failed to create sensor:", error);
             return false;
         }
     }
 
-    async delete(sensorId : number, userId : number) : Promise<boolean>{
+    async update(data : ISensorUpdateModel) : Promise<boolean> {
+        try {
+            const newSensor = await prisma.sensors.update({
+                where: {
+                    fkUserPlantsId: data.userPlantId
+                },
+                data: {
+                    online : data.online,
+                    lastSeen : data.last_seen
+                }
+            });
+    
+            return !!newSensor;
+
+        } catch (error) {
+            console.error("Failed to update sensor:", error);
+            return false;
+        }
+    }
+
+    async delete(sensorId : number) : Promise<boolean>{
         try {
             const deleteResult = await prisma.sensors.deleteMany({
               where: {
-                id: sensorId,
-                userPlants: {
-                    fkUserId: userId
-                }
+                id: sensorId
               },
             });
 

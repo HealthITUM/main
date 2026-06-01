@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import type { AuthRequest } from "../middleware/auth.js";
 import type { IUserUpdateRequestDTO } from '@project/shared';
 import { userService } from '../services/UserService.js';
+import type { IUserFcmTokenModel } from '../models/User.js';
 
 class UserController {
     getProfile = async (req: AuthRequest, res: Response) => {
@@ -56,6 +57,33 @@ class UserController {
             }
 
             return res.status(201).json({ message : "User created. Successful!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+    
+    assignFcmToken = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req?.user?.id!;
+            const { token } = req.body;
+
+            if (!token) {
+                return res.status(400).json({ message: "Error: FCM Token is empty!"});
+            }
+
+            const data : IUserFcmTokenModel = {
+                id : userId,
+                fcmToken : token
+            }
+
+            const response = await userService.assignFcmToken(data);
+
+            if (!response){
+                return res.status(403).json({ message: "Error: Failed to assign token to user!"});
+            }
+            
+            return res.status(200).json({ message: "Success: FCM Token assigned successfuly!"});
         }
         catch (error){
             return res.status(500).json({ message : "Error on the server." });

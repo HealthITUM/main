@@ -7,6 +7,7 @@ const router = Router();
 router.get('/me', authMiddleware, userController.getProfile);
 router.post('/login', userController.login);
 router.post('/register', userController.register);
+router.post('/fcm-token', authMiddleware, userController.assignFcmToken);
 router.patch('/me', authMiddleware, userController.update);
 
 export default router;

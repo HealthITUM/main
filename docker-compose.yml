@@ -82,6 +82,7 @@ services:
       mc anonymous set download my_s3/species;
       echo 'Buckets created';
       "
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -103,6 +104,68 @@ services:
       resources:
         limits:
           memory: 1gb
+  
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infrastructure/mosquitto/config:/mosquitto/config
+      - ./infrastructure/mosquitto/data:/mosquitto/data
+      - ./infrastructure/mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=Europe/Ljubljana
+
+  ingestor:
+    build: ./backend/services/ingestor 
+    container_name: ingestor
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_SENSORS=${RABBITMQ_URL_SENSORS}
+      - RABBITMQ_DATA_QUEUE=${RABBITMQ_DATA_QUEUE}
+      - RABBITMQ_SILENCE_TIME=${RABBITMQ_SILENCE_TIME}
+      - RABBITMQ_STATUS_QUEUE=${RABBITMQ_STATUS_QUEUE}
+
+  scrapper:
+    build:
+      context: ./backend/services/Scrapper
+    container_name: scrapper
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    restart: "no"
+
+  notification-service:
+    build:
+      context: ./backend/services/Notifications
+      dockerfile: Dockerfile
+    container_name: notification_service
+    restart: always
+    env_file:
+      - ./.env 
+    environment:
+      - RABBITMQ_URL_NOTIF=${RABBITMQ_URL_NOTIF}
+      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH}
+    volumes:
+      - ./backend/services/Notifications/internal/config:/app/config
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres-data:
