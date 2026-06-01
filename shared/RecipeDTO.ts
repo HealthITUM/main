@@ -12,7 +12,6 @@ export interface IIngredientHasRecipeDTO {
     unit: string;
     amount: number;
 }
-
 // POST /recipes/
 export interface IRecipeCreateRequestDTO {
     name: string;

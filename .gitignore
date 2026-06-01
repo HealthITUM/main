@@ -10,6 +10,8 @@ node_modules
 # Prisma
 backend/main/prisma/migrations/
 backend/main/src/generated/prisma
+# Publish React
+dist/
 # Services
 go.sum
 # Firebase

@@ -1,0 +1,240 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  background-color: #CCE7C9;
+  color: #1f2a1f;
+}
+
+#root {
+  background-color: #CCE7C9;
+  min-height: 100vh;
+  color: #658354;
+  display: flex;
+  flex-direction: column;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  min-height: 100vh;
+  background-color: #CCE7C9;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn.dark-green-btn {
+  background: #658354;
+  color: white;
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn.dark-green-btn:hover{
+  background-color: white;
+  color: #4B6043;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+}
+
+.btn.dark-green-btn:active {
+  transform: translateY(-1px);
+}
+
+.dark-green-navbar{
+  background-color: #4B6043;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+}
+
+.dark-green-card {
+  border: 2px solid white;
+  background-color: #4B6043;
+  color: white;
+  transition: all 0.25s ease;
+  border-radius: 20px;
+}
+
+.dark-green-card h4 {
+  font-weight: 800;
+}
+
+.lighter-card {
+  background-color: #A3C585;
+  border: 2px solid white;
+  color: white;
+  border-radius: 20px;
+}
+
+.lighter-card a {
+  color: #4B6043;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lighter-card a:hover{
+  text-decoration: underline;
+}
+
+.lighter-card h3 {
+  color: #4B6043;
+  font-weight: 800;
+
+}
+
+.highlight-label {
+  color: #4B6043;
+  font-weight: 800;
+}
+
+.green-dropdown {
+  border: none;
+  border-radius: 14px;
+  padding: 8px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+
+.green-dropdown .dropdown-item {
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+  color: #4B6043;
+}
+
+.green-dropdown .dropdown-item:hover {
+  background-color: #658354;
+  color: white;
+}
+
+.green-dropdown .dropdown-item.text-danger:hover {
+  background-color: #4B6043;
+  color: white;
+}
+
+select.dark-green-select {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+}
+
+select.dark-green-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+}
+
+select.dark-green-select option {
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+  color: #4B6043;
+  font-weight: 500;
+}
+
+input.dark-green-input {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+}
+
+input.dark-green-input::placeholder {
+  color: #8aa08a;
+}
+
+input.dark-green-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+  background-color: white;
+}
+
+textarea.dark-green-textarea {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background-color: white;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  color: #4B6043;
+  font-weight: 500;
+
+  min-height: 120px;
+  resize: vertical;
+}
+
+textarea.dark-green-textarea::placeholder {
+  color: #8aa08a;
+}
+
+textarea.dark-green-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 131, 84, 0.25);
+  background-color: white;
+}
+
+.recipe-title:hover {
+    text-decoration: underline;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
