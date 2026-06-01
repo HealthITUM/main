@@ -11,17 +11,23 @@ export class QueueService {
     async init() {
         if (this.channel)
             return;
-        try {
-            const rabbitUrl = process.env.RABBITMQ_URL_MONOLITH;
-            this.connection = await amqp.connect(rabbitUrl!);
-            this.channel = await this.connection.createChannel();
-            console.log("[RabbitMQ] RabbitMQ initialized!");
-
-            await this.startConsuming();
-        } catch (error) {
-            console.error('[RabbitMQ] Initialization error RabbitMQ:', error);
-            throw error;
+        const maxRetries = 5;
+        const delay = 3000;
+        
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const rabbitUrl = process.env.RABBITMQ_URL_MONOLITH;
+                this.connection = await amqp.connect(rabbitUrl!);
+                this.channel = await this.connection.createChannel();
+                console.log("[RabbitMQ] RabbitMQ initialized!");
+                await this.startConsuming();
+                return;
+            } catch (error) {
+                console.log(`[RabbitMQ] Attempt ${i + 1}/${maxRetries} failed, retrying in ${delay/1000}s...`);
+                await new Promise(res => setTimeout(res, delay));
+            }
         }
+        throw new Error("[RabbitMQ] Failed to connect after max retries");
     }   
     isInit() {
         return (this.channel);

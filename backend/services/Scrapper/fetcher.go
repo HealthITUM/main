@@ -95,6 +95,31 @@ func publishToRabbitMQ(ch *amqp.Channel, plant PlantMessage) error {
 		},
 	)
 }
+func connectRabbitMQ(url string) (*amqp.Connection, *amqp.Channel, error) {
+	maxRetries := 5
+	delay := 3 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		conn, err := amqp.Dial(url)
+		if err != nil {
+			log.Printf("[RabbitMQ] Attempt %d/%d failed, retrying in %v...", i+1, maxRetries, delay)
+			time.Sleep(delay)
+			continue
+		}
+
+		ch, err := conn.Channel()
+		if err != nil {
+			conn.Close()
+			log.Printf("[RabbitMQ] Failed to open channel, retrying...")
+			time.Sleep(delay)
+			continue
+		}
+
+		return conn, ch, nil
+	}
+
+	return nil, nil, fmt.Errorf("failed to connect to RabbitMQ after %d retries", maxRetries)
+}
 
 func main() {
 	minioEndpoint := fmt.Sprintf("%s:%s", os.Getenv("MINIO_ENDPOINT"), os.Getenv("MINIO_PORT"))
@@ -117,16 +142,12 @@ func main() {
 	if rabbitURL == "" {
 		log.Fatalf("Failed to connect to RabbitMQ")
 	}
-	conn, err := amqp.Dial(rabbitURL)
+
+	conn, ch, err := connectRabbitMQ(rabbitURL)
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+		log.Fatalf("%v", err)
 	}
 	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("Failed to open channel: %v", err)
-	}
 	defer ch.Close()
 
 	data, err := os.ReadFile("plants_dataset.json")

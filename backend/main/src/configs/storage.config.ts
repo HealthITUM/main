@@ -15,6 +15,7 @@ export const BUCKETS = {
   PLANTS: process.env.S3_BUCKET_PLANTS || 'plants',
   RECIPES: process.env.S3_BUCKET_RECIPES || 'recipes',
   SPECIES: process.env.S3_BUCKET_SPECIES || 'species',
+  PDET_REQUESTS: process.env.S3_BUCKET_PDET || 'pdet-req',
 } as const;
 
 export const uploadFile = async (

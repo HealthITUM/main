@@ -7,6 +7,6 @@ export enum AppQueue { // gets
 
 export enum RoutingKey { // sends
   ScrapperTask = 'scrapper.task.start',
-  PlantDetectionTasks = 'pdet.task.important',
+  PlantDetectionTasks = 'pdet.task.image',
   NotificationData = 'notif.data.send'
 }

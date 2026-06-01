@@ -1,3 +1,4168 @@
+=== ./backend/main/tests/rabbitMq.tests.ts ===
+// test route:
+// app.get("/test", async (req: Request, res : Response) => {
+//   if (queueService.isInit()){
+//     await queueService.publish("pdet.task.important", "test_message");
+//     console.log("[TEST] Message sent!");
+//     return res.status(200).json({ message : "Success!"});
+//   }
+//   return res.status(400).json({ message : "[TEST] Not initialized!"});
+// });
+=== ./backend/main/prisma.config.ts ===
+import dotenv from 'dotenv';
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: process.env["DATABASE_URL"],
+  }
+});
+
+=== ./backend/main/package.json ===
+{
+  "name": "project-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma generate && tsc",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "amqplib": "^2.0.1",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "minio": "^8.0.7",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "prisma": "7.8.0",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.8",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^25.9.0",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.8.0",
+    "tsx": "^4.22.0",
+    "typescript": "^6.0.3"
+  }
+}
+
+=== ./backend/main/tsconfig.json ===
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    
+    "verbatimModuleSyntax": true, 
+    
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "./generated/prisma/*": ["./src/generated/prisma/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+=== ./backend/main/src/middleware/auth.ts ===
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+export interface AuthRequest extends Request {
+    user?: {
+        id: number;
+        username: string;
+    };
+}
+
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+    console.log(`[AUTH] Checking token for path: ${req.path} Method: ${req.method}`);
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: "Ni žetona, dostop zavrnjen" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+        
+        req.user = {
+            id: decoded.id,
+            username: decoded.username
+        };
+
+        next();
+    } catch (error) {
+        res.status(403).json({ message: "Žeton ni veljaven" });
+    }
+};
+=== ./backend/main/src/repositories/UserRepository.ts ===
+import { prisma } from "../lib/prisma.js";
+import type { IUserDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUser, IUserCreateModel, IUserFcmTokenModel } from "../models/User.js";
+
+export class UserRepository {
+    async getById(id : number) : Promise<IUserDTO | null> {
+        const result = await prisma.users.findUnique({
+            where: {
+                id: id
+            }
+        });
+
+        if (!result) return null;
+
+        const user: IUserDTO = {
+            id: Number(result.id),
+            username: result.username,
+            email: result.email
+        }
+
+        return user;
+    }
+
+    async getByNickname(nickname : string) : Promise<IUser | null>{
+        const result = await prisma.users.findUnique({
+            where: {
+                username: nickname
+            }
+        });
+
+        if (!result) return null;
+
+        const user: IUser = {
+            id: Number(result.id),
+            username: result.username,
+            email: result.email,
+            passwordHash: result.password
+        }
+
+        return user;
+    }
+
+    async create(data : IUserCreateModel) : Promise<boolean> {
+        try {
+            const newUser = await prisma.users.create({
+                data: {
+                    username: data.username,
+                    email: data.email,
+                    password: data.passwordHash
+                }
+            });
+    
+            return !!newUser;
+
+        } catch (error) {
+            console.error("Failed to create user:", error);
+            return false;
+        }
+    }
+
+    async assignFcmToken(data : IUserFcmTokenModel) : Promise<boolean> {
+        const updatedUser = await prisma.users.updateMany({
+            where: {
+                id: Number(data.id),
+            },
+            data: {
+                fcmToken : data.fcmToken
+            }
+        });
+
+        if (updatedUser.count === 0) {
+            return false;
+        }
+        return true;
+    }
+
+    async removeFcmToken(userId : number) : Promise<boolean> {
+        try {
+            const updatedUser = await prisma.users.update({
+                where: {
+                    id: userId,
+                },
+                data: {
+                    fcmToken: null
+                }
+            });
+    
+            return !!updatedUser;
+
+        } catch (error) {
+            console.error(`Failed to remove FCM token for user ${userId}:`, error);
+            return false;
+        }
+    }
+
+    async update(data : IUserUpdateRequestDTO) : Promise<boolean> {
+        const updatedUsers = await prisma.users.updateMany({
+            where: {
+                id: Number(data.id),
+            },
+            data : data
+        });
+
+        if (updatedUsers.count === 0) {
+            return false;
+        }
+        return true;
+    }
+}
+
+export const userRepository = new UserRepository();
+=== ./backend/main/src/repositories/UserPlantRepository.ts ===
+import { prisma } from "../lib/prisma.js";
+import type { IUserPlantDTO } from "@project/shared";
+import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
+import { getPublicUrl } from "../configs/storage.config.js";
+
+export class UserPlantRepository {
+    async getPlants(userId : number) : Promise<IUserPlantDTO[] | null>{
+
+        const result = await prisma.userPlants.findMany({
+            where : {
+                fkUserId: userId
+            }
+        });
+
+        if (!result) return null;
+
+        const plants: IUserPlantDTO[] = result.map((item : typeof result[number]) => {
+            return {
+                id: item.id,
+                plantSpecieId: item.fkPlantSpeciesId,
+                name: item.name,
+                imageUrl: getPublicUrl(String(item.imagePath))
+            }
+        });
+
+        return plants;
+    }
+
+    async getById(plantId : number, userId : number) : Promise<IUserPlantDTO | null>{
+        const result = await prisma.userPlants.findUnique({
+            where: {
+                id: plantId,
+                userId : userId
+            }
+        });
+
+        if (!result) return null;
+
+        const userPlant: IUserPlantDTO = {
+            id: Number(result.id),
+            plantSpecieId: result.fkPlantSpeciesId,
+            name: result.name,
+            imageUrl: getPublicUrl(String(result?.imagePath))
+        }
+
+        return userPlant;
+    }
+
+    async create(data : IUserPlantCreateModel) : Promise<boolean> {
+        try {
+            const newUserPlant = await prisma.userPlants.create({
+                data: {
+                    name: data.name,
+                    fkPlantSpeciesId: data.plantSpecieId,
+                    imagePath: data.imagePath,
+                    fkUserId: data.userId   
+                }
+            });
+
+            return !!newUserPlant;
+        } catch (error) {
+            console.error("Failed to create user plant:", error);
+            return false;
+        }
+    }
+
+    async delete(plantId : number, userId : number) : Promise<boolean>{
+        try {
+            const deleteResult = await prisma.userPlants.deleteMany({
+                where: {
+                    id: plantId,
+                    fkUserId: userId
+                }
+            });
+
+            if (deleteResult.count === 0) {
+                return false;
+            }
+            return true;
+            
+        } catch (error) {
+            console.error("Failed to delete user plant:", error);
+            return false;
+        }
+    }
+
+    async update(data : IUserPlantUpdateModel, userId : number) : Promise<boolean>{
+        const updatedUserPlant = await prisma.userPlants.updateMany({
+            where: {
+                id: data.id,
+                fkUserId: userId
+            },
+            data: {
+                name: String(data.name)
+            }
+        });
+
+        if (updatedUserPlant.count === 0) {
+            return false;
+        }
+        return true;
+    }
+}
+
+export const userPlantRepository = new UserPlantRepository();
+=== ./backend/main/src/repositories/RecipeRepository.ts ===
+import type { IRecipeDTO } from "@project/shared";
+import type { IRecipeCreateModel } from "../models/Recipe.js";
+import type { IIngredientHasRecipeDTO } from "@project/shared"
+import { getPublicUrl } from "../configs/storage.config.js";
+import { prisma } from "../lib/prisma.js";
+
+export class RecipeRepository {
+    async getRecipes(amount? : number) : Promise<IRecipeDTO[] | null> {
+        const result = await prisma.recipes.findMany({
+            take: 10,
+            include: {
+                ingredients: true
+            }
+        });
+
+        if (!result) {
+            return null;
+        }
+        
+        const recipes: IRecipeDTO[] = result.map((item : typeof result[number]) => {
+            const ingredients: IIngredientHasRecipeDTO[] = (item.ingredients || []).map((ing: typeof item.ingredients[number]) => {
+                return {
+                    id: Number(ing?.id),
+                    name: String(ing?.name),
+                    unit: String(ing?.unit),
+                    amount: Number(ing?.amount)
+                };
+            });
+
+            return {
+                id: Number(item?.id),
+                name: String(item?.dishName),
+                description: String(item?.description),
+                authorId: Number(item?.fkUserId),
+                imageUrl: getPublicUrl(String(item?.imagePath)),
+                ingredients: ingredients
+            };
+        });
+
+        return recipes;
+    }
+
+    async getById(id : number) : Promise<IRecipeDTO | null> {
+        const result = await prisma.recipes.findUnique({
+            where: {id: id},
+            include: { ingredients: true },
+        });
+
+        if (!result) {
+            return null;
+        }
+
+        const ingredients: IIngredientHasRecipeDTO[] = (result.ingredients || []).map((item: typeof result.ingredients[number]) => {
+            return {
+                id: Number(item?.id),
+                name: String(item?.name),
+                unit: String(item?.unit),
+                amount: Number(item?.amount)
+            };
+        });
+
+        const recipe: IRecipeDTO = {
+            id: Number(result?.id),
+            name: String(result?.dishName),
+            description: String(result?.description),
+            authorId: Number(result?.fkUserId),
+            imageUrl: getPublicUrl(String(result?.imagePath)),
+            ingredients: ingredients
+        };
+        
+        return recipe;
+    }
+
+    async create(data : IRecipeCreateModel) : Promise<boolean> {
+        try {
+            const newRecipe = await prisma.recipes.create({
+                data: {
+                    dishName: data.name,
+                    description: data.description,
+                    imagePath: data.imageUrl,
+                    author: {
+                        connect: { id: data.authorId }
+                    },
+                    ingredients: {
+                        create: data.ingredients.map((ingredient) => ({
+                            name : ingredient.name,
+                            amount : ingredient.amount,
+                            unit : ingredient.unit,
+                        }))
+                    }
+                }
+            });
+    
+            return !!newRecipe;
+
+        } catch (error) {
+            console.error("Failed to create recipe:", error);
+            return false;
+        }
+    }
+
+    async delete(recipeId : number, userId: number) : Promise<boolean> {
+        try {
+            const deleteResult = await prisma.recipes.deleteMany({
+              where: {
+                id: recipeId,
+                fkUserId: userId,
+              },
+            });
+
+            if (deleteResult.count === 0) {
+                return false;
+            }
+            return true;
+            
+        } catch (error) {
+            console.error("Failed to delete recipe:", error);
+            return false;
+        }
+    }
+}
+
+export const recipeRepository = new RecipeRepository();
+=== ./backend/main/src/repositories/PlantSpecieRepository.ts ===
+import type { ISpeciesDTO } from "@project/shared";
+import type { ISpecieCreateModel } from "../models/Species.ts";
+import { getPublicUrl } from "../configs/storage.config.js";
+import { prisma } from "../lib/prisma.js";
+
+export class PlantSpecieRepository {
+    async getSpecies() : Promise<ISpeciesDTO[] | null>{
+        const result = await prisma.plantSpecies.findMany();
+
+        if (!result) {
+            return null;
+        }
+
+        const plantSpecies: ISpeciesDTO[] = result.map((item : typeof result[number]) => {
+            return {
+                id: Number(item?.id),
+                name: String(item?.name),
+                description: String(item?.description),
+                ideal_values: (item?.idealValues as Record<string, any>) ?? {},
+                imageUrl: getPublicUrl(String(item?.imagePath))
+            };
+        });
+
+        return plantSpecies;
+    }
+    
+    async getById(id : number) : Promise<ISpeciesDTO | null> {
+        const result = await prisma.plantSpecies.findUnique({
+            where: {id: id}
+        });
+
+        if (!result) {
+            return null;
+        }
+
+        const plant_specie: ISpeciesDTO = {
+            id: Number(result?.id),
+            name: String(result?.name),
+            description: String(result?.description),
+            ideal_values: (result?.idealValues as Record<string, any>) ?? {},
+            imageUrl: getPublicUrl(String(result?.imagePath))
+        }
+        
+        return plant_specie;
+    }
+
+    async create(data: ISpecieCreateModel){
+        try {
+            const newSpecies = await prisma.plantSpecies.create({
+                data: {
+                    name: data.name,
+                    description: data.description,
+                    idealValues: data.ideal_values as any,
+                    imagePath: data.imageUrl
+                }
+            });
+    
+            return !!newSpecies;
+
+        } catch (error) {
+            console.error("Failed to create plant species:", error);
+            return false;
+        }
+    }
+}
+
+export const plantSpecieRepository = new PlantSpecieRepository();
+=== ./backend/main/src/repositories/PdetRequestRepository.ts ===
+import { prisma } from "../lib/prisma.js";
+import type { IPlantDetectionCreateModel, IPlantDetectionUpdateModel } from "../models/PdetRequests.js"
+import type { IPlantDetectionsDTO  } from "@project/shared";
+
+export class PdetRepository {
+    async getById(id : number) : Promise<IPlantDetectionsDTO | null>{
+        try {
+            const result = await prisma.userPdetRequests.findUnique({
+                where: {id: id}
+            });
+
+            if (!result) return null;
+
+            const request: IPlantDetectionsDTO = {
+                id: result.id,
+                type : result.status,
+                imageUrl : result.imageUrl,
+                plantSpeciesId : result.fkPlantSpeciesId
+            }
+
+            return request;
+        }
+        catch (error) {
+            console.error("Failed to update request:", error);
+            return null;
+        }
+    }
+
+    async create(data : IPlantDetectionCreateModel) : Promise<number | false> {
+        try {
+            const newRequest = await prisma.userPdetRequests.create({
+                data: {
+                    fkUserId : data.userId,
+                    imageUrl : data.imageUrl
+                }
+            });
+
+            return newRequest.id;
+        } catch (error) {
+            console.error("Failed to create pdet request:", error);
+            return false;
+        }
+    }
+
+    async update(data : IPlantDetectionUpdateModel) : Promise<boolean> {
+        try {
+            const newRequest = await prisma.userPdetRequests.update({
+                where: {
+                    id : data.id
+                },
+                data: {
+                    status : data.status,
+                    fkPlantSpeciesId : data.plantSpeciesId
+                }
+            });
+    
+            return !!newRequest;
+
+        } catch (error) {
+            console.error("Failed to update request:", error);
+            return false;
+        }
+    }
+
+    async delete(id: number): Promise<boolean> {
+        try {
+            await prisma.userPdetRequests.delete({
+                where: { 
+                    id
+                }
+            });
+            return true;
+        } catch (error) {
+            console.error("Failed to delete pdet request:", error);
+            return false;
+        }
+    }
+}
+
+export const pdetRepository = new PdetRepository();
+=== ./backend/main/src/repositories/SensorRepository.ts ===
+import { prisma } from "../lib/prisma.js";
+import type { ISensorCreateModel, ISensorUpdateModel } from "../models/Sensor.js";
+import type { ISensorDTO } from "@project/shared";
+
+export class SensorRepository {
+    async getSensors(plantId : number) : Promise<ISensorDTO[] | null>{
+        const result = await prisma.sensors.findMany({
+            where: {fkUserPlantsId: plantId}
+        });
+
+        if (!result) return null;
+
+        const sensors: ISensorDTO[] = result.map((item : typeof result[number]) => {
+            return {
+                id: Number(item.id),
+                userPlantId: Number(item.fkUserPlantsId),
+                last_seen: item.lastSeen,
+                online: item.online
+            }
+        });
+
+        return sensors;
+    }
+
+    async getById(id : number) : Promise<ISensorDTO | null>{
+        const result = await prisma.sensors.findUnique({
+            where: {id: id}
+        });
+
+        if (!result) return null;
+
+        const sensor: ISensorDTO = {
+            id: result.id,
+            userPlantId: Number(result.fkUserPlantsId),
+            last_seen: result.lastSeen,
+            online: result.online
+        }
+
+        return sensor;
+    }
+
+    async userPlantHasSensor(userPlantId : number) : Promise<boolean> {
+        try {
+            const userPlant = await prisma.sensors.findUnique({
+                where : {
+                    fkUserPlantsId: userPlantId
+                }
+            });
+
+            if (!userPlant) {
+                return false;
+            }
+            console.log("User Plant already have a sensor.");
+            return true;
+        } catch (error) {
+            console.error("Failed find sensor with that id:", error);
+            return false;
+        }
+    }
+
+    async create(data : ISensorCreateModel) : Promise<boolean> {
+        try {
+            const newSensor = await prisma.sensors.create({
+                data: {
+                    lastSeen: new Date,
+                    online: false,
+                    fkUserPlantsId: data.userPlantId
+                }
+            });
+    
+            return !!newSensor;
+
+        } catch (error) {
+            console.error("Failed to create sensor:", error);
+            return false;
+        }
+    }
+
+    async update(data : ISensorUpdateModel) : Promise<boolean> {
+        try {
+            const newSensor = await prisma.sensors.update({
+                where: {
+                    fkUserPlantsId: data.userPlantId
+                },
+                data: {
+                    online : data.online,
+                    lastSeen : data.last_seen
+                }
+            });
+    
+            return !!newSensor;
+
+        } catch (error) {
+            console.error("Failed to update sensor:", error);
+            return false;
+        }
+    }
+
+    async delete(sensorId : number) : Promise<boolean>{
+        try {
+            const deleteResult = await prisma.sensors.deleteMany({
+              where: {
+                id: sensorId
+              },
+            });
+
+            if (deleteResult.count === 0) {
+                return false;
+            }
+            return true;
+            
+        } catch (error) {
+            console.error("Failed to delete sensor:", error);
+            return false;
+        }
+    }
+}
+
+export const sensorRepository = new SensorRepository();
+=== ./backend/main/src/repositories/MeasurementRepository.ts ===
+import type { IMeasurementDTO } from "@project/shared";
+import { prisma } from "../lib/prisma.js";
+import type { IMeasurementCreateModel } from "../models/Measurement.js";
+
+export class MeasurementRepository {
+    async getMeasurements(plantId : number, amount? : number) : Promise<IMeasurementDTO[] | null>{
+        const result = await prisma.measurements.findMany({
+            where: {fkUserPlantsId: plantId},
+            take: amount? Number(amount): 5,
+            orderBy: { timestamp: 'desc'}
+        });
+
+        if (!result) {
+            return null;
+        }
+     
+        const measurements: IMeasurementDTO[] = result.map((item : typeof result[number]) => {
+            return {
+                id: Number(item?.id),
+                values: (item?.values as Record<string, any>) ?? {},
+                timestamp: item?.timestamp ? new Date(item.timestamp) : new Date(),
+                plantId: item?.fkUserPlantsId 
+            };
+        });
+        
+        return measurements;
+    }
+    
+    async getById(id : number) : Promise<IMeasurementDTO | null> {
+        const result = await prisma.measurements.findUnique({
+            where: {id: id}
+        });
+
+        if (!result) {
+            return null;
+        }
+
+        const measurement: IMeasurementDTO = {
+            id: Number(result?.id),
+            values: (result?.values as Record<string, any>) ?? {},
+            timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
+            plantId: Number(result?.fkUserPlantsId)
+        };
+        
+        return measurement;
+    }
+
+    async create(data: IMeasurementCreateModel) {
+        try {
+            const newMeasurements = await prisma.measurements.create({
+                data: {
+                    fkUserPlantsId: Number(data.plantId),
+                    values: data.values as any,
+                    timestamp: data.timestamp
+                }
+            });
+    
+            return !!newMeasurements;
+
+        } catch (error) {
+            console.error("Failed to create measurement:", error);
+            return false;
+        }
+    }
+}
+
+export const measurementRepository = new MeasurementRepository();
+=== ./backend/main/src/rabbitmq/QueueSender.ts ===
+import { rabbitService } from "../services/RabbitMqService.js";
+import { RoutingKey } from "./rabbit.queues.js";
+import type { INotificationDataModel, IPlantDetectionTaskModel } from "../models/RabbitMqModels.js";
+
+export const queueSenders = {
+
+    async sendNotification(data: INotificationDataModel): Promise<boolean> {
+        console.log(`[QueueSenders] Routing push task for user: ${data.userId}`);
+        return rabbitService.publish(RoutingKey.NotificationData, data);
+    },
+
+    async sendScrapperTask(data: any): Promise<boolean> {
+        console.log(`[QueueSenders] Routing task to Scrapper`);
+        return rabbitService.publish(RoutingKey.ScrapperTask, data);
+    },
+
+    async sendPlantDetectionTask(data: IPlantDetectionTaskModel): Promise<boolean> {
+        console.log(`[QueueSenders] Routing task to Plant Detection`);
+        return rabbitService.publish(RoutingKey.PlantDetectionTasks, data);
+    }
+};
+=== ./backend/main/src/rabbitmq/MessagesHandler.ts ===
+import type { ISpecieCreateModel } from "../models/Species.js";
+import type { IMeasurementCreateModel } from "../models/Measurement.js";
+import { plantSpecieService } from "../services/PlantSpecieService.js";
+import { measurementService } from "../services/MeasurementService.js";
+import { AppQueue } from "./rabbit.queues.js";
+import { userService } from "../services/UserService.js";
+import type { ISensorUpdateModel } from "../models/Sensor.js";
+import { sensorService } from "../services/SensorService.js";
+import type { IPlantDetectionUpdateModel } from "../models/PdetRequests.js";
+import { RequestStatus } from "@project/shared"
+import { pdetService } from "../services/PdetService.js";
+
+type MessageHandler = (content: any) => Promise<void>;
+
+export const queueHandlers: Record<AppQueue, MessageHandler> = {
+  [AppQueue.ScrapperResult]: async (data) => {
+    console.log('[Scrapper Handler] Data from:', data.name);
+
+    try {
+      const createData : ISpecieCreateModel = {
+        name : data.name,
+        description : data.description,
+        ideal_values : data.ideal_values,
+        imageUrl : data.imageUrl
+      }
+
+      const response = await plantSpecieService.create(createData);
+
+      if (!response) {
+        console.log("[Scrapper Handler] Failed to create new PlantSpecie.");
+      } else {
+        console.log("[Scrapper Handler] New specie successfuly added!");
+      }
+    } catch (error) {
+      console.log('[Scrapper Handler] Error:', error);
+    }
+  },
+  
+  [AppQueue.PlantDetectionResult]: async (data) => {
+    console.log('[PlantDetection Handler] Result:', data);
+    try {
+      const updateData: IPlantDetectionUpdateModel = {
+        id: data.requestId,
+        status: data.status,
+        plantSpeciesId: data.status === RequestStatus.DONE ? data.plantSpeciesId : undefined
+    }
+
+    const response = await pdetService.update(updateData);
+
+    if (response) {
+      console.log("[PlantDetection Handler] Successfuly updated ", updateData.id, " request status to: ", updateData.status);
+    } else {
+      console.log("[PlantDetection Handler] Error: Failed to update request!")
+    }
+    } catch (error) {
+      console.log('[Scrapper Handler] Error:', error);
+    }
+  },
+  
+  [AppQueue.SensorData]: async (data) => {
+    console.log('[Sensor Handler] Data:', data);
+
+    try {
+      if (data.type == "data"){
+        const createData : IMeasurementCreateModel = {
+        plantId : data.plantId,
+        values : data.values,
+        timestamp : data.timestamp
+        };
+
+        const response = await measurementService.create(createData);
+
+        if (!response) {
+          console.log("[Sensor Handler] Failed to create new Measurement.");
+        } else {
+          console.log("[Sensor Handler] New measurement successfuly added!");
+        }
+      } else if (data.type == "status"){
+        const statusUpdateData : ISensorUpdateModel = {
+          userPlantId : data.plantId,
+          online : data.online,
+          last_seen : data.timestamp
+        } 
+
+        const response = await sensorService.updateSensorStatus(statusUpdateData);
+
+        if (!response) {
+          console.log("[Sensor Handler] Failed to update status of sensor :", statusUpdateData.userPlantId);
+        } else {
+          console.log("[Sensor Handler] Success. Status of sensor: ", statusUpdateData.userPlantId, " is updated to: ", statusUpdateData.online);
+        }
+      } else {
+        console.log("[Sensor Handler] Unknown type.")
+      }
+      
+    } catch (error) {
+      console.log('[Sensor Handler] Error:', error);
+    }
+  },
+
+  [AppQueue.NotificationErrors]: async (data) => {
+    console.log('[Notifications Errors Handler] Data:', data);
+
+    try {
+      const userId : number = data.userId;
+
+      if (!userId) {
+        console.log('[Notifications Errors Handler] UserID came empty.')
+      } else {
+          const response = await userService.removeFcmToken(userId);
+          
+          if (!response) {
+            console.log("[Notifications Errors Handler] Failed to remove FCM Token from user: ", userId);
+          } else {
+            console.log("[Notifications Errors Handler] Token removed.");
+          }
+      }
+    } catch (error) {
+      console.log('[Notifications Errors Handler] Error:', error);
+    }
+  }
+};
+=== ./backend/main/src/rabbitmq/rabbit.queues.ts ===
+export enum AppQueue { // gets
+  ScrapperResult = 'scrapper.result.queue',
+  PlantDetectionResult = 'pdet.result.queue',
+  SensorData = 'sensor.data.queue',
+  NotificationErrors = 'notif.error.queue'
+}
+
+export enum RoutingKey { // sends
+  ScrapperTask = 'scrapper.task.start',
+  PlantDetectionTasks = 'pdet.task.image',
+  NotificationData = 'notif.data.send'
+}
+=== ./backend/main/src/models/RabbitMqModels.ts ===
+export interface IScrapperTaskModel {
+    // TODO
+}
+
+export interface IPlantDetectionTaskModel {
+    requestId : number;
+    imageUrl : string;
+}
+
+export interface INotificationDataModel {
+    userId : number;
+    token : string;
+    title : string;
+    body : string;
+}
+=== ./backend/main/src/models/PdetRequests.ts ===
+import type { RequestStatus } from "@project/shared"
+
+export interface IPlantDetectionCreateModel {
+    imageUrl : string;
+    userId : number;
+}
+
+export interface IPlantDetectionUpdateModel {
+    id : number;
+    plantSpeciesId? : number;
+    status : RequestStatus;
+}
+=== ./backend/main/src/models/Recipe.ts ===
+import type { IIngredientHasRecipeCreateRequestDTO } from "@project/shared";
+
+export interface IRecipeCreateModel {
+    name: string;
+    description: string;
+    ingredients: IIngredientHasRecipeCreateRequestDTO[];
+    authorId: number;
+    imageUrl: string;
+}
+=== ./backend/main/src/models/UserPlant.ts ===
+import type { IUserPlantUpdateRequestDTO } from "@project/shared";
+
+export interface IUserPlantCreateModel {
+    plantSpecieId: number;
+    name: string;
+    imagePath: string;
+    userId: number;
+}
+
+export interface IUserPlantUpdateModel extends Partial<IUserPlantUpdateRequestDTO> {
+    id: number;
+}
+=== ./backend/main/src/models/Measurement.ts ===
+export interface IMeasurementCreateModel {
+    plantId: number;
+    values: Record<string, any>;
+    timestamp: Date;
+}
+=== ./backend/main/src/models/Species.ts ===
+export interface ISpecieCreateModel {
+    name: string;
+    description: string;
+    ideal_values: Record<string, any>;
+    imageUrl: string;
+}
+=== ./backend/main/src/models/Sensor.ts ===
+export interface ISensorCreateModel {
+    userPlantId: number;
+}
+
+export interface ISensorUpdateModel {
+    userPlantId: number;
+    online : boolean;
+    last_seen : Date;
+}
+=== ./backend/main/src/models/User.ts ===
+export interface IUserCreateModel {
+    username: string;
+    email: string;
+    passwordHash: string;
+}
+
+export interface IUserFcmTokenModel {
+    id : number;
+    fcmToken : string;
+}
+
+export interface IUser extends IUserCreateModel {
+    id: number;
+}
+=== ./backend/main/src/configs/storage.config.ts ===
+import multer from 'multer';
+import path from 'path';
+import * as Minio from 'minio';
+import type { Request, Response, NextFunction } from 'express';
+
+export const minioClient = new Minio.Client({
+  endPoint: process.env.MINIO_ENDPOINT || 'minio',
+  port: parseInt(process.env.MINIO_PORT || '9000', 10),
+  useSSL: process.env.MINIO_USE_SSL === 'true', // dev = false
+  accessKey: process.env.MINIO_ROOT_USER || 'admin',
+  secretKey: process.env.MINIO_ROOT_PASSWORD || 'password',
+});
+
+export const BUCKETS = {
+  PLANTS: process.env.S3_BUCKET_PLANTS || 'plants',
+  RECIPES: process.env.S3_BUCKET_RECIPES || 'recipes',
+  SPECIES: process.env.S3_BUCKET_SPECIES || 'species',
+  PDET_REQUESTS: process.env.S3_BUCKET_PDET || 'pdet_req',
+} as const;
+
+export const uploadFile = async (
+  bucket: typeof BUCKETS[keyof typeof BUCKETS],
+  objectName: string,
+  fileBuffer: Buffer,
+  mimeType: string
+): Promise<string> => {
+  try {
+    await minioClient.putObject(bucket, objectName, fileBuffer, fileBuffer.length, {
+      'Content-Type': mimeType,
+    });
+
+    // Creating direct link for an image. For browser link should be localhost and not minio.
+    const publicHost = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+    return `${bucket}/${objectName}`;
+  } catch (error) {
+    console.error(`[MinIO Error] Error while loading an image ${objectName} into the ${bucket}:`, error);
+    throw new Error('Failed to upload file to storage');
+  }
+};
+
+export const getPublicUrl = (imagePath: string): string => {
+    const publicHost = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+    return `${publicHost}/${imagePath}`;
+};
+
+export const parseJsonField = (fieldName: string) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (req.body && typeof req.body[fieldName] === 'string') {
+            try {
+                req.body[fieldName] = JSON.parse(req.body[fieldName]);
+            } catch (error) {
+                return res.status(400).json({ 
+                    message: `Error: Invalid JSON format in field "${fieldName}"` 
+                });
+            }
+        }
+        next();
+    };
+};
+
+const storage = multer.memoryStorage(); // RAM-storage.
+
+// Validation.
+const fileFilter = (req: any, file: Express.Multer.File, callback: multer.FileFilterCallback) => {
+  const allowedExtensions = /jpeg|jpg|png|webp/;
+  
+  // Extension and mime-type.
+  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedExtensions.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return callback(null, true);
+  }
+  
+  callback(new Error('Invalid format. Allowed: jpeg, jpg, png, webp.'));
+};
+
+export const uploadMiddleware = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Limit - 5 MB per file.
+  },
+  fileFilter: fileFilter,
+}).single('image');
+=== ./backend/main/src/lib/prisma.ts ===
+import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+});
+
+export const prisma = new PrismaClient({ adapter });
+=== ./backend/main/src/index.ts ===
+import dotenv from 'dotenv';
+import express from 'express';
+import userRouter from "./routes/UserRoute.js";
+import type { Request, Response } from 'express';
+import userPlantRouter from "./routes/UserPlantRoute.js";
+import recipeRouter from "./routes/RecipeRoute.js";
+import plantSpecieRouter from "./routes/PlantSpecieRoute.js";
+import pdetRoute from "./routes/PdetRoute.js"
+import { rabbitService } from './services/RabbitMqService.js';
+import { plantSpecieService } from './services/PlantSpecieService.js';
+import type { ISpecieCreateModel } from './models/Species.js';
+import type { INotificationDataModel } from './models/RabbitMqModels.js';
+import { queueSenders } from './rabbitmq/QueueSender.js';
+import cors from 'cors';
+
+dotenv.config();
+
+rabbitService.init();
+
+const app = express();
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/user", userRouter);
+app.use("/api/my/plants", userPlantRouter);
+app.use("/api/recipes", recipeRouter);
+app.use("/api/species", plantSpecieRouter);
+app.use("/api/pdet", pdetRoute);
+
+app.post("/api/notif/", async (req: Request, res : Response) => {
+  const data : INotificationDataModel = {
+    userId : 1,
+    token : "123",
+    title : "TEST_TITLE",
+    body : "TEST_BODY"
+  }
+
+  queueSenders.sendNotification(data);
+  return res.status(200).json({ message : "SUCCESS"});
+});
+
+const PORT = process.env.MONOLITH_PORT || 1000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on ${PORT} port.`);
+});
+=== ./backend/main/src/controllers/MeasurementController.ts ===
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.js';
+import { measurementService } from '../services/MeasurementService.js';
+
+class MeasurementController {
+    getMeasurements = async (req: AuthRequest, res: Response) => {
+        try {
+            const requestPlantId = req.params.plantId;
+
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+
+            const parsedId = parseInt(String(requestPlantId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const measurements = await measurementService.getMeasurements(parsedId);
+
+            if (!measurements){
+                return res.status(400).json({ message: "Error: Measurements could not be returned!"});
+            }
+
+            return res.status(200).json(measurements);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const measurementController = new MeasurementController();
+=== ./backend/main/src/controllers/SensorController.ts ===
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.js';
+import { sensorService } from '../services/SensorService.js';
+import type { ISensorCreateModel } from '../models/Sensor.js';
+import type { ISensorCreateResponseDTO } from '@project/shared';
+
+class SensorController {
+    getSensors = async (req: AuthRequest, res: Response) => {
+        try {
+            const requestPlantId = req.params.plantId;
+            
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+    
+            const sensors = await sensorService.getSensors(parsedId);
+            
+            if (!sensors) {
+                return res.status(400).json({ message: "Error: Sensors could not be returned!"});
+            }
+            return res.status(200).json(sensors);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    getById = async (req: AuthRequest, res: Response) => {
+        try {
+            const requestSensorId = req.params.sensorId;
+
+            if (!requestSensorId){
+                return res.status(400).json({ message : "Error: SensorID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestSensorId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: SensorID must be a valid number!" });
+            }
+
+            const sensor = await sensorService.getById(parsedId);
+
+            if (!sensor) {
+                return res.status(404).json({ message: "Error: Could not find sensor with that id!"});
+            }
+
+            return res.status(200).json(sensor);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    create = async (req : AuthRequest, res : Response) => {
+        try {
+            const requestPlantId = req.params.plantId;
+            
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const data : ISensorCreateModel = {
+                userPlantId : parsedId
+            }
+
+            const response = await sensorService.create(data)
+
+            if (!response) {
+                return res.status(400).json({ message: "Error: Failed to add Sensor!"})
+            }
+
+            const responseData : ISensorCreateResponseDTO = {
+                userPlantId : parsedId,
+                mosquitto_url : (process.env.PUBLIC_URL ? process.env.PUBLIC_URL : "empty" ),
+                mosquitto_user : (process.env.MOSQUITTO_USER ? process.env.MOSQUITTO_USER : "empty" ),
+                mosquitto_password : (process.env.MOSQUITTO_PASSWORD ? process.env.MOSQUITTO_PASSWORD : "empty" ),
+                mosquitto_port : (process.env.MOSQUITTO_PORT ? process.env.MOSQUITTO_PORT : "1883" )
+            }
+
+            return res.status(200).json(responseData);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }   
+    }
+
+    delete = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+            const requestSensorId = req.params.sensorId;
+            
+            if (!requestSensorId){
+                return res.status(400).json({ message : "Error: SensorID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestSensorId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: SensorID must be a valid number!" });
+            }
+
+            const response = await sensorService.delete(parsedId);
+
+            if (!response) {
+                return res.status(400).json({ message: "Error: Failed to delete Sensor!"})
+            }
+
+            return res.status(200).json({ message: "Success: Sensor deleted!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const sensorController = new SensorController();
+=== ./backend/main/src/controllers/PlantSpecieController.ts ===
+import type { Request, Response } from 'express';
+import { plantSpecieService } from '../services/PlantSpecieService.js';
+
+class PlantSpecieController {
+    getSpecies = async (req: Request, res: Response) => {
+        try {
+            const species = await plantSpecieService.getSpecies();
+
+            if (!species){
+                return res.status(400).json({ message: "Error: Species could not be returned!"});
+            }
+            
+            return res.status(200).json(species);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    getById = async (req : Request, res : Response) => {
+        try {
+            const requestSpecieId = req.params.id;
+
+            if (!requestSpecieId){
+                return res.status(400).json({ message : "Error: SpecieID is empty!"});
+            }
+
+            const parsedId = parseInt(String(requestSpecieId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: SpecieID must be a valid number!" });
+            }
+
+            const specie = await plantSpecieService.getById(parsedId);
+            
+            if (!specie){
+                return res.status(404).json({ message : "Error: could not find specie with that id!"});
+            }
+            return res.status(200).json(specie);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const plantSpecieController = new PlantSpecieController();
+=== ./backend/main/src/controllers/RecipeController.ts ===
+import type { Request, Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.js';
+import type { IRecipeCreateRequestDTO } from '@project/shared';
+import type { IRecipeCreateModel } from '../models/Recipe.js';
+import { recipeService } from '../services/RecipeService.js';
+import { uploadFile, BUCKETS } from '../configs/storage.config.js';
+import nodeCrypto from 'crypto';
+
+class RecipeController {
+    getRecipes = async (req: Request, res: Response) => {
+        try {
+            const recipes = await recipeService.getRecipes();
+
+            if (!recipes){
+                return res.status(400).json({ message: "Error: Recipes could not be returned!"});
+            }
+
+            return res.status(200).json(recipes);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    getById = async (req : Request, res : Response) => {
+        try {
+            const requestRecipeId = req.params.id;
+
+            if (!requestRecipeId){
+                return res.status(404).json({ message : "Error: RecipeID is empty!"})
+            }
+
+            const parsedId = parseInt(String(requestRecipeId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: RecipeID must be a valid number!" });
+            }
+
+            const recipe = await recipeService.getRecipeById(parsedId);
+
+            if (!recipe){
+                return res.status(404).json({ message: "Error: Recipe with that id does not exist!" });
+            }
+
+            return res.status(200).json(recipe);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    create = async (req : AuthRequest, res : Response) => {
+        try {
+            const authorId = req.user!.id;
+
+            if (!req.file) {
+                return res.status(400).json({ message: "Error: Image file is required!" });
+            }
+            
+            const { name, description, ingredients } = req.body as IRecipeCreateRequestDTO;
+
+            if (!name || !description) {
+                return res.status(400).json({ message: "Error: Name and description are required fields!" });
+            }
+
+            const fileExtension = req.file.originalname.split('.').pop();
+            const uniqueFileName = `${nodeCrypto.randomBytes(16).toString('hex')}.${fileExtension}`;
+
+            const imageUrl = await uploadFile(
+                BUCKETS.RECIPES,
+                uniqueFileName,
+                req.file.buffer,
+                req.file.mimetype
+            );
+            
+            const data : IRecipeCreateModel = {
+                name,
+                description,
+                ingredients,
+                authorId,
+                imageUrl
+            }
+
+            const newRecipe = await recipeService.create(data);
+
+            if (!newRecipe){
+                return res.status(400).json({ message : "Error: Failed to create new recipe! "});
+            }
+
+            return res.status(201).json({ message : "Success: Recipe was created! "});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    delete = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+            const requestRecipeId = req.params.id;
+
+            if (!requestRecipeId){
+                return res.status(404).json({ message : "Error: RecipeID is empty!"})
+            }
+
+            const parsedId = parseInt(String(requestRecipeId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: RecipeID must be a valid number!" });
+            }
+            
+            const response = await recipeService.delete(parsedId, userId);
+
+            if (!response){
+                return res.status(400).json({ message : "Error: Failed to delete recipe!"});
+            }
+
+            return res.status(200).json({ message : "Success: Recipe deleted!" });
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const recipeController = new RecipeController();
+=== ./backend/main/src/controllers/PdetController.ts ===
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.js';
+import type { IPlantDetectionCreateModel } from '../models/PdetRequests.js';
+import { pdetService } from '../services/PdetService.js';
+import { uploadFile, BUCKETS } from '../configs/storage.config.js';
+import nodeCrypto from 'crypto';
+
+class PdetController {
+    getById = async (req : AuthRequest, res : Response) => {
+        try {
+            const requestPderId = req.params.id;
+
+            if (!requestPderId){
+                return res.status(404).json({ message : "Error: Plant detection request ID is empty!"})
+            }
+
+            const parsedId = parseInt(String(requestPderId), 10);
+
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: Plant detection request ID must be a valid number!" });
+            }
+
+            const request = await pdetService.getById(parsedId);
+
+            if (!request){
+                return res.status(404).json({ message: "Error: Plant detection request with that id does not exist!" });
+            }
+
+            return res.status(200).json(request);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    create = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user!.id;
+
+            if (!req.file) {
+                return res.status(400).json({ message: "Error: Image file is required!" });
+            } 
+
+            const fileExtension = req.file.originalname.split('.').pop();
+            const uniqueFileName = `${nodeCrypto.randomBytes(16).toString('hex')}.${fileExtension}`;
+
+            const imageUrl = await uploadFile(
+                BUCKETS.PDET_REQUESTS,
+                uniqueFileName,
+                req.file.buffer,
+                req.file.mimetype
+            );
+
+            const data : IPlantDetectionCreateModel = {
+                userId,
+                imageUrl
+            }
+
+            const response = await pdetService.create(data);
+
+            if (response === -1) {
+                return res.status(400).json({ message : "Error: Failed to create request!"});
+            }
+
+            return res.status(202).json(response);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }   
+    }
+}
+
+export const pdetController = new PdetController();
+=== ./backend/main/src/controllers/UserPlantController.ts ===
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.js';
+import type { IUserPlantCreateRequestDTO, IUserPlantUpdateRequestDTO } from '@project/shared';
+import type { IUserPlantCreateModel, IUserPlantUpdateModel } from '../models/UserPlant.js';
+import { userPlantService } from '../services/UserPlantService.js';
+import { uploadFile, BUCKETS } from '../configs/storage.config.js';
+import nodeCrypto from 'crypto';
+
+class UserPlantController {
+    getPlants = async (req: AuthRequest, res: Response) => {
+        try {
+            const userId = req.user!.id;
+
+            const plants = await userPlantService.getPlants(userId);
+
+            if (!plants) {
+                return res.status(400).json({ message: "Error: Plants could not be returned!"});
+            }
+
+            return res.status(200).json(plants);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    getById = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+            const requestPlantId = req.params.id;
+                        
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const userPlant = await userPlantService.getById(parsedId, userId);
+
+            if (!userPlant) {
+                return res.status(404).json({ message: "Error: Could not find user plant with that id!"});
+            }
+
+            return res.status(200).json(userPlant);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    create = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+
+            if (!req.file) {
+                return res.status(400).json({ message: "Error: Image file is required!" });
+            }
+
+            const plantSpecieId = parseInt(String(req.body.plantSpecieId), 10);
+            const name = req.body.name;
+
+            if (isNaN(plantSpecieId)) {
+                return res.status(400).json({ message: "Error: plantSpecieId must be a valid number!" });
+            }
+
+            if (!plantSpecieId || !name) {
+                return res.status(400).json({ message: "Error: Critical fields are empty!" });
+            }
+
+            const fileExtension = req.file.originalname.split('.').pop();
+            const uniqueFileName = `${nodeCrypto.randomBytes(16).toString('hex')}.${fileExtension}`;
+
+            const imageUrl = await uploadFile(
+                BUCKETS.PLANTS,
+                uniqueFileName,
+                req.file.buffer,
+                req.file.mimetype
+            );
+
+            const data : IUserPlantCreateModel = {
+                plantSpecieId,
+                name,
+                imagePath : imageUrl,
+                userId
+            }
+
+            const response = await userPlantService.create(data);
+
+            if (!response){
+                return res.status(400).json({ message : "Error: Failed to create new user plant! "});
+            }
+
+            return res.status(201).json({ message : "Success: User plant was created! "});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    update = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+            const requestPlantId = req.params.id;
+                        
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const { name } = req.body as IUserPlantUpdateRequestDTO;
+                        
+            const updateData: IUserPlantUpdateModel = {
+                id : parsedId
+            };
+
+            if (!name) {
+                return res.status(400).json({ message: "Error: No data provided for update." });
+            }
+
+            updateData.name = name;
+
+            const response = await userPlantService.update(updateData, userId)
+
+            if (!response){
+                return res.status(403).json({ message: "Error: User plant cannot be updated."});
+            }
+
+            return res.status(200).json({ message: "Success: User plant updated!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    delete = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req.user?.id!;
+            const requestPlantId = req.params.id;
+                        
+            if (!requestPlantId){
+                return res.status(400).json({ message : "Error: PlantID is empty!"});
+            }
+    
+            const parsedId = parseInt(String(requestPlantId), 10);
+    
+            if (isNaN(parsedId)) {
+                return res.status(400).json({ message: "Error: PlantID must be a valid number!" });
+            }
+
+            const response = await userPlantService.delete(parsedId, userId);
+
+            if (!response){
+                return res.status(400).json({message : "Error: Could not delete user."});
+            }
+
+            return res.status(200).json({ message : "Success: UserPlant deleted!"})
+
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const userPlantController = new UserPlantController();
+=== ./backend/main/src/controllers/UserController.ts ===
+import type { Request, Response } from 'express';
+import type { AuthRequest } from "../middleware/auth.js";
+import type { IUserUpdateRequestDTO } from '@project/shared';
+import { userService } from '../services/UserService.js';
+import type { IUserFcmTokenModel } from '../models/User.js';
+
+class UserController {
+    getProfile = async (req: AuthRequest, res: Response) => {
+        try {
+            const userId = req?.user?.id;
+
+            const user = await userService.getProfile(userId!);
+
+            if (!user){
+                return res.status(404).json({ message : "Error: User not found!"});
+            }
+            return res.status(200).json(user);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    login = async (req: Request, res: Response) => {
+        try {
+            const { username, email, password } = req.body;
+
+            if (!username || !email || !password){
+                return res.status(400).json({ message: "Error: Critical fields are empty!"});
+            }
+
+            const user = await userService.login({username, email, password});
+            
+            if (!user){
+                return res.status(404).json({ message: "Error: User is not found!"});
+            }
+
+            return res.status(200).json(user);
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    register = async (req : Request, res: Response) => {
+        try {
+            const { username, email, password } = req.body;
+
+            if (!username || !email || !password){
+                return res.status(400).json({ message: "Error: Critical fields are empty!"});
+            }
+
+            const response = await userService.register({username, email, password});
+            
+            if (!response){
+                return res.status(403).json({ message: "Error: User cannot be created."});
+            }
+
+            return res.status(201).json({ message : "User created. Successful!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+    
+    assignFcmToken = async (req : AuthRequest, res : Response) => {
+        try {
+            const userId = req?.user?.id!;
+            const { token } = req.body;
+
+            if (!token) {
+                return res.status(400).json({ message: "Error: FCM Token is empty!"});
+            }
+
+            const data : IUserFcmTokenModel = {
+                id : userId,
+                fcmToken : token
+            }
+
+            const response = await userService.assignFcmToken(data);
+
+            if (!response){
+                return res.status(403).json({ message: "Error: Failed to assign token to user!"});
+            }
+            
+            return res.status(200).json({ message: "Success: FCM Token assigned successfuly!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+
+    update = async (req : AuthRequest, res : Response) => {
+        try {
+            const { username, email, password } = req.body as IUserUpdateRequestDTO;
+            
+            const updateData: IUserUpdateRequestDTO = {};
+
+            updateData.id = req.user?.id!;
+            if (username) updateData.username = username;
+            if (email) updateData.email = email;
+            if (password) updateData.password = password;
+
+            if (Object.keys(updateData).length === 0) {
+                return res.status(400).json({ message: "Error: No data provided for update." });
+            }
+
+            const response = await userService.update(updateData);
+
+            if (!response){
+                return res.status(403).json({ message: "Error: User cannot be updated."});
+            }
+
+            return res.status(201).json({ message : "User updated. Successful!"});
+        }
+        catch (error){
+            return res.status(500).json({ message : "Error on the server." });
+        }
+    }
+}
+
+export const userController = new UserController();
+=== ./backend/main/src/routes/UserRoute.ts ===
+import { Router } from 'express';
+import { authMiddleware } from '../middleware/auth.js';
+import { userController } from '../controllers/UserController.js';
+
+const router = Router();
+
+router.get('/me', authMiddleware, userController.getProfile);
+router.post('/login', userController.login);
+router.post('/register', userController.register);
+router.post('/fcm-token', authMiddleware, userController.assignFcmToken);
+router.patch('/me', authMiddleware, userController.update);
+
+export default router;
+=== ./backend/main/src/routes/UserPlantRoute.ts ===
+import { Router } from 'express';
+import { authMiddleware } from '../middleware/auth.js';
+import { userPlantController } from '../controllers/UserPlantController.js';
+import { sensorController } from '../controllers/SensorController.js';
+import { measurementController } from '../controllers/MeasurementController.js';
+import { uploadMiddleware } from '../configs/storage.config.js';
+
+const router = Router();
+
+router.get('/',         authMiddleware, userPlantController.getPlants);
+router.get('/:id',      authMiddleware, userPlantController.getById);
+router.post('/',        authMiddleware, uploadMiddleware, userPlantController.create);
+router.patch('/:id',    authMiddleware, userPlantController.update);
+router.delete('/:id',   authMiddleware, userPlantController.delete);
+
+router.get('/:plantId/sensors',          authMiddleware, sensorController.getSensors);
+router.get('/:plantId/sensors/:sensorId',      authMiddleware, sensorController.getById);
+router.post('/:plantId/sensors',         authMiddleware, sensorController.create);
+router.delete('/:plantId/sensors/:sensorId',   authMiddleware, sensorController.delete);
+
+router.get('/:plantId/measurements', authMiddleware, measurementController.getMeasurements);
+
+export default router;
+=== ./backend/main/src/routes/PdetRoute.ts ===
+import { Router } from 'express';
+import { authMiddleware } from '../middleware/auth.js';
+import { pdetController } from '../controllers/PdetController.js';
+import { uploadMiddleware } from '../configs/storage.config.js';
+
+const router = Router();
+
+router.get('/:id', authMiddleware, pdetController.getById);
+router.post('/', authMiddleware, uploadMiddleware, pdetController.create);
+
+export default router;
+=== ./backend/main/src/routes/PlantSpecieRoute.ts ===
+import { Router } from 'express';
+import { plantSpecieController } from '../controllers/PlantSpecieController.js';
+
+const router = Router();
+
+router.get('/', plantSpecieController.getSpecies);
+router.get('/:id', plantSpecieController.getById);
+
+export default router;
+=== ./backend/main/src/routes/RecipeRoute.ts ===
+import { Router } from 'express';
+import { authMiddleware } from '../middleware/auth.js';
+import { recipeController } from '../controllers/RecipeController.js';
+import { uploadMiddleware, parseJsonField } from '../configs/storage.config.js';
+
+const router = Router();
+
+router.get('/', recipeController.getRecipes);
+router.get('/:id', recipeController.getById);
+router.post('/', authMiddleware, uploadMiddleware, parseJsonField('ingredients'), recipeController.create);
+router.delete('/:id', authMiddleware, recipeController.delete);
+
+export default router;
+=== ./backend/main/src/services/RabbitMqService.ts ===
+import type {Connection, Channel, Message} from 'amqplib';
+import amqp from 'amqplib';
+import { queueHandlers } from "../rabbitmq/MessagesHandler.js"
+import { AppQueue } from '../rabbitmq/rabbit.queues.js';
+
+export class QueueService {
+    private connection : any;
+    private channel: Channel | null = null;
+
+    private readonly exchangeName = 'amq.topic'; 
+    async init() {
+        if (this.channel)
+            return;
+        try {
+            const rabbitUrl = process.env.RABBITMQ_URL_MONOLITH;
+            this.connection = await amqp.connect(rabbitUrl!);
+            this.channel = await this.connection.createChannel();
+            console.log("[RabbitMQ] RabbitMQ initialized!");
+
+            await this.startConsuming();
+        } catch (error) {
+            console.error('[RabbitMQ] Initialization error RabbitMQ:', error);
+            throw error;
+        }
+    }   
+    isInit() {
+        return (this.channel);
+    }
+    async publish(routingKey: string, message: any): Promise<boolean> {
+        if (!this.channel) {
+            console.error('[QueueService] ERROR: Sending message before initialization.');
+            return false;
+        }
+        try {
+            const payload = Buffer.from(JSON.stringify(message));
+            
+            // publish to exchanger, not to the queue.
+            const published = this.channel.publish(this.exchangeName, routingKey, payload, {
+                persistent: true
+            });
+
+            console.log(`[QueueService] Message sent. Key: [${routingKey}]`);
+            return published;
+        } catch (error) {
+            console.error('[QueueService] Error while sending the message:', error);
+            return false;
+        }
+    }
+    private async startConsuming() {
+        if (!this.channel) return;
+
+        // Checking all the queues in ENUM.
+        for (const queueName of Object.values(AppQueue)) {
+            await this.channel.consume(queueName, async (msg) => {
+                if (msg !== null) {
+                    try {
+                        const content = JSON.parse(msg.content.toString());
+                        
+                        // Getting right handler from queuehandler
+                        const handler = queueHandlers[queueName as AppQueue];
+                        
+                        if (handler) {
+                            await handler(content);
+                        } else {
+                            console.warn(`No handler for queue: ${queueName}`);
+                        }
+
+                        // saying to rabbitMQ that everything is OK.
+                        this.channel?.ack(msg); 
+
+                    } catch (err) {
+                        console.error(`[RabbitMQ] Error handling message from queue: ${queueName}:`, err);
+                        // Bad message- getting rid of it from RabbitMQ.
+                        this.channel?.nack(msg, false, false); 
+                    }
+                }
+            });
+            
+            console.log(`[QueueService] Listening to the queue: ${queueName}`);
+        }
+    }
+}
+
+export const rabbitService = new QueueService();
+=== ./backend/main/src/services/MeasurementService.ts ===
+import type { IMeasurementDTO } from "@project/shared";
+import { measurementRepository } from "../repositories/MeasurementRepository.js";
+import { userRepository } from "../repositories/UserRepository.js";
+import { userPlantRepository } from "../repositories/UserPlantRepository.js";
+import type { IMeasurementCreateModel } from "../models/Measurement.js";
+import { plantSpecieRepository } from "../repositories/PlantSpecieRepository.js";
+
+export class MeasurementService {
+    async getMeasurements (plantId : number) : Promise<IMeasurementDTO[] | null> {
+        var amount = 10;
+        const measurements = await measurementRepository.getMeasurements(plantId, amount);
+
+        return measurements;
+    }
+
+    async getById (measurementId : number) : Promise<IMeasurementDTO | null> {
+        const measurement = await measurementRepository.getById(measurementId);
+
+        return measurement;
+    }
+
+    async create(data: IMeasurementCreateModel): Promise<boolean> {
+        // TODO - NOTIFICATION AND COMPARE IDEAL VS MEASUREMENT VALUES
+        const response = await measurementRepository.create(data);
+        return response;
+    }
+}
+
+export const measurementService = new MeasurementService();
+=== ./backend/main/src/services/PlantSpecieService.ts ===
+import type { ISpeciesDTO } from "@project/shared";
+import { plantSpecieRepository } from "../repositories/PlantSpecieRepository.js";
+import type { ISpecieCreateModel } from "../models/Species.js";
+
+export class PlantSpecieService {
+    async getSpecies () : Promise<ISpeciesDTO[] | null> {
+        const species = await plantSpecieRepository.getSpecies();
+
+        return species;
+    }
+    async getById (id : number) : Promise<ISpeciesDTO | null> {
+        const specie = await plantSpecieRepository.getById(id);
+
+        return specie;
+    }
+    async create (data : ISpecieCreateModel) : Promise<boolean> {
+        const response = await plantSpecieRepository.create(data);
+
+        return response;
+    }
+}
+
+export const plantSpecieService = new PlantSpecieService();
+=== ./backend/main/src/services/RecipeService.ts ===
+import type { IRecipeDTO } from "@project/shared";
+import type { IRecipeCreateModel } from "../models/Recipe.js";
+import { recipeRepository } from "../repositories/RecipeRepository.js";
+
+export class RecipeService {
+    async getRecipes () : Promise<IRecipeDTO[] | null> {
+        const recipes = await recipeRepository.getRecipes(); 
+
+        return recipes;
+    }
+
+    async getRecipeById (id : number) : Promise<IRecipeDTO | null> {        
+        const recipe = await recipeRepository.getById(id);
+
+        return recipe;
+    }
+
+    async create (data : IRecipeCreateModel) : Promise<boolean> {        
+        const response = await recipeRepository.create(data);
+
+        return response;
+    }
+
+    async delete (recipeId : number, userId : number) : Promise<boolean> {        
+        const response = await recipeRepository.delete(recipeId, userId);
+
+        return response;
+    }
+}
+
+export const recipeService = new RecipeService();
+=== ./backend/main/src/services/UserService.ts ===
+import type { IUserDTO, IUserLoginRequestDTO, IUserLoginResponseDTO, IUserRegisterRequestDTO, IUserUpdateRequestDTO } from "@project/shared";
+import type { IUserCreateModel, IUserFcmTokenModel } from "../models/User.js";
+import { userRepository } from "../repositories/UserRepository.js";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+export class UserService {
+    async getProfile (id : number) : Promise<IUserDTO | null> {
+        const user = await userRepository.getById(id);
+
+        return user;
+    }
+
+    async login (data : IUserLoginRequestDTO) : Promise<IUserLoginResponseDTO | null> {
+        const user = await userRepository.getByNickname(data.username);
+
+        if (user == null){
+            return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash);
+        if (!isPasswordValid) {
+            return null;
+        }
+
+        const token = jwt.sign(
+                { id: user.id, username: user.username },
+                process.env.JWT_SECRET as string,
+                { expiresIn: '1d' }
+            );
+
+        const response : IUserLoginResponseDTO = {
+            id : user.id,
+            username : user.username,
+            email : user.email,
+            token
+        }
+
+        return response;
+    }
+
+    async register (data : IUserRegisterRequestDTO) : Promise<boolean>  {
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(data.password, salt);
+
+        const user : IUserCreateModel = {
+            username : data.username,
+            passwordHash,
+            email : data.email
+        }
+
+        const response = await userRepository.create(user);
+
+        return response;
+    }
+
+    async assignFcmToken (data : IUserFcmTokenModel) : Promise<boolean> {
+        const response = await userRepository.assignFcmToken(data);
+        return response;
+    }
+
+    async removeFcmToken (userId : number) : Promise<boolean> {
+        const response = await userRepository.removeFcmToken(userId);
+        return response;
+    }
+
+    async update (data : IUserUpdateRequestDTO) : Promise<boolean> {
+        if (data.password) {
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(data.password, salt);
+            data.password = passwordHash;
+        }
+        
+        const response = await userRepository.update(data);
+
+        return response;
+    }
+}
+
+export const userService = new UserService();
+=== ./backend/main/src/services/SensorService.ts ===
+import type { ISensorDTO } from "@project/shared";
+import { sensorRepository } from "../repositories/SensorRepository.js";
+import type { ISensorCreateModel, ISensorUpdateModel } from "../models/Sensor.js";
+
+export class SensorService {
+    async getSensors (plantId : number) : Promise<ISensorDTO[] | null> {
+        const sensors = await sensorRepository.getSensors(plantId);
+        
+        return sensors;
+    }
+
+    async getById (sensorId : number) : Promise<ISensorDTO | null> {
+        const sensor = await sensorRepository.getById(sensorId);
+        
+        return sensor;
+    }
+
+    async updateSensorStatus(data : ISensorUpdateModel) : Promise<boolean> {
+        const response = await sensorRepository.update(data);
+        
+        return response;
+    }
+
+    async create (data : ISensorCreateModel) : Promise<boolean> {
+        const userPlantHasSensor : boolean = await sensorRepository.userPlantHasSensor(data.userPlantId);
+
+        if (userPlantHasSensor) {
+            return false;
+        }
+
+        const response = await sensorRepository.create(data);
+        
+        return response;
+    }
+
+    async delete(sensorId : number) : Promise<boolean>{
+        const response = await sensorRepository.delete(sensorId);
+
+        return response;
+    }
+}
+
+export const sensorService = new SensorService();
+=== ./backend/main/src/services/PdetService.ts ===
+import type { IPlantDetectionsDTO } from "@project/shared";
+import { pdetRepository } from "../repositories/PdetRequestRepository.js";
+import type { IPlantDetectionCreateModel, IPlantDetectionUpdateModel } from "../models/PdetRequests.js";
+import { queueSenders } from "../rabbitmq/QueueSender.js";
+import type { IPlantDetectionTaskModel } from "../models/RabbitMqModels.js";
+
+export class PdetService {
+    async getById (id : number) : Promise<IPlantDetectionsDTO | null> {        
+        const recipe = await pdetRepository.getById(id);
+
+        return recipe;
+    }
+
+    async create (data : IPlantDetectionCreateModel) : Promise<number> {        
+        const response = await pdetRepository.create(data);
+
+        if (response === false) {
+            console.log("[PdetService] Failed to create request.")
+            return -1;
+        }
+
+        const pdetTaskData : IPlantDetectionTaskModel = {
+            requestId : response,
+            imageUrl : data.imageUrl
+        }
+
+        const responseQueue = await queueSenders.sendPlantDetectionTask(pdetTaskData);
+
+        if (responseQueue) {
+            return response;
+        } else {
+            await pdetRepository.delete(response);
+            return -1;
+        }
+    }
+
+    async update (data : IPlantDetectionUpdateModel) : Promise<boolean> {        
+        const response = await pdetRepository.update(data);
+
+        return response;
+    }
+}
+
+export const pdetService = new PdetService();
+=== ./backend/main/src/services/UserPlantService.ts ===
+import type { IUserPlantCreateModel, IUserPlantUpdateModel } from "../models/UserPlant.js";
+import type { IUserPlantDTO } from "@project/shared";
+import { userPlantRepository } from "../repositories/UserPlantRepository.js";
+
+export class UserPlantService {
+    async getPlants(userId : number) : Promise<IUserPlantDTO[] | null> {
+        const plants = await userPlantRepository.getPlants(userId);
+
+        return plants;
+    }
+
+    async getById(plantId : number, userId : number) : Promise<IUserPlantDTO | null> {
+        const plant = await userPlantRepository.getById(plantId, userId);
+
+        return plant;
+    }
+
+    async create(data : IUserPlantCreateModel) : Promise<boolean> {
+        const response = await userPlantRepository.create(data);
+        
+        return response;
+    }
+
+    async update(data : IUserPlantUpdateModel, userId : number) : Promise<boolean> {
+        const response = await userPlantRepository.update(data, userId);
+
+        return response;
+    }
+
+    async delete(plantId : number, userId : number) : Promise<boolean> {
+        const response = await userPlantRepository.delete(plantId, userId);
+
+        return response;
+    }
+}
+
+export const userPlantService = new UserPlantService();
+=== ./backend/services/Scrapper/plants_dataset.json ===
+[
+  {
+    "name": "Monstera deliciosa",
+    "description": "Iconic tropical plant with large, fenestrated leaves. Thrives in bright indirect light and is forgiving of neglect.",
+    "image_url": "https://images.pexels.com/photos/7318283/pexels-photo-7318283.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 22, "light_level": 6 }
+  },
+  {
+    "name": "Pothos",
+    "description": "Nearly indestructible trailing vine with heart-shaped leaves. Perfect for beginners and low-light spaces.",
+    "image_url": "https://images.pexels.com/photos/4641442/pexels-photo-4641442.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 21, "light_level": 4 }
+  },
+  {
+    "name": "Snake plant",
+    "description": "Architectural succulent with stiff upright leaves. Tolerates neglect and low light better than almost any plant.",
+    "image_url": "https://images.pexels.com/photos/29218657/pexels-photo-29218657.jpeg",
+    "ideal_values": { "moisture": 30, "temperature": 21, "light_level": 3 }
+  },
+  {
+    "name": "Spider plant",
+    "description": "Cheerful arching plant that produces cascading offshoots. Safe for pets and extremely easy to propagate.",
+    "image_url": "https://images.pexels.com/photos/11363534/pexels-photo-11363534.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 20, "light_level": 5 }
+  },
+  {
+    "name": "Peace lily",
+    "description": "Elegant shade-loving plant with white spathe flowers. Excellent at filtering indoor air pollutants.",
+    "image_url": "https://images.pexels.com/photos/32425127/pexels-photo-32425127.jpeg",
+    "ideal_values": { "moisture": 70, "temperature": 22, "light_level": 3 }
+  },
+  {
+    "name": "ZZ plant",
+    "description": "Glossy, waxy leaves on graceful arching stems. Survives drought and low light with ease.",
+    "image_url": "https://images.pexels.com/photos/10194608/pexels-photo-10194608.jpeg",
+    "ideal_values": { "moisture": 25, "temperature": 22, "light_level": 3 }
+  },
+  {
+    "name": "Rubber plant",
+    "description": "Bold statement tree with deep burgundy or green leaves. Grows tall and sculptural with minimal care.",
+    "image_url": "https://images.pexels.com/photos/8989427/pexels-photo-8989427.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 23, "light_level": 6 }
+  },
+  {
+    "name": "Fiddle leaf fig",
+    "description": "Designer darling with large violin-shaped leaves. Loves a bright consistent spot and dislikes being moved.",
+    "image_url": "https://images.pexels.com/photos/9369637/pexels-photo-9369637.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
+  },
+  {
+    "name": "Aloe vera",
+    "description": "Succulent with thick gel-filled leaves used for burns and skincare. Thrives on neglect and full sun.",
+    "image_url": "https://images.pexels.com/photos/7408838/pexels-photo-7408838.jpeg",
+    "ideal_values": { "moisture": 20, "temperature": 24, "light_level": 9 }
+  },
+  {
+    "name": "Succulents mix",
+    "description": "Compact rosette-forming plants in endless variety. Perfect for sunny windowsills and forgetful waterers.",
+    "image_url": "https://images.pexels.com/photos/33322481/pexels-photo-33322481.jpeg",
+    "ideal_values": { "moisture": 20, "temperature": 22, "light_level": 9 }
+  },
+  {
+    "name": "Philodendron heartleaf",
+    "description": "Fast-growing trailing plant with glossy heart-shaped leaves. Adapts to a wide range of light conditions.",
+    "image_url": "https://images.pexels.com/photos/17665056/pexels-photo-17665056.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Chinese evergreen",
+    "description": "Stunning patterned foliage in shades of green, silver, and red. Very tolerant of low light and neglect.",
+    "image_url": "https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 21, "light_level": 3 }
+  },
+  {
+    "name": "Dracaena",
+    "description": "Tall architectural plant with strap-like leaves and a cane-like trunk. Excellent air purifier.",
+    "image_url": "https://images.pexels.com/photos/4299019/pexels-photo-4299019.jpeg",
+    "ideal_values": { "moisture": 40, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Boston fern",
+    "description": "Lush, feathery fronds that add a classic cottage feel. Loves humidity and indirect light.",
+    "image_url": "https://images.pexels.com/photos/11301314/pexels-photo-11301314.jpeg",
+    "ideal_values": { "moisture": 75, "temperature": 20, "light_level": 5 }
+  },
+  {
+    "name": "Orchid",
+    "description": "Elegant blooming plant with exotic flowers lasting weeks. Thrives on bright indirect light and careful watering.",
+    "image_url": "https://images.pexels.com/photos/30125455/pexels-photo-30125455.jpeg",
+    "ideal_values": { "moisture": 45, "temperature": 22, "light_level": 7 }
+  },
+  {
+    "name": "African violet",
+    "description": "Compact flowering plant that blooms almost year-round in purple, pink, and white. Loves bright indirect light.",
+    "image_url": "https://images.pexels.com/photos/7090475/pexels-photo-7090475.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 21, "light_level": 6 }
+  },
+  {
+    "name": "Jade plant",
+    "description": "Long-lived succulent with thick oval leaves that can live for decades. Symbolizes good luck in many cultures.",
+    "image_url": "https://images.pexels.com/photos/5781634/pexels-photo-5781634.jpeg",
+    "ideal_values": { "moisture": 25, "temperature": 22, "light_level": 8 }
+  },
+  {
+    "name": "Kalanchoe",
+    "description": "Cheerful succulent that produces clusters of tiny flowers in red, orange, and yellow. Blooms for months.",
+    "image_url": "https://images.pexels.com/photos/32032337/pexels-photo-32032337.jpeg",
+    "ideal_values": { "moisture": 30, "temperature": 21, "light_level": 8 }
+  },
+  {
+    "name": "Cast iron plant",
+    "description": "Near indestructible foliage plant that tolerates deep shade, dust, and irregular watering alike.",
+    "image_url": "https://images.pexels.com/photos/16710149/pexels-photo-16710149.jpeg",
+    "ideal_values": { "moisture": 40, "temperature": 19, "light_level": 2 }
+  },
+  {
+    "name": "Bird of paradise",
+    "description": "Dramatic tropical plant with huge paddle-shaped leaves. Makes a bold statement in bright sunny rooms.",
+    "image_url": "https://images.pexels.com/photos/17289904/pexels-photo-17289904.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
+  },
+  {
+    "name": "Cactus mix",
+    "description": "Desert survivors with sculptural forms and minimal water needs. Excellent for south-facing windows.",
+    "image_url": "https://images.pexels.com/photos/28964981/pexels-photo-28964981.jpeg",
+    "ideal_values": { "moisture": 15, "temperature": 24, "light_level": 10 }
+  },
+  {
+    "name": "Prayer plant",
+    "description": "Striking patterned leaves that fold upward at night as if in prayer. Loves humidity and warmth.",
+    "image_url": "https://images.pexels.com/photos/32724560/pexels-photo-32724560.jpeg",
+    "ideal_values": { "moisture": 65, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Croton",
+    "description": "Explosively colourful foliage in red, orange, yellow, and green. Needs bright light to keep its vivid colours.",
+    "image_url": "https://images.pexels.com/photos/19627790/pexels-photo-19627790.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 23, "light_level": 8 }
+  },
+  {
+    "name": "English ivy",
+    "description": "Classic trailing or climbing vine with lobed leaves. Great for hanging baskets and trellises indoors.",
+    "image_url": "https://images.pexels.com/photos/3117228/pexels-photo-3117228.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 18, "light_level": 5 }
+  },
+  {
+    "name": "Bamboo palm",
+    "description": "Graceful multi-stemmed palm that brings a tropical feel and humidifies the air naturally.",
+    "image_url": "https://images.pexels.com/photos/15655064/pexels-photo-15655064.png",
+    "ideal_values": { "moisture": 60, "temperature": 22, "light_level": 6 }
+  }
+]
+=== ./backend/services/Scrapper/fetcher.go ===
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+type IdealValues struct {
+	Moisture    int `json:"moisture"`
+	Temperature int `json:"temperature"`
+	LightLevel  int `json:"light_level"`
+}
+
+type Plant struct {
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	ImageURL    string      `json:"image_url"`
+	IdealValues IdealValues `json:"ideal_values"`
+}
+
+type PlantMessage struct {
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	ImageURL    string      `json:"imageUrl"`
+	IdealValues IdealValues `json:"ideal_values"`
+}
+
+func uploadToMinio(client *minio.Client, imageURL string, plantName string) (string, error) {
+	resp, err := http.Get(imageURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to download image: %v", err)
+	}
+	defer resp.Body.Close()
+
+	ext := filepath.Ext(imageURL)
+	if ext == "" || len(ext) > 5 {
+		ext = ".jpg"
+	}
+	if idx := strings.Index(ext, "?"); idx != -1 {
+		ext = ext[:idx]
+	}
+
+	objectName := fmt.Sprintf("%s_%d%s",
+		strings.ReplaceAll(strings.ToLower(plantName), " ", "_"),
+		time.Now().UnixNano(),
+		ext,
+	)
+
+	bucket := os.Getenv("S3_BUCKET_SPECIES")
+	if bucket == "" {
+		bucket = "species"
+	}
+
+	_, err = client.PutObject(
+		context.Background(),
+		bucket,
+		objectName,
+		resp.Body,
+		resp.ContentLength,
+		minio.PutObjectOptions{ContentType: resp.Header.Get("Content-Type")},
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to upload to minio: %v", err)
+	}
+
+	return fmt.Sprintf("%s/%s", bucket, objectName), nil
+}
+
+func publishToRabbitMQ(ch *amqp.Channel, plant PlantMessage) error {
+	body, err := json.Marshal(plant)
+	if err != nil {
+		return err
+	}
+
+	return ch.PublishWithContext(
+		context.Background(),
+		"amq.topic",          // exchange
+		"scrapper.result.ok", // routing key
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
+}
+
+func main() {
+	minioEndpoint := fmt.Sprintf("%s:%s", os.Getenv("MINIO_ENDPOINT"), os.Getenv("MINIO_PORT"))
+	if minioEndpoint == ":" {
+		minioEndpoint = "localhost:9000"
+	}
+	minioClient, err := minio.New(minioEndpoint, &minio.Options{
+		Creds: credentials.NewStaticV4(
+			os.Getenv("MINIO_ROOT_USER"),
+			os.Getenv("MINIO_ROOT_PASSWORD"),
+			"",
+		),
+		Secure: os.Getenv("MINIO_USE_SSL") == "true",
+	})
+	if err != nil {
+		log.Fatalf("Failed to init MinIO client: %v", err)
+	}
+
+	rabbitURL := os.Getenv("RABBITMQ_URL_SCRAPPER")
+	if rabbitURL == "" {
+		log.Fatalf("Failed to connect to RabbitMQ")
+	}
+	conn, err := amqp.Dial(rabbitURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("Failed to open channel: %v", err)
+	}
+	defer ch.Close()
+
+	data, err := os.ReadFile("plants_dataset.json")
+	if err != nil {
+		log.Fatalf("Failed to read plants_dataset.json: %v", err)
+	}
+
+	var plants []Plant
+	if err := json.Unmarshal(data, &plants); err != nil {
+		log.Fatalf("Failed to parse JSON: %v", err)
+	}
+
+	fmt.Printf("[FETCHER] Loaded %d plants. Starting upload...\n\n", len(plants))
+
+	for i, plant := range plants {
+		fmt.Printf("[%d/%d] Processing: %s\n", i+1, len(plants), plant.Name)
+
+		minioPath, err := uploadToMinio(minioClient, plant.ImageURL, plant.Name)
+		if err != nil {
+			log.Printf("[SKIP] %s — image upload failed: %v\n", plant.Name, err)
+			continue
+		}
+
+		publicHost := os.Getenv("MINIO_PUBLIC_URL")
+		if publicHost == "" {
+			log.Printf("Failed to connect to RabbitMQ")
+		}
+
+		msg := PlantMessage{
+			Name:        plant.Name,
+			Description: plant.Description,
+			ImageURL:    minioPath,
+			IdealValues: plant.IdealValues,
+		}
+
+		if err := publishToRabbitMQ(ch, msg); err != nil {
+			log.Printf("[ERROR] %s — failed to publish: %v\n", plant.Name, err)
+			continue
+		}
+
+		fmt.Printf("[OK] %s → %s\n", plant.Name, msg.ImageURL)
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	fmt.Printf("\n[DONE] Processed %d plants.\n", len(plants))
+}
+
+=== ./backend/services/ingestor/main.go ===
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+var (
+	plantTimers = make(map[string]*time.Timer)
+	timerMutex  = &sync.Mutex{}
+	silenceTime = 30 * time.Second
+)
+
+var rmqChannel *amqp.Channel
+var dataQueueName string
+var statusQueueName string
+
+type IncomingPayload struct {
+	PlantID     string   `json:"plantId"`
+	Light       *float64 `json:"light"`
+	Moisture    *float64 `json:"moisture"`
+	Temperature *float64 `json:"temperature"`
+}
+
+type OutgoingPayload struct {
+	Type      string       `json:"type"`
+	Timestamp string       `json:"timestamp"`
+	Values    PlantMetrics `json:"values"`
+	PlantID   int          `json:"plantId"`
+}
+
+type PlantMetrics struct {
+	Moisture    float64 `json:"moisture"`
+	Temperature float64 `json:"temperature"`
+	Light       float64 `json:"light"`
+}
+
+type StatusAlertPayload struct {
+	Type     string `json:"type"`
+	Online   bool   `json:"online"`
+	LastSeen string `json:"last_seen"`
+	PlantID  int    `json:"plantId"`
+}
+
+func main() {
+	envSilence := os.Getenv("RABBITMQ_SILENCE_TIME")
+	if envSilence != "" {
+		seconds, err := strconv.Atoi(envSilence)
+		if err != nil {
+			log.Printf("[WARN] Invalid RABBITMQ_SILENCE_TIME value '%s'. Defaulting to 30s.", envSilence)
+		} else {
+			silenceTime = time.Duration(seconds) * time.Second
+			log.Printf("Watchdog silence timeout configured to: %s", silenceTime)
+		}
+	} else {
+		log.Println("No RABBITMQ_SILENCE_TIME provided. Defaulting to 30s.")
+	}
+
+	dataQueueName = os.Getenv("RABBITMQ_DATA_QUEUE")
+	if dataQueueName == "" {
+		dataQueueName = "sensor.data.queue"
+	}
+
+	statusQueueName = os.Getenv("RABBITMQ_STATUS_QUEUE")
+	if statusQueueName == "" {
+		statusQueueName = "sensor.data.queue"
+	}
+
+	rabbitmqURL := os.Getenv("RABBITMQ_URL_SENSORS")
+	if rabbitmqURL == "" {
+		log.Println("[WARN] No RABBITMQ_URL found. Running in localized SANDBOX mode (Printing logs only).")
+	} else {
+		conn, err := amqp.Dial(rabbitmqURL)
+		if err != nil {
+			log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+		}
+		defer conn.Close()
+
+		rmqChannel, err = conn.Channel()
+		if err != nil {
+			log.Fatalf("Failed to open a RabbitMQ channel: %v", err)
+		}
+		defer rmqChannel.Close()
+
+		log.Println("Successfully connected to RabbitMQ and verified queue:", dataQueueName)
+	}
+
+	mosquittoURL := os.Getenv("MOSQUITTO_URL")
+	if mosquittoURL == "" {
+		mosquittoURL = "tcp://localhost:1883"
+	}
+	mosquittoPass := os.Getenv("MOSQUITTO_PASSWORD")
+
+	opts := mqtt.NewClientOptions().AddBroker(mosquittoURL)
+	opts.SetUsername(os.Getenv("MOSQUITTO_USER"))
+	if mosquittoPass != "" {
+		opts.SetPassword(mosquittoPass)
+	}
+	opts.SetDefaultPublishHandler(onMessageReceived)
+
+	mqttClient := mqtt.NewClient(opts)
+
+	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
+		log.Fatalf("Failed to connect to Mosquitto: %v", token.Error())
+	}
+	defer mqttClient.Disconnect(250)
+
+	topic := "sensors/#"
+	if token := mqttClient.Subscribe(topic, 1, nil); token.Wait() && token.Error() != nil {
+		log.Fatalf("Failed to subscribe to topic: %v", token.Error())
+	}
+
+	fmt.Printf("Go Sandbox Active! Listening to Mosquitto on: %s\n", topic)
+	fmt.Println("Awaiting ESP32 payloads... Press CTRL+C to exit.")
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	<-sigChan
+}
+
+func onMessageReceived(client mqtt.Client, msg mqtt.Message) {
+	currentTopic := msg.Topic()
+	payloadStr := string(msg.Payload())
+
+	parts := strings.Split(currentTopic, "/")
+	if len(parts) < 3 {
+		log.Printf("[WARN] Dropping malformed topic path: %s", currentTopic)
+		return
+	}
+
+	actionType := parts[1]
+	plantIDStr := parts[2]
+	plantId := strings.TrimPrefix(plantIDStr, "Plant_")
+
+	if actionType == "status" {
+		if payloadStr == "online" {
+			plantIdInt, err := strconv.Atoi(plantId)
+			if err != nil {
+				log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+				return
+			}
+			log.Printf("[STATUS] %s is ONLINE. Starting watchdog timer.", plantId)
+			resetWatchdogTimer(plantId)
+
+			if rmqChannel != nil {
+				onlineAlert := StatusAlertPayload{
+					Type:     "status",
+					Online:   true,
+					LastSeen: time.Now().UTC().Format(time.RFC3339),
+					PlantID:  plantIdInt,
+				}
+				finalJSON, _ := json.Marshal(onlineAlert)
+
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				err := rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.status", false, false,
+					amqp.Publishing{
+						ContentType: "application/json",
+						Body:        finalJSON,
+					},
+				)
+				cancel()
+
+				if err != nil {
+					log.Printf("[ERROR] Failed to send online alert to RabbitMQ: %v", err)
+				} else {
+					log.Printf("[SUCCESS] Sent online status alert for Plant #%s to %s", plantId, statusQueueName)
+				}
+			}
+		} else if payloadStr == "offline" {
+			log.Printf("[STATUS] %s went OFFLINE. Triggering alert pipeline.", plantId)
+			stopWatchdogTimer(plantId)
+			handlePlantSilence(plantId)
+		}
+		return
+	}
+
+	if actionType == "data" {
+		var input IncomingPayload
+
+		if err := json.Unmarshal(msg.Payload(), &input); err != nil {
+			log.Printf("[REJECTED] %s - Corrupt telemetry JSON structure", currentTopic)
+			return
+		}
+
+		resetWatchdogTimer(plantId)
+		input.PlantID = plantId
+
+		if err := validateIncoming(input); err != nil {
+			log.Printf("[REJECTED] %s - Validation failure: %v", currentTopic, err)
+			return
+		}
+
+		plantIdInt, err := strconv.Atoi(plantId)
+		if err != nil {
+			log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+			return
+		}
+
+		output := OutgoingPayload{
+			PlantID:   plantIdInt,
+			Type:      actionType,
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Values: PlantMetrics{
+				Moisture:    *input.Moisture,
+				Temperature: *input.Temperature,
+				Light:       *input.Light,
+			},
+		}
+
+		finalJSON, err := json.MarshalIndent(output, "", "  ")
+		if err != nil {
+			log.Printf("[ERROR] Failed to compile outgoing JSON: %v", err)
+			return
+		}
+
+		if rmqChannel != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			err = rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.telemetry", false, false,
+				amqp.Publishing{
+					ContentType: "application/json",
+					Body:        finalJSON,
+				},
+			)
+			if err != nil {
+				log.Printf("[ERROR] Failed to publish message to RabbitMQ: %v", err)
+			} else {
+				log.Printf("[SUCCESS] Forwarded telemetry from %s directly to queue %s.", plantId, dataQueueName)
+			}
+		} else {
+			log.Println("[SANDBOX MODE] Transformed payload:")
+			fmt.Println(string(finalJSON))
+		}
+	}
+}
+
+func validateIncoming(p IncomingPayload) error {
+	if p.Temperature == nil || p.Moisture == nil || p.Light == nil {
+		return fmt.Errorf("missing structural metric values; payload keys are corrupt or incomplete")
+	}
+
+	if *p.Temperature < -40.0 || *p.Temperature > 80.0 {
+		return fmt.Errorf("temperature out of bounds: %0.2f", *p.Temperature)
+	}
+	if *p.Moisture < 0.0 || *p.Moisture > 100.0 {
+		return fmt.Errorf("moisture percentage out of bounds: %0.2f", *p.Moisture)
+	}
+	// FIX: Corrected field logging output references here
+	if *p.Light < 0.0 || *p.Light > 100000.0 {
+		return fmt.Errorf("light levels out of bounds: %0.2f", *p.Light)
+	}
+
+	return nil
+}
+
+func resetWatchdogTimer(plantId string) {
+	timerMutex.Lock()
+	defer timerMutex.Unlock()
+
+	if oldTimer, exists := plantTimers[plantId]; exists {
+		oldTimer.Stop()
+	}
+
+	plantTimers[plantId] = time.AfterFunc(silenceTime, func() {
+		handlePlantSilence(plantId)
+	})
+}
+
+func stopWatchdogTimer(plantId string) {
+	timerMutex.Lock()
+	defer timerMutex.Unlock()
+
+	if oldTimer, exists := plantTimers[plantId]; exists {
+		oldTimer.Stop()
+		delete(plantTimers, plantId)
+	}
+}
+
+func handlePlantSilence(plantId string) {
+	if rmqChannel != nil {
+		plantIdInt, err := strconv.Atoi(plantId)
+		if err != nil {
+			log.Printf("[WARN] Cannot parse plantId '%s' as int, dropping message", plantId)
+			return
+		}
+
+		alert := StatusAlertPayload{
+			Type:     "status",
+			Online:   false,
+			LastSeen: time.Now().UTC().Format(time.RFC3339),
+			PlantID:  plantIdInt,
+		}
+
+		finalJSON, err := json.Marshal(alert)
+		if err != nil {
+			log.Printf("[ERROR] Failed to marshal status alert: %v", err)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		err = rmqChannel.PublishWithContext(ctx, "amq.topic", "sensor.data.status", false, false,
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        finalJSON,
+			},
+		)
+
+		if err != nil {
+			log.Printf("[ERROR] Failed to forward alert payload to RabbitMQ: %v", err)
+		} else {
+			log.Printf("[SUCCESS] Sent offline status alert for Plant #%s to queue %s", plantId, statusQueueName)
+		}
+	}
+}
+
+=== ./backend/services/Notifications/cmd/main.go ===
+package main
+
+import (
+	"log"
+	"notification-service/internal/config"
+	"notification-service/internal/push"
+	"notification-service/internal/rabbitmq"
+	"os"
+	"os/signal"
+	"syscall"
+)
+
+func main() {
+	log.Println("[Main] Starting Notification Microservice...")
+
+	cfg := config.LoadConfig()
+
+	push.InitFirebase(cfg)
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		rabbitmq.StartConsumer(cfg)
+	}()
+
+	log.Println("[Main] Microservice is successfully initialized and running.")
+	<-stop
+	log.Println(" [-] Shutting down Notifications Service gracefully...")
+	log.Println(" [v] Microservice stopped.")
+}
+
+=== ./backend/services/Notifications/internal/config/config.go ===
+package config
+
+import (
+	"os"
+)
+
+type Config struct {
+	AMQPURL                 string
+	FirebaseCredentialsPath string
+}
+
+// LoadConfig reading .env
+func LoadConfig() *Config {
+
+	return &Config{
+		AMQPURL:                 getEnv("RABBITMQ_URL_NOTIF", "amqp://guest:guest@localhost:5672/"),
+		FirebaseCredentialsPath: getEnv("FIREBASE_CREDENTIALS_PATH", "./"),
+	}
+}
+
+// default if env is empty
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
+
+=== ./backend/services/Notifications/internal/rabbitmq/sender.go ===
+package rabbitmq
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"time"
+
+	"notification-service/internal/models"
+
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+func sendToMonolithErrorQueue(ch *amqp.Channel, userID int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	body, _ := json.Marshal(map[string]int{"userId": userID})
+
+	err := ch.PublishWithContext(ctx,
+		"amq.topic",
+		models.QueueErrorName,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType:  "application/json",
+			Body:         body,
+			DeliveryMode: amqp.Persistent,
+		},
+	)
+	if err != nil {
+		log.Printf("[RabbitMQ] CRITICAL: Failed to push invalid token message to monolith queue: %s", err)
+	} else {
+		log.Printf("[RabbitMQ] Invalid token event sent to %s", models.QueueErrorName)
+	}
+}
+
+=== ./backend/services/Notifications/internal/rabbitmq/consumer.go ===
+package rabbitmq
+
+import (
+	"encoding/json"
+	"log"
+
+	"notification-service/internal/config"
+	"notification-service/internal/models"
+	"notification-service/internal/push"
+
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+// connect to rabbitmq and listen to queue
+func StartConsumer(cfg *config.Config) {
+	conn, err := amqp.Dial(cfg.AMQPURL)
+	if err != nil {
+		log.Panicf("[NotificationMicroService] Failed to connect to RabbitMQ: %s", err)
+	}
+
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Panicf("[NotificationMicroService] Failed to open a channel: %s", err)
+	}
+	defer ch.Close()
+
+	q, err := ch.QueueDeclarePassive(
+		models.QueueTaskName, // имя очереди
+		true,                 // durable
+		false,                // delete when unused
+		false,                // exclusive
+		false,                // no-wait
+		nil,                  // arguments
+	)
+	if err != nil {
+		log.Panicf("[NotificationMicroService] Failed to declare a queue: %s", err)
+	}
+
+	err = ch.Qos(1, 0, false)
+	if err != nil {
+		log.Panicf("[NotificationMicroService] Failed to set QoS: %s", err)
+	}
+
+	msgs, err := ch.Consume(
+		q.Name,
+		"",
+		false, // auto-ack: false (accept manualy)
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Panicf("[NotificationMicroService] Failed to register a consumer: %s", err)
+	}
+
+	log.Printf("[NotificationMicroService] [*] Notifications Service is running. Waiting for messages...")
+
+	for d := range msgs {
+		log.Printf(" [x] Received raw bytes: %s", d.Body)
+
+		var notif models.NotificationPayload
+		err := json.Unmarshal(d.Body, &notif)
+		if err != nil {
+			log.Printf(" [!] Error parsing JSON: %s. Message dropped.", err)
+			d.Ack(false)
+			continue
+		}
+
+		log.Printf(" [->] Processing notification for User ID: %d", notif.UserID)
+
+		isInvalidToken := push.SendFirebasePush(notif)
+
+		if isInvalidToken {
+			log.Printf(" [!] Token is bad. Redirecting to monolith error queue...")
+
+			sendToMonolithErrorQueue(ch, notif.UserID)
+
+			d.Ack(false)
+			continue
+		}
+
+		err = d.Ack(false)
+		if err != nil {
+			log.Printf("Failed to acknowledge message: %s", err)
+		}
+	}
+}
+
+=== ./backend/services/Notifications/internal/models/models.go ===
+package models
+
+// NotificationPayload полностью повторяет контракт из монолита
+type NotificationPayload struct {
+	UserID int    `json:"userId"`
+	Token  string `json:"token"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+}
+
+const (
+	QueueTaskName  = "notif.data.queue"
+	QueueErrorName = "notif.error.queue"
+)
+
+=== ./backend/services/Notifications/internal/push/provider.go ===
+package push
+
+import (
+	"context"
+	"log"
+	"strings"
+	"time"
+
+	"notification-service/internal/config"
+	"notification-service/internal/models"
+
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
+	"google.golang.org/api/option"
+)
+
+// Global Firebase client
+var fcmClient *messaging.Client
+
+// InitFirebase init of firebase at the start of service
+func InitFirebase(cfg *config.Config) {
+	ctx := context.Background()
+
+	// load json
+	opt := option.WithCredentialsFile(cfg.FirebaseCredentialsPath)
+	app, err := firebase.NewApp(ctx, nil, opt)
+	if err != nil {
+		log.Panicf("[Firebase] Error initializing app: %s", err)
+	}
+
+	// client for sending
+	fcmClient, err = app.Messaging(ctx)
+	if err != nil {
+		log.Panicf("[Firebase] Error getting Messaging client: %s", err)
+	}
+
+	log.Println("[Firebase] Successfully initialized Firebase Admin SDK")
+}
+
+// SendFirebasePush push notification and return boolean:
+// true — token NOT valid
+// false — any other case
+func SendFirebasePush(notif models.NotificationPayload) bool {
+	if fcmClient == nil {
+		log.Printf("[Firebase] CRITICAL: FCM client is not initialized.")
+		return false
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// 1. structure for sending data
+	message := &messaging.Message{
+		Token: notif.Token,
+		Notification: &messaging.Notification{
+			Title: notif.Title,
+			Body:  notif.Body,
+		},
+	}
+
+	// 2. sending push Firebase
+	_, err := fcmClient.Send(ctx, message)
+	if err != nil {
+		// 3. IF TOKEN IS NOT VALID
+		if messaging.IsUnregistered(err) ||
+			messaging.IsInvalidArgument(err) ||
+			strings.Contains(err.Error(), "not a valid FCM registration token") {
+			log.Printf("[Firebase] Token is INVALID for User %d. Routing back to monolith...", notif.UserID)
+			return true
+		}
+
+		// if token valid but still mistake, just logging in this and continue
+		log.Printf("[Firebase] Temporary error sending message to User %d: %s", notif.UserID, err)
+		log.Printf("[Firebase] Error type: %T, value: %v", err, err)
+		return false
+	}
+
+	log.Printf("[Firebase] Push successfully sent to User %d", notif.UserID)
+	return false
+}
+
+=== ./shared/UserDTO.ts ===
+// GET user/me
+export interface IUserDTO { // Basic class.
+    id: number;
+    username: string;
+    email: string;
+}
+
+// POST user/register. Request.
+export interface IUserRegisterRequestDTO { // FRONTEND -> BACKEND. REGISTRATION.
+    username: string;
+    email: string;
+    password: string;
+}
+
+// POST user/login. Request.
+export interface IUserLoginRequestDTO { // FRONTEND -> BACKEND. LOGIN.
+    username: string;
+    email: string;
+    password: string;
+}
+
+// POST user/login. Response.
+export interface IUserLoginResponseDTO extends IUserDTO { // BACKEND -> FRONTEND. LOGIN.
+    token: string;
+}
+
+// PATCH user/me. Request.
+export interface IUserUpdateRequestDTO extends Partial<IUserDTO> { // FRONTEND -> BACKEND. UPDATE.
+    password?: string;
+}
+
+// POST user/fcm-token. Request.
+export interface IUserFcmTokenRequestDTO {
+    token : string;
+}
+=== ./shared/RecipeDTO.ts ===
+export interface IRecipeDTO { // Base class. GET /recipes/. Response.
+    id: number;
+    name: string;
+    description: string;
+    authorId: number;   
+    ingredients: IIngredientHasRecipeDTO[];
+    imageUrl: string;
+}
+export interface IIngredientHasRecipeDTO {
+    id: number;
+    name: string;
+    unit: string;
+    amount: number;
+}
+// POST /recipes/
+export interface IRecipeCreateRequestDTO {
+    name: string;
+    description: string;
+    ingredients: IIngredientHasRecipeCreateRequestDTO[];
+    image: File;
+}
+
+export interface IIngredientHasRecipeCreateRequestDTO {
+    name: string;
+    unit: string;
+    amount: number;
+}
+
+=== ./shared/package.json ===
+{
+  "name": "@project/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts"
+}
+=== ./shared/PdetDTO.ts ===
+export interface IPlantDetectionCreateRequestDTO { // POST api/pdet/. REQUEST.
+    image : File;
+}
+
+export interface IPlantDetectionCreateResponseDTO { // POST api/pdet/. RESPONSE.
+    requestId : number;
+}
+
+export enum RequestStatus { // ENUM
+    PENDING, // <- Waiting
+    DONE, // <- Success
+    FAILED // <- Failed
+} 
+
+export interface IPlantDetectionsDTO { // GET api/pdet/:id. RESPONSE
+    type : RequestStatus;
+    id : number;
+    imageUrl : string;
+    plantSpeciesId : number; // <- ONLY IF DONE, ELSE -1
+}
+=== ./shared/index.ts ===
+export * from "./RecipeDTO.js"
+export * from "./SpeciesDTO.js"
+export * from "./UserDTO.js"
+export * from "./UserPlantDTO.js"
+export * from "./PdetDTO.js"
+
+=== ./shared/UserPlantDTO.ts ===
+export interface IUserPlantDTO { // Base class.
+    id: number;
+    plantSpecieId: number;
+    name: string;
+    imageUrl: string; // <- OR FILE.
+}
+
+// GET my/plants/ OR GET my/plants/:id -> IUserPlant as a RESPONSE.
+
+// POST /my/plants/. Request.
+export interface IUserPlantCreateRequestDTO {
+    plantSpecieId: number;
+    name: string;
+    image: File;
+}
+
+// PATCH /my/plants/:id. Request.
+export interface IUserPlantUpdateRequestDTO 
+    extends Partial<Omit<IUserPlantCreateRequestDTO, 'image'>> {}
+    
+// SENSORS.
+export interface ISensorDTO { // Base class. GET my/plants/:id/sensors
+    id: number;
+    userPlantId: number;
+    last_seen: Date;
+    online: boolean;
+}
+
+export interface ISensorCreateRequestDTO { // POST my/plants/:id/sensors
+    userPlantId : number;
+}
+
+export interface ISensorCreateResponseDTO { // POST my/plants/:id/sensors
+    userPlantId : number;
+    mosquitto_url : string;
+    mosquitto_user : string;
+    mosquitto_password : string;
+    mosquitto_port : string;
+}
+
+// MEASUREMENT. GET my/plants/:id/measurement
+export interface IMeasurementDTO {
+    id: number;
+    values: Record<string, any>;
+    timestamp: Date;
+    plantId: number;
+}
+=== ./shared/SpeciesDTO.ts ===
+// Base class. GET species/ OR GET species/:id
+export interface ISpeciesDTO {
+    id: number;
+    name: string;
+    description: string;
+    ideal_values: Record<string, any>;
+    imageUrl: string; // <- OR FILE.
+}
+=== ./docs/OpenAPI/OpenAPI.yml ===
+openapi: 3.0.0
+
+info:
+  title: PlantIT - OpenAPI
+  description: PlantIT OpenAPI rules
+  version: 1.0.0
+
+tags:
+  - name: Users
+  - name: Plants
+  - name: Sensors
+  - name: Measurements
+  - name: Species
+  - name: Recipes
+
+servers:
+  - url: <URL>/api
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # user endpoint
+
+  /user/me:
+    get:
+      tags: [Users]
+      operationId: getCurrentUser
+      summary: Get current user
+      description: Return authenticated user data
+      responses:
+        200:
+          description: User data returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      tags: [Users]
+      operationId: updateCurrentUser
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+            example:
+              username: "newname"
+              email: "new@mail.com"
+      responses:
+        200:
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /user/login:
+    post:
+      tags: [Users]
+      operationId: loginUser
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /user/register:
+    post:
+      tags: [Users]
+      operationId: registerUser
+      summary: Register user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  # plants endpoint
+
+  /my/plants:
+    get:
+      tags: [Plants]
+      operationId: getUserPlants
+      summary: Get user plants
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of plants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Plants]
+      operationId: createPlant
+      summary: Create plant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantCreateRequest'
+      responses:
+        201:
+          description: Plant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /my/plants/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Plants]
+      operationId: getPlantById
+      summary: Get plant by Id
+      responses:
+        200:
+          description: Plant found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      tags: [Plants]
+      operationId: updatePlant
+      summary: Update plant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantUpdateRequest'
+      responses:
+        200:
+          description: Updated plant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      tags: [Plants]
+      operationId: deletePlant
+      summary: Delete plant
+      responses:
+        204:
+          description: Deleted
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #sensors endpoints
+
+  /my/plants/{id}/sensors:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Sensors]
+      operationId: getPlantSensors
+      summary: Get sensors for plant
+      responses:
+        200:
+          description: Sensors list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SensorResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Sensors]
+      operationId: addSensor
+      summary: Add sensor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorCreateRequest'
+      responses:
+        201:
+          description: Added new sensor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #measurements endpoint
+
+  /my/plants/{id}/measurements:
+    parameters:
+      - $ref: '#/components/parameters/PlantId'
+
+    get:
+      tags: [Measurements]
+      operationId: getPlantMeasurements
+      summary: Get measurements
+      responses:
+        200:
+          description: Measurements list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeasurementResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #species endpoint
+
+  /species:
+    get:
+      tags: [Species]
+      operationId: getSpecies
+      summary: Get species
+      security: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Species list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpeciesResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /species/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SpeciesId'
+
+    get:
+      tags: [Species]
+      operationId: getSpeciesById
+      summary: Get species by ID
+      security: []
+      responses:
+        200:
+          description: Species found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeciesResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  #recipe endpoint
+
+  /recipes:
+    get:
+      tags: [Recipes]
+      operationId: getRecipes
+      summary: Get recipes
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Recipes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags: [Recipes]
+      operationId: createRecipe
+      summary: Create recipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreateRequest'
+      responses:
+        201:
+          description: Recipe created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /recipes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RecipeId'
+
+    get:
+      tags: [Recipes]
+      operationId: getRecipeById
+      summary: Get recipe by ID
+      security: []
+      responses:
+        200:
+          description: Recipe found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+#components
+
+components:
+  #security token
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PlantId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    SpeciesId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    RecipeId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    #errors, sucess
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+  ##requests, error response
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    PlantCreateRequest:
+      type: object
+      required: [name, speciesId]
+      properties:
+        name:
+          type: string
+        speciesId:
+          type: integer
+        location:
+          type: string
+
+    PlantUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+
+    SensorCreateRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+
+    RecipeCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    #responses
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    PlantResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        speciesId:
+          type: integer
+        location:
+          type: string
+
+    SensorResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+
+    RecipeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+
+    SpeciesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    MeasurementResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          type: number
+        type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+#EXPLANATION: shared contract between backend and fronted: defines what endpoint exist, what they expect and what they return
+#backend use: OpenAPI is blueprint for implementation - for GET /user/me backend must implement: app.get("/api/user/me",...)
+#for security so bearerAuth: [] backend needs to check JWT token and reject with 401 if it is invalid
+#frontend use: to know which endpoint exists, what APIs are available and which actions are possible
+
+#request: get and delete usually dont have it, post and patch almost always
+#it sends data from frontend to backend - it tells which data endpoint needs, which are required, their format
+#part in endpoints - requestBody... tells how body of request should look like - required true tells that body is required, content for format of data were sending - frontend JSON
+#Application/json - body will be json, schema: how json looks - we can see that at the end - recipeCreateRequest...
+
+#response: ddescribes what frontend sends back to backend as well as what backend sends frontend! - Status code, data format and structure JSON
+#without it front end guesses, doesnt know what it gets back
+#so request is what we send, response is what we get back
+
+#parameters for id - OpenAPI needs to know it exist, where it is - path, which type it is - integer
+#we need them because endpoint does not tell us what id is, if it is string/int and if it is required
+#query parameters - in: query -> example: /recipes?page=1&limit=10 - page and limit are quary parameters
+#parameters: filtering, paging, sorting, searching without sending request body
+=== ./package-lock.json ===
 {
   "name": "PlantIT",
   "lockfileVersion": 3,
@@ -14582,4 +18747,280 @@
       "version": "1.0.0"
     }
   }
+}
+
+=== ./package.json ===
+{
+  "name": "PlantIT",
+  "private": true,
+  "workspaces": [
+    "backend/main",
+    "shared",
+    "frontend/react-native-mobile",
+    "frontend/react-web",
+    "frontend/shared/services"
+  ],
+  "scripts": {
+    "dev:all": "npm run dev --workspaces --if-present"
+  },
+  "dependencies": {
+    "axios": "^1.16.1"
+  }
+}
+
+=== ./docker-compose.yml ===
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "${MONOLITH_PORT}:${MONOLITH_PORT}"
+    volumes:
+      - /app/backend/main/src/generated/prisma
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - DEBUG=appName:*
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: plantit_minio
+    hostname:
+      minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  minio_init:
+    image: minio/mc:latest
+    container_name: plantit_minio_initializer
+    env_file:
+      - ./.env
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set my_s3 http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing my_s3/plants;
+      mc mb --ignore-existing my_s3/recipes;
+      mc mb --ignore-existing my_s3/species;
+      mc mb --ignore-existing my_s3/pdet_req;
+      mc anonymous set download my_s3/plants;
+      mc anonymous set download my_s3/recipes;
+      mc anonymous set download my_s3/species;
+      mc anonymous set download my_s3/pdet_req;
+      echo 'Buckets created';
+      "
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbit-node
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./infrastructure/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infrastructure/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1gb
+  
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infrastructure/mosquitto/config:/mosquitto/config
+      - ./infrastructure/mosquitto/data:/mosquitto/data
+      - ./infrastructure/mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=Europe/Ljubljana
+
+  ingestor:
+    build: ./backend/services/ingestor 
+    container_name: ingestor
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_SENSORS=${RABBITMQ_URL_SENSORS}
+      - RABBITMQ_DATA_QUEUE=${RABBITMQ_DATA_QUEUE}
+      - RABBITMQ_SILENCE_TIME=${RABBITMQ_SILENCE_TIME}
+      - RABBITMQ_STATUS_QUEUE=${RABBITMQ_STATUS_QUEUE}
+
+  scrapper:
+    build:
+      context: ./backend/services/Scrapper
+    container_name: scrapper
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    restart: "no"
+
+  notification-service:
+    build:
+      context: ./backend/services/Notifications
+      dockerfile: Dockerfile
+    container_name: notification_service
+    restart: always
+    env_file:
+      - ./.env 
+    environment:
+      - RABBITMQ_URL_NOTIF=${RABBITMQ_URL_NOTIF}
+      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH}
+    volumes:
+      - ./backend/services/Notifications/internal/config:/app/config
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  minio_data:
+    driver: local
+  rabbitmq_data:
+=== ./infrastructure/rabbitmq/definitions.json ===
+{
+  "rabbit_version": "3.12.0",
+  "users": [
+    { "name": "admin", "password_hash": "B9Udrj7+fsMQBd9tEkuN0KOlOVxhfDV7EnIJUNVEfwgVhT6+", "tags": ["administrator"] },
+    { "name": "monolith_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags":[] }, 
+    { "name": "scrapper_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "sensor_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] },
+    { "name": "notification_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": []},
+    { "name": "pdet_svc", "password_hash": "4bzlnXp1hLqrrIfsu8koSaETNtzPt+EmkKn28stL6af9Tn+C", "tags": [] }
+  ],
+  "vhosts": [{ "name": "/" }],
+  "permissions": [
+    { "user": "admin", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*" },
+    {
+    "user": "monolith_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|scrapper\\.task.*|pdet\\.task.*|notif\\.data.*)$", 
+    "read": "^(amq\\.topic|scrapper\\.result.*|pdet\\.result.*|sensor\\.data.*|notif\\.error.*)$"
+  },
+  {
+    "user": "scrapper_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|scrapper\\.result.*)$",
+    "read": "^(amq\\.topic|scrapper\\.task.*)$"
+  },
+  {
+    "user": "pdet_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|pdet\\.result.*)$",
+    "read": "^(amq\\.topic|pdet\\.task.*)$"
+  },
+  {
+    "user": "sensor_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|sensor\\.data.*)$",
+    "read": ""
+  },
+  {
+    "user": "notification_svc",
+    "vhost": "/",
+    "configure": "",
+    "write": "^(amq\\.topic|notif\\.error.*)$",
+    "read": "^(amq\\.topic|notif\\.data.*)$"
+  }
+  ],
+  "exchanges": [
+    {
+      "name": "amq.topic",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    { "name": "scrapper.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "scrapper.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "pdet.result.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 500000, "x-max-length": 100} },
+    { "name": "pdet.task.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 500000, "x-max-length": 100} },
+    { "name": "sensor.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "notif.data.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 60000, "x-max-length": 100} },
+    { "name": "notif.error.queue", "vhost": "/", "durable": true, "auto_delete": false, "arguments": {"x-message-ttl" : 600000, "x-max-length": 100} }
+  ],
+  "bindings": [
+    { "source": "amq.topic", "vhost": "/", "destination": "scrapper.result.queue", "destination_type": "queue", "routing_key": "scrapper.result.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "scrapper.task.queue", "destination_type": "queue", "routing_key": "scrapper.task.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "pdet.result.queue", "destination_type": "queue", "routing_key": "pdet.result.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "pdet.task.queue", "destination_type": "queue", "routing_key": "pdet.task.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "sensor.data.queue", "destination_type": "queue", "routing_key": "sensor.data.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "notif.data.queue", "destination_type": "queue", "routing_key": "notif.data.#", "arguments": {} },
+    { "source": "amq.topic", "vhost": "/", "destination": "notif.error.queue", "destination_type": "queue", "routing_key": "notif.error.#", "arguments": {} }
+  ]
 }

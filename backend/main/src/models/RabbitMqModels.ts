@@ -3,7 +3,8 @@ export interface IScrapperTaskModel {
 }
 
 export interface IPlantDetectionTaskModel {
-    // TODO
+    requestId : number;
+    imageUrl : string;
 }
 
 export interface INotificationDataModel {
