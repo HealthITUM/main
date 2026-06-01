@@ -7,17 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@project/frontend-shared": "*",
+    "@project/shared": "*",
     "axios": "^1.16.1",
     "bootstrap": "^5.3.8",
     "dotenv": "^17.4.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.15.1",
-    "@project/shared": "*",
-    "@project/frontend-shared": "*"
+    "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -31,6 +32,7 @@
     "globals": "^16.5.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vite": "^7.2.2"
+    "vite": "^7.2.2",
+    "vitest": "^4.1.7"
   }
 }
