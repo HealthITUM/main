@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { userPlantService, useAuth } from "@project/frontend-shared";
 import type { IUserPlantDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
 import { api } from "../src/api";
+import MeasurementsChart from "./MeasurementsChart";
 
 export default function MyPlantDetailsPage() {
     //reads route param from URL - if /my/plants/123 id will be 123
@@ -22,7 +23,7 @@ export default function MyPlantDetailsPage() {
     //stores API errors
     const [error, setError] = useState<string | null>(null);
     //remove for backend
-    useEffect(() => {
+    /*useEffect(() => {
         if (!token) {
             navigate("/login");
             return;
@@ -50,9 +51,9 @@ export default function MyPlantDetailsPage() {
         };
 
         load();
-    }, [id, token, navigate]);
+    }, [id, token, navigate]);*/
     //demo for fake local data
-    /*useEffect(() => {
+    useEffect(() => {
         const demoPlant: IUserPlantDTO = {
             id: 123,
             name: "Monstera Deliciosa",
@@ -77,10 +78,19 @@ export default function MyPlantDetailsPage() {
             },
         ];
 
+        const demoMeasurements: IMeasurementDTO[] = [
+            { id: 1, plantId: 1, timestamp: new Date("2025-06-01T08:00:00"), values: { moisture: 65, soil: 6.8, temp: 22 } },
+            { id: 2, plantId: 1, timestamp: new Date("2025-06-01T12:00:00"), values: { moisture: 60, soil: 6.5, temp: 23 } },
+            { id: 3, plantId: 1, timestamp: new Date("2025-06-01T16:00:00"), values: { moisture: 55, soil: 6.2, temp: 24 } },
+            { id: 4, plantId: 1, timestamp: new Date("2025-06-01T20:00:00"), values: { moisture: 70, soil: 7.0, temp: 21 } },
+            { id: 5, plantId: 1, timestamp: new Date("2025-06-02T08:00:00"), values: { moisture: 68, soil: 6.9, temp: 20 } },
+        ];
+
+        setMeasurements(demoMeasurements);
         setPlant(demoPlant);
         setSensors(demoSensors);
         setLoading(false);
-    }, []);*/
+    }, []);
     //remove for backend
     const handleDeleteSensor = async (sensorId: number) => {
         try {
@@ -227,24 +237,7 @@ export default function MyPlantDetailsPage() {
                         {measurements.length === 0 ? (
                             <p>No measurements available.</p>
                         ) : (
-                            measurements.map((m) => (
-                                <div key={m.id} className="border p-3 rounded mb-2">
-                                    <div className="text-uppercase" style={{ fontSize: "16px", color: "#9fbf9f", fontWeight: 700 }}>
-                                        Timestamp
-                                    </div>
-                                    <div className="mb-2">
-                                        {new Date(m.timestamp).toLocaleString()}
-                                    </div>
-
-                                    <div className="text-uppercase" style={{ fontSize: "16px", color: "#9fbf9f", fontWeight: 700 }}>
-                                        Values
-                                    </div>
-
-                                    <pre style={{ margin: 0 }}>
-                                        {JSON.stringify(m.values, null, 2)}
-                                    </pre>
-                                </div>
-                            ))
+                            <MeasurementsChart measurements={measurements} />
                         )}
                     </div>
             </div>
