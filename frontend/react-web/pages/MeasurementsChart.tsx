@@ -4,9 +4,9 @@ import type { IMeasurementDTO } from "@project/shared";
 //uses charts
 //colors for each data type
 const palette: Record<string, string> = {
-    moisture: "#378ADD",
-    soil:     "#1D9E75",
-    temp:     "#D85A30",
+    SoilMoisture: "#378ADD",
+    Light:     "#1D9E75",
+    Temperature:     "#D85A30",
 };
 //chart component for measurements
 export default function MeasurementsChart({ measurements }: { measurements: IMeasurementDTO[] }) {
@@ -32,13 +32,13 @@ export default function MeasurementsChart({ measurements }: { measurements: IMea
             data: measurements.map(m => m.values[key] ?? null),
             borderColor: palette[key] ?? "#888",
             backgroundColor: (palette[key] ?? "#888") + "22",
-            yAxisID: key === "moisture" ? "yLeft" : "yRight",
+            yAxisID: key === "SoilMoisture" ? "yLeft" : "yRight",
             //smorth curves with tension, and points for better visibility
             tension: 0.4,
             pointRadius: 5,
             pointHoverRadius: 7,
             borderWidth: 2,
-            fill: key === "moisture",
+            fill: key === "SoilMoisture",
         }));
         //overrides legend size calculations
         const legendSpacingPlugin = {
@@ -74,14 +74,14 @@ export default function MeasurementsChart({ measurements }: { measurements: IMea
                     yLeft: {
                         type: "linear",
                         position: "left",
-                        title: { display: true, text: "moisture (%)", color: "#ffffff" },
+                        title: { display: true, text: "soil moisture (%)", color: "#ffffff" },
                         ticks: { color: "#ffffff" },
                         grid: { drawOnChartArea: true, color: "rgba(255,255,255,0.1)" },
                     },
                     yRight: {
                         type: "linear",
                         position: "right",
-                        title: { display: true, text: "soil / temp", color: "#ffffff" },
+                        title: { display: true, text: "light / temperature", color: "#ffffff" },
                         ticks: { color: "#ffffff" },
                         grid: { drawOnChartArea: false },
                     },

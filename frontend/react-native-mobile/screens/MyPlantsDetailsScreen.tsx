@@ -90,12 +90,13 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                 last_seen: new Date(),
             },
         ];
-         const demoMeasurements: IMeasurementDTO[] = [
-            { id: 1, plantId: 1, timestamp: new Date("2025-06-01T08:00:00"), values: { moisture: 65, soil: 6.8, temp: 22 } },
-            { id: 2, plantId: 1, timestamp: new Date("2025-06-01T12:00:00"), values: { moisture: 60, soil: 6.5, temp: 23 } },
-            { id: 3, plantId: 1, timestamp: new Date("2025-06-01T16:00:00"), values: { moisture: 55, soil: 6.2, temp: 24 } },
-            { id: 4, plantId: 1, timestamp: new Date("2025-06-01T20:00:00"), values: { moisture: 70, soil: 7.0, temp: 21 } },
-            { id: 5, plantId: 1, timestamp: new Date("2025-06-02T08:00:00"), values: { moisture: 68, soil: 6.9, temp: 20 } },
+        
+        const demoMeasurements: IMeasurementDTO[] = [
+            { id: 1, plantId: 1, timestamp: new Date("2025-06-01T08:00:00"), values: { SoilMoisture: 65, Light: 6.8, Temperature: 22 } },
+            { id: 2, plantId: 1, timestamp: new Date("2025-06-01T12:00:00"), values: { SoilMoisture: 60, Light: 6.5, Temperature: 23 } },
+            { id: 3, plantId: 1, timestamp: new Date("2025-06-01T16:00:00"), values: { SoilMoisture: 55, Light: 6.2, Temperature: 24 } },
+            { id: 4, plantId: 1, timestamp: new Date("2025-06-01T20:00:00"), values: { SoilMoisture: 70, Light: 7.0, Temperature: 21 } },
+            { id: 5, plantId: 1, timestamp: new Date("2025-06-02T08:00:00"), values: { SoilMoisture: 68, Light: 6.9, Temperature: 20 } },
         ];
 
         setMeasurements(demoMeasurements);

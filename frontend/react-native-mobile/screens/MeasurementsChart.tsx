@@ -4,9 +4,9 @@ import type { IMeasurementDTO } from "@project/shared";
 //uses react native gifted charts
 //colors for each data type
 const palette = {
-  moisture: "#378ADD",
-  soil: "#1D9E75",
-  temp: "#D85A30",
+  SoilMoisture: "#378ADD",
+  Light: "#1D9E75",
+  Temperature: "#D85A30",
 };
 //gets device width
 const screenWidth = Dimensions.get("window").width;
@@ -22,7 +22,7 @@ export default function MeasurementsChart({
   }
   //converts measurements into chart points with labels
   const moistureData = measurements.map((m) => ({
-    value: m.values.moisture ?? 0,
+    value: m.values.SoilMoisture ?? 0,
     label: new Date(m.timestamp).toLocaleString("sl-SI", {
       day: "numeric",
       month: "short",
@@ -31,12 +31,12 @@ export default function MeasurementsChart({
     }),
   }));
   //no labels for soil and temp, as they share the same y-axis
-  const soilData = measurements.map((m) => ({
-    value: m.values.soil ?? 0,
+  const lightData = measurements.map((m) => ({
+    value: m.values.Light ?? 0,
   }));
 
   const tempData = measurements.map((m) => ({
-    value: m.values.temp ?? 0,
+    value: m.values.Temperature ?? 0,
   }));
 
   return (
@@ -66,12 +66,12 @@ export default function MeasurementsChart({
         endSpacing={10}
 
         data={moistureData}
-        data2={soilData}
+        data2={lightData}
         data3={tempData}
 
-        color1={palette.moisture}
-        color2={palette.soil}
-        color3={palette.temp}
+        color1={palette.SoilMoisture}
+        color2={palette.Light}
+        color3={palette.Temperature}
 
         thickness1={3}
         thickness2={3}
@@ -81,13 +81,13 @@ export default function MeasurementsChart({
         dataPointsRadius2={6}
         dataPointsRadius3={6}
 
-        dataPointsColor1={palette.moisture}
-        dataPointsColor2={palette.soil}
-        dataPointsColor3={palette.temp}
+        dataPointsColor1={palette.SoilMoisture}
+        dataPointsColor2={palette.Light}
+        dataPointsColor3={palette.Temperature}
 
         areaChart
-        startFillColor1={palette.moisture}
-        endFillColor1={palette.moisture}
+        startFillColor1={palette.SoilMoisture}
+        endFillColor1={palette.SoilMoisture}
         startOpacity={0.15}
         endOpacity={0}
 
@@ -105,40 +105,14 @@ export default function MeasurementsChart({
           fontSize: 10,
         }}
 
-        yAxisLabelSuffix="%"
+        yAxisLabelSuffix=""
 
         noOfSections={5}
 
         maxValue={80}
-        secondaryYAxis={{
-          maxValue: 30,
-          noOfSections: 5,
-          yAxisLabelTexts: ["0", "6", "12", "18", "24", "30"],
-        }}
-
         showVerticalLines
         verticalLinesColor="rgba(255,255,255,0.08)"
       />
-
-      <View style={styles.axisLabels}>
-        <Text
-          style={[
-            styles.axisLabel,
-            { color: palette.moisture },
-          ]}
-        >
-          moisture (%)
-        </Text>
-
-        <Text
-          style={[
-            styles.axisLabel,
-            { color: palette.temp },
-          ]}
-        >
-          soil / temp
-        </Text>
-      </View>
     </View>
   );
 }
