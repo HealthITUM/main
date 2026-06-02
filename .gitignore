@@ -12,8 +12,6 @@ backend/main/prisma/migrations/
 backend/main/src/generated/prisma
 # Publish React
 dist/
-# Services
-go.sum
 # Firebase
 google-services.json
 firebase-credentials.json
