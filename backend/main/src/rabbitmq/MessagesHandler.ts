@@ -6,6 +6,8 @@ import { AppQueue } from "./rabbit.queues.js";
 import { userService } from "../services/UserService.js";
 import type { ISensorUpdateModel } from "../models/Sensor.js";
 import { sensorService } from "../services/SensorService.js";
+import type { IPlantDetectionUpdateModel } from "../models/PdetRequests.js";
+import { pdetService } from "../services/PdetService.js";
 
 type MessageHandler = (content: any) => Promise<void>;
 
@@ -35,7 +37,23 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
   
   [AppQueue.PlantDetectionResult]: async (data) => {
     console.log('[PlantDetection Handler] Result:', data);
-    // TODO
+    try {
+      const updateData: IPlantDetectionUpdateModel = {
+        id: data.requestId,
+        status: data.status,
+        plantSpeciesId: data.status === 'DONE' ? data.plantSpeciesId : undefined
+    }
+
+    const response = await pdetService.update(updateData);
+
+    if (response) {
+      console.log("[PlantDetection Handler] Successfuly updated ", updateData.id, " request status to: ", updateData.status);
+    } else {
+      console.log("[PlantDetection Handler] Error: Failed to update request!")
+    }
+    } catch (error) {
+      console.log('[Scrapper Handler] Error:', error);
+    }
   },
   
   [AppQueue.SensorData]: async (data) => {
@@ -63,7 +81,7 @@ export const queueHandlers: Record<AppQueue, MessageHandler> = {
           last_seen : data.timestamp
         } 
 
-        const response = sensorService.updateSensorStatus(statusUpdateData);
+        const response = await sensorService.updateSensorStatus(statusUpdateData);
 
         if (!response) {
           console.log("[Sensor Handler] Failed to update status of sensor :", statusUpdateData.userPlantId);
