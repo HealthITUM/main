@@ -6,6 +6,7 @@ import { IUserPlantDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
 import { userPlantService, useAuth } from "@project/frontend-shared";
 import { styles } from "../src/styles";
 import { api } from "../src/api";
+import MeasurementsChart from "./MeasurementsChart";
 
 export const MyPlantDetailsScreen = ({ navigation }: any) => {
     //gets plant id from navigation
@@ -32,7 +33,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
         }
     }, [token, navigation]); //runs if token or navigation changes
 
-    useEffect(() => {
+    /*useEffect(() => {
         const load = async () => {
             try {
                 //checks if there is plant id - not - it stops loading
@@ -62,11 +63,11 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
             }
         };
         load();
-    }, [id]); //reloads data if plant id changes
+    }, [id]); //reloads data if plant id changes*/
 
 
     //fake data for plant and sensors
-    /*useEffect(() => {
+    useEffect(() => {
         const demoPlant: IUserPlantDTO = {
             id: 123,
             name: "Monstera Deliciosa",
@@ -89,11 +90,20 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                 last_seen: new Date(),
             },
         ];
+         const demoMeasurements: IMeasurementDTO[] = [
+            { id: 1, plantId: 1, timestamp: new Date("2025-06-01T08:00:00"), values: { moisture: 65, soil: 6.8, temp: 22 } },
+            { id: 2, plantId: 1, timestamp: new Date("2025-06-01T12:00:00"), values: { moisture: 60, soil: 6.5, temp: 23 } },
+            { id: 3, plantId: 1, timestamp: new Date("2025-06-01T16:00:00"), values: { moisture: 55, soil: 6.2, temp: 24 } },
+            { id: 4, plantId: 1, timestamp: new Date("2025-06-01T20:00:00"), values: { moisture: 70, soil: 7.0, temp: 21 } },
+            { id: 5, plantId: 1, timestamp: new Date("2025-06-02T08:00:00"), values: { moisture: 68, soil: 6.9, temp: 20 } },
+        ];
+
+        setMeasurements(demoMeasurements);
         //stores fake data into state
         setPlant(demoPlant);
         setSensors(demoSensors);
         setLoading(false);
-    }, []);*/
+    }, []);
 
     const handleDeleteSensor = async (sensorId: number) => {
         try {
@@ -324,34 +334,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                     {measurements.length === 0 ? (
                         <Text style={styles.baseText}>No measurements available</Text>
                     ) : (
-                        measurements.map((m) => (
-                            <View
-                                key={m.id}
-                                style={{
-                                    borderWidth: 1,
-                                    borderColor: "#2f4f2f",
-                                    padding: 10,
-                                    borderRadius: 8,
-                                    marginBottom: 10,
-                                }}
-                            >
-                                <Text style={{ color: "#9fbf9f", fontWeight: "700" }}>
-                                    TIME
-                                </Text>
-
-                                <Text style={styles.baseText}>
-                                    {new Date(m.timestamp).toLocaleString()}
-                                </Text>
-
-                                <Text style={{ color: "#9fbf9f", fontWeight: "700", marginTop: 8 }}>
-                                    VALUES
-                                </Text>
-
-                                <Text style={styles.baseText}>
-                                    {JSON.stringify(m.values, null, 2)}
-                                </Text>
-                            </View>
-                        ))
+                        <MeasurementsChart measurements={measurements} />
                     )}
                 </View>
 
