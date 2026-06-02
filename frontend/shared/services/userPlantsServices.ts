@@ -1,5 +1,5 @@
 //import { api } from "../../react-web/src/api";
-import type { IUserPlantDTO, IUserPlantCreateRequestDTO, ISensorDTO, IMeasurementDTO, IUserPlantUpdateRequestDTO } from "@project/shared";
+import type { IUserPlantDTO, IUserPlantCreateRequestDTO, ISensorDTO, IMeasurementDTO, IUserPlantUpdateRequestDTO, ISensorCreateResponseDTO } from "@project/shared";
 import type { AxiosInstance } from "axios";
 //exports object with all user plants related API functions
 export const userPlantService = (api: AxiosInstance) => ({
@@ -80,16 +80,14 @@ export const userPlantService = (api: AxiosInstance) => ({
         return response.data;
     },
     //body: name: string
-    addSensor: async (plantId: string,
-        data: { name: string }
-    ): Promise<ISensorDTO> => {
+    addSensor: async (plantId: string): Promise<ISensorCreateResponseDTO | null> => {
         //POST /my/plants/:id/sensors
-        const response = await api.post<ISensorDTO>(
-            `/my/plants/${plantId}/sensors`,
-            data
-        );
-        //returns: ISensorDTO
-        return response.data;
+        const response = await api.post<ISensorCreateResponseDTO>(`/my/plants/${plantId}/sensors`);
+        if (response.data){
+            console.log("[userPlantsServices] Got: ", response.data);
+            return response.data;
+        }
+        return null;
     },
 
     deleteSensor: async (plantId: string, sensorId: string)
