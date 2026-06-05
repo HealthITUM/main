@@ -22,7 +22,6 @@ app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,6 +30,20 @@ app.use("/api/my/plants", userPlantRouter);
 app.use("/api/recipes", recipeRouter);
 app.use("/api/species", plantSpecieRouter);
 app.use("/api/pdet", pdetRoute);
+
+app.post("/api/notif/", async (req: Request, res : Response) => {
+  const data : INotificationDataModel = {
+    userId : 1,
+    token : "123",
+    title : "TEST_TITLE",
+    body : "TEST_BODY"
+  }
+
+  queueSenders.sendNotification(data);
+  return res.status(200).json({ message : "SUCCESS"});
+});
+
+app.use("/api/species", plantSpecieRouter);
 
 app.post("/api/notif/", async (req: Request, res : Response) => {
   const data : INotificationDataModel = {
