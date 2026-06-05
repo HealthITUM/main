@@ -1,5 +1,35 @@
 [
   {
+    "name": "Aloe vera",
+    "description": "Succulent with thick gel-filled leaves used for burns and skincare. Thrives on neglect and full sun.",
+    "image_url": "https://images.pexels.com/photos/7408838/pexels-photo-7408838.jpeg",
+    "ideal_values": { "moisture": 20, "temperature": 24, "light_level": 9 }
+  },
+  {
+    "name": "Cactus mix",
+    "description": "Desert survivors with sculptural forms and minimal water needs. Excellent for south-facing windows.",
+    "image_url": "https://images.pexels.com/photos/28964981/pexels-photo-28964981.jpeg",
+    "ideal_values": { "moisture": 15, "temperature": 24, "light_level": 10 }
+  },
+  {
+    "name": "Caladium",
+    "description": "Stunning tropical plant with large, colorful heart-shaped leaves in shades of red, pink, and white. Thrives in warm, humid environments.",
+    "image_url": "https://images.pexels.com/photos/23079347/pexels-photo-23079347.jpeg",
+    "ideal_values": { "moisture": 70, "temperature": 24, "light_level": 3 }
+  },
+  {
+    "name": "Lavender",
+    "description": "Fragrant Mediterranean herb with purple flower spikes. Loves dry conditions and plenty of sunlight. Great for borders and aromatherapy.",
+    "image_url": "https://images.pexels.com/photos/12686034/pexels-photo-12686034.jpeg",
+    "ideal_values": { "moisture": 30, "temperature": 20, "light_level": 8 }
+  },
+  {
+    "name": "Strawberry",
+    "description": "Sweet fruiting plant with white flowers and bright red berries. Easy to grow in containers or garden beds with good sunlight.",
+    "image_url": "https://images.pexels.com/photos/89778/strawberries-frisch-ripe-sweet-89778.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 18, "light_level": 7 }
+  },
+  {
     "name": "Monstera deliciosa",
     "description": "Iconic tropical plant with large, fenestrated leaves. Thrives in bright indirect light and is forgiving of neglect.",
     "image_url": "https://images.pexels.com/photos/7318283/pexels-photo-7318283.jpeg",
@@ -46,12 +76,6 @@
     "description": "Designer darling with large violin-shaped leaves. Loves a bright consistent spot and dislikes being moved.",
     "image_url": "https://images.pexels.com/photos/9369637/pexels-photo-9369637.jpeg",
     "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
-  },
-  {
-    "name": "Aloe vera",
-    "description": "Succulent with thick gel-filled leaves used for burns and skincare. Thrives on neglect and full sun.",
-    "image_url": "https://images.pexels.com/photos/7408838/pexels-photo-7408838.jpeg",
-    "ideal_values": { "moisture": 20, "temperature": 24, "light_level": 9 }
   },
   {
     "name": "Succulents mix",
@@ -118,12 +142,6 @@
     "description": "Dramatic tropical plant with huge paddle-shaped leaves. Makes a bold statement in bright sunny rooms.",
     "image_url": "https://images.pexels.com/photos/17289904/pexels-photo-17289904.jpeg",
     "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
-  },
-  {
-    "name": "Cactus mix",
-    "description": "Desert survivors with sculptural forms and minimal water needs. Excellent for south-facing windows.",
-    "image_url": "https://images.pexels.com/photos/28964981/pexels-photo-28964981.jpeg",
-    "ideal_values": { "moisture": 15, "temperature": 24, "light_level": 10 }
   },
   {
     "name": "Prayer plant",

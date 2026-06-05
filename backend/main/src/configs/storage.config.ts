@@ -43,6 +43,11 @@ export const getPublicUrl = (imagePath: string): string => {
     return `${publicHost}/${imagePath}`;
 };
 
+export const getInternalUrl = (imagePath : string) : string => {
+  const internalHost = process.env.MINIO_INTERNAL_URL || "http://minio:9000";
+  return `${internalHost}/${imagePath}`;
+}
+
 export const parseJsonField = (fieldName: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
         if (req.body && typeof req.body[fieldName] === 'string') {

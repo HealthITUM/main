@@ -3,6 +3,7 @@ import { pdetRepository } from "../repositories/PdetRequestRepository.js";
 import type { IPlantDetectionCreateModel, IPlantDetectionUpdateModel } from "../models/PdetRequests.js";
 import { queueSenders } from "../rabbitmq/QueueSender.js";
 import type { IPlantDetectionTaskModel } from "../models/RabbitMqModels.js";
+import { getInternalUrl } from "../configs/storage.config.js";
 
 export class PdetService {
     async getById (id : number) : Promise<IPlantDetectionsDTO | null> {        
@@ -21,7 +22,7 @@ export class PdetService {
 
         const pdetTaskData : IPlantDetectionTaskModel = {
             requestId : response,
-            imageUrl : data.imageUrl
+            imageUrl : getInternalUrl(data.imageUrl)
         }
 
         const responseQueue = await queueSenders.sendPlantDetectionTask(pdetTaskData);

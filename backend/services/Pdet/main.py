@@ -60,8 +60,8 @@ def process_request(ch, method, properties, body):
         plant_species_id = predict(filename)
 
         result_payload = {
-            "request_id": request_id,
-            "plantSpeciesId": plant_species_id,
+            "requestId": request_id,
+            "plantSpeciesId": plant_species_id + 1,
             "status": "DONE"
         }
 
@@ -69,7 +69,7 @@ def process_request(ch, method, properties, body):
     except Exception as e:
         print(f"Error processing request {request_id}: {e}")
         result_payload = {
-            "request_id": request_id if request_id else "UNKNOWN",
+            "requestId": request_id if request_id else "UNKNOWN",
             "status": "FAILED"
         }
     finally:
