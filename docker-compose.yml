@@ -77,9 +77,11 @@ services:
       mc mb --ignore-existing my_s3/plants;
       mc mb --ignore-existing my_s3/recipes;
       mc mb --ignore-existing my_s3/species;
+      mc mb --ignore-existing my_s3/pdet-req;
       mc anonymous set download my_s3/plants;
       mc anonymous set download my_s3/recipes;
       mc anonymous set download my_s3/species;
+      mc anonymous set download my_s3/pdet-req;
       echo 'Buckets created';
       "
 

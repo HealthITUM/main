@@ -1,6 +1,6 @@
 import { rabbitService } from "../services/RabbitMqService.js";
 import { RoutingKey } from "./rabbit.queues.js";
-import type { INotificationDataModel } from "../models/RabbitMqModels.js";
+import type { INotificationDataModel, IPlantDetectionTaskModel } from "../models/RabbitMqModels.js";
 
 export const queueSenders = {
 
@@ -14,7 +14,7 @@ export const queueSenders = {
         return rabbitService.publish(RoutingKey.ScrapperTask, data);
     },
 
-    async sendPlantDetectionTask(data: any): Promise<boolean> {
+    async sendPlantDetectionTask(data: IPlantDetectionTaskModel): Promise<boolean> {
         console.log(`[QueueSenders] Routing task to Plant Detection`);
         return rabbitService.publish(RoutingKey.PlantDetectionTasks, data);
     }

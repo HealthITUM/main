@@ -16,6 +16,7 @@ model Users {
   createdAt DateTime @default(now())
   recipes  Recipes[]
   plants    UserPlants[]
+  detRequests UserPdetRequests[]
 }
 
 model PlantSpecies {
@@ -25,7 +26,9 @@ model PlantSpecies {
   idealValues   Json
   imagePath     String  @unique
   recipes       Recipes[]
-  userPlants    UserPlants[]     
+  userPlants    UserPlants[]    
+
+  detRequests   UserPdetRequests[] 
 }
 
 model Recipes {
@@ -66,6 +69,24 @@ model Sensors {
   online          Boolean  @default(false)
   fkUserPlantsId  Int?     @unique
   userPlants      UserPlants? @relation(fields: [fkUserPlantsId], references: [id], onDelete: SetNull)
+}
+
+enum RequestStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
+model UserPdetRequests {
+  id                Int      @id @default(autoincrement())
+  status            RequestStatus  @default(PENDING)
+  imageUrl          String
+
+  fkUserId          Int
+  user              Users    @relation(fields: [fkUserId], references: [id])
+
+  fkPlantSpeciesId  Int?
+  plantSpecies      PlantSpecies? @relation(fields: [fkPlantSpeciesId], references: [id], onDelete: SetNull)
 }
 
 model Measurements {

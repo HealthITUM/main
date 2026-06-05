@@ -2,40 +2,41 @@
 
 # `HealthIT`
 
-`PLAN PROJEKTA`  
+`PLAN PROJEKTA`
 
 #
 
-# `Main Web`**
+# `Main Web`\*\*
 
-***`Čelni del:`***  
-`Strežnik: Express + Node.js + PostgreSQL`   
+**_`Čelni del:`_**  
+`Strežnik: Express + Node.js + PostgreSQL`  
 `Mikrostoritve:`  
 `1) Storitev obvestil (Golang)`  
 `2) Pridobivanje podatkov: (Golang)`  
 `3) Zaznavanje rastlin (Python)`  
 `Komunikacija med mikrostoritvami: RabbitMQ`  
-***`Frontend:`***   
+**_`Frontend:`_**  
 `Mobilne naprave: React Native`  
 `Splet: React`
 
 #
 
 # `Sensors`
+
 `Uporabljamo senzorje priklopljene na ESP32-C6, ki se ob zagonu (ce nima shranjenih podatkov za povezavo v omrežje) ali pritisku na reset gumb nastavi na bluetooth način, in potem pridobi podatke za povezavo v omrežje preko bluetooth-a in aplikacije na telefonu. Ko je ESP povezan se podatki pošiljajo na strežnik.`  
 `Pridobivanje podatkov iz senzorjev:`
 
-- `senzor svetlobe`  
-- `senzor za temperaturo`  
-- `senzor za vlago v zemlji` 
+- `senzor svetlobe`
+- `senzor za temperaturo`
+- `senzor za vlago v zemlji`
 
-# 
+#
 
 # **`Plant-detection`**
 
 `Kot del modula ORV naš sistem izvaja funkcionalnost samodejne identifikacije rastlinskih vrst na podlagi analize slik. Za zagotovitev visoke natančnosti in skalabilnosti smo to funkcionalnost integrirali v ločeno storitev (ki temelji na Pythonu).`
 
-# 
+#
 
 # **`Infrastructure`**
 
