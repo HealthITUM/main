@@ -105,8 +105,6 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
   const [loading, setLoading] = useState(false);
   //errors - validation, api errors
   const [errors, setErrors] = useState<string[]>([]);
-  //sensor name
-  const [sensorName, setSensorName] = useState("");
 
   //remove for backend - fetches real plant data
 
@@ -306,15 +304,6 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
                 </TouchableOpacity>
               )}
             </View> */}
-            {/* ---------------------------------- */}
-
-            <TextInput
-              style={[styles.input, { marginBottom: 15 }]}
-              placeholder="Sensor name"
-              value={sensorName}
-              onChangeText={setSensorName}
-            />
-
             <TouchableOpacity
               style={styles.darkGreenButton}
               onPress={handleCreateSensor}

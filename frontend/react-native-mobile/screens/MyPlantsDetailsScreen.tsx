@@ -267,10 +267,10 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                     fontWeight: "700",
                   }}
                 >
-                  PLANT ID
+                  SENSOR ID
                 </Text>
 
-                <Text style={styles.baseText}>{sensor.userPlantId}</Text>
+                <Text style={styles.baseText}>{sensor.id}</Text>
 
                 <Text
                   style={{
