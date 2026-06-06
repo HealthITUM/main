@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  specieService,
-  userPlantService,
-  useAuth,
-  plantDetectionService,
-} from "@project/frontend-shared";
+import { specieService, userPlantService, useAuth, plantDetectionService, } from "@project/frontend-shared";
 import type { ISpeciesDTO } from "@project/shared";
 import { api } from "../src/api";
 //creates apu for species and user
 const userPlant = userPlantService(api);
 const specie = specieService(api);
 const plantDetection = plantDetectionService(api);
+
+type SpeciesMode = "manual" | "detect";
 
 export default function CreatePlantPage() {
   //navigation
@@ -39,6 +36,7 @@ export default function CreatePlantPage() {
   const [detecting, setDetecting] = useState(false);
   const [detectedSpecieId, setDetectedSpecieId] = useState<number | null>(null);
   const [detectionFailed, setDetectionFailed] = useState(false);
+  const [speciesMode, setSpeciesMode] = useState<SpeciesMode>("manual");
   //remove for backend
   //gets token
   const { token } = useAuth();
@@ -180,6 +178,10 @@ export default function CreatePlantPage() {
     }
   };
 
+  const detectedSpeciesName = detectedSpecieId
+  ? species.find((s) => s.id === detectedSpecieId)?.name
+  : null;
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark dark-green-navbar px-4">
@@ -239,87 +241,128 @@ export default function CreatePlantPage() {
             </div>
 
             <div className="mb-3">
-              <label className="form-label fw-bold text-white">Species</label>
+                <label className="form-label fw-bold text-white">Species</label>
 
-              <div className="mb-3">
-                {" "}
-                {/* plant detection*/}
-                <input
-                  type="file"
-                  className="form-control dark-green-input"
-                  onChange={handleDetectImage}
-                />
-              </div>
-
-              {detectPreview && (
-                <img
-                  src={detectPreview}
-                  alt="preview"
-                  style={{
-                    width: "25%",
-                    marginTop: "10px",
-                    borderRadius: "10px",
-                  }}
-                />
-              )}
-
-              <button
-                type="button"
-                className="btn dark-green-btn w-100 mt-2"
-                onClick={handleDetect}
-                disabled={detecting || !detectImage}
-                style={{ opacity: detecting || !detectImage ? 0.6 : 1 }}
-              >
-                {detecting ? "Detecting..." : "Detect Species"}
-              </button>
-
-              {detectedSpecieId && !detecting && (
                 <div
-                  className="mt-2 p-3 rounded"
-                  style={{ backgroundColor: "#4B6043" }}
+                    className="d-flex mb-3"
+                    style={{
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    border: "1px solid #4B6043",
+                    }}
                 >
-                  <strong className="text-white">
-                    Detected:{" "}
-                    {species.find((s) => s.id === detectedSpecieId)?.name ??
-                      `Species #${detectedSpecieId}`}
-                  </strong>
+                    <button
+                    type="button"
+                    onClick={() => setSpeciesMode("manual")}
+                    style={{
+                        flex: 1,
+                        padding: "10px",
+                        backgroundColor: speciesMode === "manual" ? "#4B6043" : "transparent",
+                        color: "white",
+                        fontWeight: "600",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                    >
+                    Select manually
+                    </button>
+                    <button
+                    type="button"
+                    onClick={() => setSpeciesMode("detect")}
+                    style={{
+                        flex: 1,
+                        padding: "10px",
+                        backgroundColor: speciesMode === "detect" ? "#4B6043" : "transparent",
+                        color: "white",
+                        fontWeight: "600",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                    >
+                    Detect from image
+                    </button>
                 </div>
-              )}
 
-              {detectionFailed && !detecting && (
-                <div
-                  className="mt-2 p-3 rounded"
-                  style={{ backgroundColor: "#7a2e2e" }}
-                >
-                  <span className="text-white">
-                    Could not detect species. Try a clearer image or select
-                    manually.
-                  </span>
+                {speciesMode === "manual" && (
+                    <>
+                    {speciesLoading ? (
+                        <p>Loading species...</p>
+                    ) : (
+                        <select
+                        className="form-select dark-green-select"
+                        value={selectedSpecie?.id || ""}
+                        onChange={(e) => {
+                            const found = species.find((s) => s.id === Number(e.target.value));
+                            setSelectedSpecie(found || null);
+                        }}
+                        >
+                        <option value="">Select species</option>
+                        {species.map((s) => (
+                            <option key={s.id} value={s.id}>
+                            {s.name}
+                            </option>
+                        ))}
+                        </select>
+                    )}
+                    </>
+                )}
+
+                {speciesMode === "detect" && (
+                    <div>
+                    <input
+                        type="file"
+                        className="form-control dark-green-input mb-2"
+                        onChange={handleDetectImage}
+                    />
+
+                    {detectPreview && (
+                        <img
+                        src={detectPreview}
+                        alt="detection preview"
+                        style={{
+                            width: "100%",
+                            marginBottom: "10px",
+                            borderRadius: "10px",
+                            maxHeight: "200px",
+                            objectFit: "cover",
+                        }}
+                        />
+                    )}
+
+                    <button
+                        type="button"
+                        className="btn dark-green-btn w-100"
+                        onClick={handleDetect}
+                        disabled={detecting || !detectImage}
+                        style={{ opacity: detecting || !detectImage ? 0.6 : 1 }}
+                    >
+                        {detecting ? "Detecting..." : "Detect Species"}
+                    </button>
+
+                    {detectedSpecieId && !detecting && (
+                        <div
+                        className="mt-2 p-3 rounded"
+                        style={{ backgroundColor: "#4B6043" }}
+                        >
+                        <strong className="text-white">
+                            Detected: {detectedSpeciesName ?? `Species #${detectedSpecieId}`}
+                        </strong>
+                        </div>
+                    )}
+
+                    {detectionFailed && !detecting && (
+                        <div
+                        className="mt-2 p-3 rounded"
+                        style={{ backgroundColor: "#7a2e2e" }}
+                        >
+                        <span className="text-white">
+                            Could not detect species. Try a clearer image or select manually.
+                        </span>
+                        </div>
+                    )}
+                    </div>
+                )}
                 </div>
-              )}
-
-              {speciesLoading ? (
-                <p>Loading species...</p>
-              ) : (
-                <select
-                  className="form-select dark-green-select"
-                  value={selectedSpecie?.id || ""}
-                  onChange={(e) => {
-                    const found = species.find(
-                      (s) => s.id === Number(e.target.value),
-                    );
-                    setSelectedSpecie(found || null);
-                  }}
-                >
-                  <option value="">Select species</option>
-                  {species.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
 
             <button
               className="btn dark-green-btn w-100 mt-3"
