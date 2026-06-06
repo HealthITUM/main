@@ -28,6 +28,7 @@ export default function MeasurementsChart({
       month: "short",
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
     }),
   }));
   //no labels for soil and temp, as they share the same y-axis
