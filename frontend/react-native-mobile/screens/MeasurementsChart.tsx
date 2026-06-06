@@ -4,9 +4,9 @@ import type { IMeasurementDTO } from "@project/shared";
 //uses react native gifted charts
 //colors for each data type
 const palette = {
-  SoilMoisture: "#378ADD",
-  Light: "#1D9E75",
-  Temperature: "#D85A30",
+  moisture: "#378ADD",
+  light: "#1D9E75",
+  temperature: "#D85A30",
 };
 //gets device width
 const screenWidth = Dimensions.get("window").width;
@@ -22,7 +22,7 @@ export default function MeasurementsChart({
   }
   //converts measurements into chart points with labels
   const moistureData = measurements.map((m) => ({
-    value: m.values.SoilMoisture ?? 0,
+    value: m.values.moisture ?? 0,
     label: new Date(m.timestamp).toLocaleString("sl-SI", {
       day: "numeric",
       month: "short",
@@ -33,11 +33,11 @@ export default function MeasurementsChart({
   }));
   //no labels for soil and temp, as they share the same y-axis
   const lightData = measurements.map((m) => ({
-    value: m.values.Light ?? 0,
+    value: m.values.light ?? 0,
   }));
 
   const tempData = measurements.map((m) => ({
-    value: m.values.Temperature ?? 0,
+    value: m.values.temperature ?? 0,
   }));
 
   return (
@@ -45,12 +45,7 @@ export default function MeasurementsChart({
       <View style={styles.legend}>
         {Object.entries(palette).map(([key, color]) => (
           <View key={key} style={styles.legendItem}>
-            <View
-              style={[
-                styles.legendDot,
-                { borderColor: color },
-              ]}
-            />
+            <View style={[styles.legendDot, { borderColor: color }]} />
             <Text style={styles.legendText}>{key}</Text>
           </View>
         ))}
@@ -61,55 +56,42 @@ export default function MeasurementsChart({
         height={300}
         curved
         isAnimated
-
         spacing={80}
         initialSpacing={10}
         endSpacing={10}
-
         data={moistureData}
         data2={lightData}
         data3={tempData}
-
-        color1={palette.SoilMoisture}
-        color2={palette.Light}
-        color3={palette.Temperature}
-
+        color1={palette.moisture}
+        color2={palette.light}
+        color3={palette.temperature}
         thickness1={3}
         thickness2={3}
         thickness3={3}
-
         dataPointsRadius1={6}
         dataPointsRadius2={6}
         dataPointsRadius3={6}
-
-        dataPointsColor1={palette.SoilMoisture}
-        dataPointsColor2={palette.Light}
-        dataPointsColor3={palette.Temperature}
-
+        dataPointsColor1={palette.moisture}
+        dataPointsColor2={palette.light}
+        dataPointsColor3={palette.temperature}
         areaChart
-        startFillColor1={palette.SoilMoisture}
-        endFillColor1={palette.SoilMoisture}
+        startFillColor1={palette.moisture}
+        endFillColor1={palette.moisture}
         startOpacity={0.15}
         endOpacity={0}
-
         yAxisColor="rgba(255,255,255,0.2)"
         xAxisColor="rgba(255,255,255,0.2)"
         rulesColor="rgba(255,255,255,0.08)"
-
         yAxisTextStyle={{
           color: "#fff",
           fontSize: 12,
         }}
-
         xAxisLabelTextStyle={{
           color: "#fff",
           fontSize: 10,
         }}
-
         yAxisLabelSuffix=""
-
         noOfSections={5}
-
         maxValue={80}
         showVerticalLines
         verticalLinesColor="rgba(255,255,255,0.08)"
