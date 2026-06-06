@@ -195,6 +195,12 @@ export default function MyPlantDetailsPage() {
 
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h3 className="fw-bold mb-0">Sensors</h3>
+            <button
+              className="btn dark-green-btn"
+              onClick={() => navigate(`/my/plants/${plant.id}/add-sensor`)}
+            >
+              + Add Sensor
+            </button>
           </div>
 
           {sensors.length === 0 ? (
@@ -211,9 +217,9 @@ export default function MyPlantDetailsPage() {
                       fontWeight: 700,
                     }}
                   >
-                    PlantId:
+                    Sensor ID:
                   </div>
-                  <div className="mb-2">{sensor.userPlantId}</div>
+                  <div className="mb-2">{sensor.id}</div>
 
                   <div
                     className="text-uppercase"
