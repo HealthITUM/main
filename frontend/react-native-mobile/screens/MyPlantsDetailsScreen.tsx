@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView, Alert, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { IUserPlantDTO, ISensorDTO, IMeasurementDTO } from "@project/shared";
 import { userPlantService, useAuth } from "@project/frontend-shared";
 import { styles } from "../src/styles";
@@ -40,12 +33,13 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
     }
   }, [token, navigation]); //runs if token or navigation changes
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        //checks if there is plant id - not - it stops loading
-        if (!id) return;
-        //shows loading state
+  useFocusEffect(
+    useCallback(() => {
+      const load = async () => {
+        try {
+          //checks if there is plant id - not - it stops loading
+          if (!id) return;
+          //shows loading state
         setLoading(true);
         //backend: GET /user-plant/:id
         const plantData = await userPlant.getById(String(id));
@@ -70,7 +64,7 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
       }
     };
     load();
-  }, [id]); //reloads data if plant id changes*/
+  }, [id])); //reloads data if plant id changes*/
 
   //fake data for plant and sensors
   // useEffect(() => {
@@ -273,10 +267,10 @@ export const MyPlantDetailsScreen = ({ navigation }: any) => {
                     fontWeight: "700",
                   }}
                 >
-                  PLANT ID
+                  SENSOR ID
                 </Text>
 
-                <Text style={styles.baseText}>{sensor.userPlantId}</Text>
+                <Text style={styles.baseText}>{sensor.id}</Text>
 
                 <Text
                   style={{

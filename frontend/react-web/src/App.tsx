@@ -11,6 +11,7 @@ import MyPlantDetailsPage from "../pages/MyPlantDetailsPage";
 import AddPlantPage from "../pages/AddPlantPage";
 import EditPlantPage from "../pages/EditPlantPage";
 import EditProfilePage from "../pages/EditProfilePage";
+import AddSensorPage from "../pages/AddSensorPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/my/plants/add" element={<AddPlantPage />} />
         <Route path="/my/plants/:id/edit" element={<EditPlantPage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
+        <Route path="/my/plants/:plantId/add-sensor" element={<AddSensorPage />} />
       </Routes>
   )
 }

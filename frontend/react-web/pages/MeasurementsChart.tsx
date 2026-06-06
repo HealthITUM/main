@@ -27,6 +27,7 @@ export default function MeasurementsChart({
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
       }),
     );
     //for eah measurement type, creates a dataset with values and styling

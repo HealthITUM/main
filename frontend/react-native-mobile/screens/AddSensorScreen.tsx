@@ -105,8 +105,6 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
   const [loading, setLoading] = useState(false);
   //errors - validation, api errors
   const [errors, setErrors] = useState<string[]>([]);
-  //sensor name
-  const [sensorName, setSensorName] = useState("");
 
   //remove for backend - fetches real plant data
 
@@ -121,9 +119,10 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
         setPlant(data);
       } catch {
         setErrors(["Failed to load plant"]);
+      }finally {
+        setLoading(false);
       }
     };
-
     loadPlant();
   }, [plantId]); //runs if plant id is changed
 
@@ -172,6 +171,28 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
   //   }
   // };
   //if plant info is not loaded yet
+
+  const handleCreateSensor = async () => {
+    if(!token) {
+      navigation.replace("Login");
+      return;
+    }
+
+    setErrors([]);
+    setLoading(true);
+
+    try {
+      const response = await userPlant.addSensor(plantId);
+      navigation.goBack();
+    } catch (error: any) {
+      setErrors([
+        error.message || "Failed to add sensor",
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!plant) {
     return (
       <SafeAreaView style={styles.appContainer}>
@@ -283,18 +304,9 @@ export const AddSensorScreen = ({ navigation, route }: any) => {
                 </TouchableOpacity>
               )}
             </View> */}
-            {/* ---------------------------------- */}
-
-            <TextInput
-              style={[styles.input, { marginBottom: 15 }]}
-              placeholder="Sensor name"
-              value={sensorName}
-              onChangeText={setSensorName}
-            />
-
             <TouchableOpacity
               style={styles.darkGreenButton}
-              // onPress={handleCreateSensor}
+              onPress={handleCreateSensor}
               disabled={loading}
             >
               <Text style={styles.darkGreenButtonText}>
