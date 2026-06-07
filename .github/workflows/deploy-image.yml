@@ -40,11 +40,11 @@ jobs:
 
       - name: Build docker containers
         run: |
-          docker build . --file Dockerfile --tag $DOCKER_USERNAME/plantIt
+          docker build . --file Dockerfile --tag $DOCKER_USERNAME/plant-it-stack
 
       - name: Push docker containers
         run: |
-          docker push $DOCKER_USERNAME/plantIt
+          docker push $DOCKER_USERNAME/plant-it-stack
 
 
 
