@@ -78,8 +78,8 @@ describe('userPlantService', () => {
 
   it('addSensor - calls POST /my/plants/:id/sensors', async () => {
     mockApi.post.mockResolvedValue({ data: { id: 10, userPlantId: 3, online: false, last_seen: new Date() } })
-    const result = await service.addSensor('3', { name: 'Sensor A' })
-    expect(mockApi.post).toHaveBeenCalledWith('/my/plants/3/sensors', { name: 'Sensor A' })
-    expect(result.id).toBe(10)
+    const result = await service.addSensor('3')
+    expect(mockApi.post).toHaveBeenCalledWith('/my/plants/3/sensors')
+    expect(result?.id).toBe(10)
   })
 })
