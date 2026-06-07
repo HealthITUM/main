@@ -1,13 +1,14 @@
 name: Backend Test
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main]
+  # push:
+  #   branches: [main, dev]
+  # pull_request:
+  #   branches: [main]
   # push:
   #   branches:
   #     - 'feature/PLANT-119-testing-github-actions'
+  workflow_call:
   workflow_dispatch:
 
 jobs:
