@@ -23,9 +23,11 @@ on:
 jobs:
   call-backend-tests:
     uses: ./.github/workflows/backend-tests.yml
+    secrets: inherit
 
   call-frontend-tests:
     uses: ./.github/workflows/frontend-tests.yml
+    secrets: inherit
 
   deploy:
     needs: [call-backend-tests, call-frontend-tests]
