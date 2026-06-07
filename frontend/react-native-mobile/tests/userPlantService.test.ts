@@ -11,7 +11,7 @@ jest.mock('../src/api', () => ({
   api: { get: jest.fn(), post: jest.fn(), patch: jest.fn(), delete: jest.fn() },
 }))
 
-import { userPlantService } from '@project/frontend-shared/userPlantsServices'
+import { userPlantService } from '../../shared/services/userPlantsServices'
 
 const mockApi = {
   get: jest.fn().mockResolvedValue({ data: {} }),
