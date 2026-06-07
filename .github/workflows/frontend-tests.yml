@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
         working-directory: frontend/react-web
 
       - run: npm test
