@@ -13,11 +13,12 @@
   "dependencies": {
     "@project/frontend-shared": "*",
     "@project/shared": "*",
+    "@rollup/rollup-linux-x64-gnu": "^4.61.0",
     "axios": "^1.16.1",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
     "dotenv": "^17.4.2",
-    "react": "^19.2.0",
+    "react": "^19.1.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.15.1"
   },

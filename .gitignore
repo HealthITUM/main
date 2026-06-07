@@ -12,7 +12,7 @@ backend/main/prisma/migrations/
 backend/main/src/generated/prisma
 /dist
 # Services
-go.sum
+# go.sum
 # Firebase
 google-services.json
 firebase-credentials.json

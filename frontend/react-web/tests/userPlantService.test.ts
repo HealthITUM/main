@@ -65,9 +65,9 @@ describe('userPlantService', () => {
     expect(result[0].id).toBe(1)
   })
   it('addSensor - calls POST /my/plants/:id/sensors', async () => {
-    mockApi.post = vi.fn().mockResolvedValue({ data: { id: 10, userPlantId: 3, online: false, last_seen: new Date() } })
-    const result = await service.addSensor('3', { name: 'Sensor A' })
-    expect(mockApi.post).toHaveBeenCalledWith('/my/plants/3/sensors', { name: 'Sensor A' })
-    expect(result.id).toBe(10)
+    mockApi.post = vi.fn().mockResolvedValue({ data: { userPlantId: 3, mosquitto_url: 'mqtt://test', mosquitto_user: 'user', mosquitto_password: 'pass', mosquitto_port: '1883' } })
+    const result = await service.addSensor('3')
+    expect(mockApi.post).toHaveBeenCalledWith('/my/plants/3/sensors')
+    expect(result?.userPlantId).toBe(3)
   })
 })
