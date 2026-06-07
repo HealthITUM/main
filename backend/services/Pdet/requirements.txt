@@ -1,0 +1,6 @@
+tensorflow
+pika
+requests
+python-dotenv
+Pillow
+numpy

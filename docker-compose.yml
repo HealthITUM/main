@@ -121,8 +121,8 @@ services:
       - TZ=Europe/Ljubljana
 
   ingestor:
-    build: ./backend/services/ingestor 
-    container_name: ingestor
+    build: ./backend/services/Ingestor 
+    container_name: ingestor_service
     restart: always
     depends_on:
       mosquitto:
@@ -140,8 +140,10 @@ services:
   scrapper:
     build:
       context: ./backend/services/Scrapper
-    container_name: scrapper
+    container_name: scrapper_service
     depends_on:
+      seeder:
+          condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
       minio:
@@ -168,6 +170,40 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  pdet:
+    build:
+      context: ./backend/services/Pdet
+    container_name: pdet_service
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_PLANT_DETECTION=${RABBITMQ_URL_PLANT_DETECTION}
+
+  seeder:
+    build:
+      context: ./infrastructure/seeder
+    container_name: seeder
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    env_file:
+      - ./.env
 
 volumes:
   postgres-data:

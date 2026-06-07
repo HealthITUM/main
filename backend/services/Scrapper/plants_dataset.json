@@ -48,12 +48,6 @@
     "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
   },
   {
-    "name": "Aloe vera",
-    "description": "Succulent with thick gel-filled leaves used for burns and skincare. Thrives on neglect and full sun.",
-    "image_url": "https://images.pexels.com/photos/7408838/pexels-photo-7408838.jpeg",
-    "ideal_values": { "moisture": 20, "temperature": 24, "light_level": 9 }
-  },
-  {
     "name": "Succulents mix",
     "description": "Compact rosette-forming plants in endless variety. Perfect for sunny windowsills and forgetful waterers.",
     "image_url": "https://images.pexels.com/photos/33322481/pexels-photo-33322481.jpeg",
@@ -118,12 +112,6 @@
     "description": "Dramatic tropical plant with huge paddle-shaped leaves. Makes a bold statement in bright sunny rooms.",
     "image_url": "https://images.pexels.com/photos/17289904/pexels-photo-17289904.jpeg",
     "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
-  },
-  {
-    "name": "Cactus mix",
-    "description": "Desert survivors with sculptural forms and minimal water needs. Excellent for south-facing windows.",
-    "image_url": "https://images.pexels.com/photos/28964981/pexels-photo-28964981.jpeg",
-    "ideal_values": { "moisture": 15, "temperature": 24, "light_level": 10 }
   },
   {
     "name": "Prayer plant",

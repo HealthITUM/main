@@ -23,7 +23,11 @@ def predict(img_path) -> int:
 
     preds = p_model.model.predict(arr)
     idx = np.argmax(preds) # get the highest value from array.
-    # print(f"Prediction: {p_model.CLASS_NAMES[idx]} (Accuracy: {np.max(preds) * 100:.2f}%)")
+    confidence = np.max(preds)
+    print(f"Confidence level : {confidence}")
+
+    if confidence < 0.6:  # порог - можно настроить
+        return None  # не уверен - не угадываем
     return int(idx)
 
 
@@ -58,18 +62,20 @@ def process_request(ch, method, properties, body):
                 file.write(chunk)
 
         plant_species_id = predict(filename)
-
-        result_payload = {
-            "request_id": request_id,
-            "plantSpeciesId": plant_species_id,
-            "status": "DONE"
-        }
+        if plant_species_id is None:
+            result_payload = {"requestId": request_id, "status": "FAILED"}
+        else:
+            result_payload = {
+                "requestId": request_id,
+                "plantSpeciesId": plant_species_id + 1,
+                "status": "DONE"
+            }
 
         print(f"Request {request_id} processed successfully.")
     except Exception as e:
         print(f"Error processing request {request_id}: {e}")
         result_payload = {
-            "request_id": request_id if request_id else "UNKNOWN",
+            "requestId": request_id if request_id else "UNKNOWN",
             "status": "FAILED"
         }
     finally:
