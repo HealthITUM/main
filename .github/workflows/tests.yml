@@ -1,0 +1,55 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  web-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+        working-directory: frontend/react-web
+      - run: npm test
+        working-directory: frontend/react-web
+
+  mobile-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+        working-directory: frontend/react-native-mobile
+      - run: npm test
+        working-directory: frontend/react-native-mobile
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      
+      - name: Start entire backend stack
+        run: docker compose up -d --build
+
+      - name: Wait for API Gateway / Main Server to be healthy
+        run: |
+          timeout 300s sh -c 'until curl -s http://localhost:4200/api/species; do sleep 5; done'
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          docker compose logs
+          
+      - name: Stop and clean up containers
+        if: always()
+        run: docker compose down
