@@ -1,0 +1,21 @@
+{
+  "name": "PlantIT",
+  "private": true,
+  "workspaces": [
+    "backend/main",
+    "shared",
+    "frontend/react-native-mobile",
+    "frontend/react-web",
+    "frontend/shared/services"
+  ],
+  "scripts": {
+    "dev:all": "npm run dev --workspaces --if-present"
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "cors": "^2.8.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
+  }
+}

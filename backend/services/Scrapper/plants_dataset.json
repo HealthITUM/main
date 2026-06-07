@@ -1,0 +1,140 @@
+[
+  {
+    "name": "Monstera deliciosa",
+    "description": "Iconic tropical plant with large, fenestrated leaves. Thrives in bright indirect light and is forgiving of neglect.",
+    "image_url": "https://images.pexels.com/photos/7318283/pexels-photo-7318283.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 22, "light_level": 6 }
+  },
+  {
+    "name": "Pothos",
+    "description": "Nearly indestructible trailing vine with heart-shaped leaves. Perfect for beginners and low-light spaces.",
+    "image_url": "https://images.pexels.com/photos/4641442/pexels-photo-4641442.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 21, "light_level": 4 }
+  },
+  {
+    "name": "Snake plant",
+    "description": "Architectural succulent with stiff upright leaves. Tolerates neglect and low light better than almost any plant.",
+    "image_url": "https://images.pexels.com/photos/29218657/pexels-photo-29218657.jpeg",
+    "ideal_values": { "moisture": 30, "temperature": 21, "light_level": 3 }
+  },
+  {
+    "name": "Spider plant",
+    "description": "Cheerful arching plant that produces cascading offshoots. Safe for pets and extremely easy to propagate.",
+    "image_url": "https://images.pexels.com/photos/11363534/pexels-photo-11363534.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 20, "light_level": 5 }
+  },
+  {
+    "name": "Peace lily",
+    "description": "Elegant shade-loving plant with white spathe flowers. Excellent at filtering indoor air pollutants.",
+    "image_url": "https://images.pexels.com/photos/32425127/pexels-photo-32425127.jpeg",
+    "ideal_values": { "moisture": 70, "temperature": 22, "light_level": 3 }
+  },
+  {
+    "name": "ZZ plant",
+    "description": "Glossy, waxy leaves on graceful arching stems. Survives drought and low light with ease.",
+    "image_url": "https://images.pexels.com/photos/10194608/pexels-photo-10194608.jpeg",
+    "ideal_values": { "moisture": 25, "temperature": 22, "light_level": 3 }
+  },
+  {
+    "name": "Rubber plant",
+    "description": "Bold statement tree with deep burgundy or green leaves. Grows tall and sculptural with minimal care.",
+    "image_url": "https://images.pexels.com/photos/8989427/pexels-photo-8989427.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 23, "light_level": 6 }
+  },
+  {
+    "name": "Fiddle leaf fig",
+    "description": "Designer darling with large violin-shaped leaves. Loves a bright consistent spot and dislikes being moved.",
+    "image_url": "https://images.pexels.com/photos/9369637/pexels-photo-9369637.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
+  },
+  {
+    "name": "Succulents mix",
+    "description": "Compact rosette-forming plants in endless variety. Perfect for sunny windowsills and forgetful waterers.",
+    "image_url": "https://images.pexels.com/photos/33322481/pexels-photo-33322481.jpeg",
+    "ideal_values": { "moisture": 20, "temperature": 22, "light_level": 9 }
+  },
+  {
+    "name": "Philodendron heartleaf",
+    "description": "Fast-growing trailing plant with glossy heart-shaped leaves. Adapts to a wide range of light conditions.",
+    "image_url": "https://images.pexels.com/photos/17665056/pexels-photo-17665056.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Chinese evergreen",
+    "description": "Stunning patterned foliage in shades of green, silver, and red. Very tolerant of low light and neglect.",
+    "image_url": "https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg",
+    "ideal_values": { "moisture": 50, "temperature": 21, "light_level": 3 }
+  },
+  {
+    "name": "Dracaena",
+    "description": "Tall architectural plant with strap-like leaves and a cane-like trunk. Excellent air purifier.",
+    "image_url": "https://images.pexels.com/photos/4299019/pexels-photo-4299019.jpeg",
+    "ideal_values": { "moisture": 40, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Boston fern",
+    "description": "Lush, feathery fronds that add a classic cottage feel. Loves humidity and indirect light.",
+    "image_url": "https://images.pexels.com/photos/11301314/pexels-photo-11301314.jpeg",
+    "ideal_values": { "moisture": 75, "temperature": 20, "light_level": 5 }
+  },
+  {
+    "name": "Orchid",
+    "description": "Elegant blooming plant with exotic flowers lasting weeks. Thrives on bright indirect light and careful watering.",
+    "image_url": "https://images.pexels.com/photos/30125455/pexels-photo-30125455.jpeg",
+    "ideal_values": { "moisture": 45, "temperature": 22, "light_level": 7 }
+  },
+  {
+    "name": "African violet",
+    "description": "Compact flowering plant that blooms almost year-round in purple, pink, and white. Loves bright indirect light.",
+    "image_url": "https://images.pexels.com/photos/7090475/pexels-photo-7090475.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 21, "light_level": 6 }
+  },
+  {
+    "name": "Jade plant",
+    "description": "Long-lived succulent with thick oval leaves that can live for decades. Symbolizes good luck in many cultures.",
+    "image_url": "https://images.pexels.com/photos/5781634/pexels-photo-5781634.jpeg",
+    "ideal_values": { "moisture": 25, "temperature": 22, "light_level": 8 }
+  },
+  {
+    "name": "Kalanchoe",
+    "description": "Cheerful succulent that produces clusters of tiny flowers in red, orange, and yellow. Blooms for months.",
+    "image_url": "https://images.pexels.com/photos/32032337/pexels-photo-32032337.jpeg",
+    "ideal_values": { "moisture": 30, "temperature": 21, "light_level": 8 }
+  },
+  {
+    "name": "Cast iron plant",
+    "description": "Near indestructible foliage plant that tolerates deep shade, dust, and irregular watering alike.",
+    "image_url": "https://images.pexels.com/photos/16710149/pexels-photo-16710149.jpeg",
+    "ideal_values": { "moisture": 40, "temperature": 19, "light_level": 2 }
+  },
+  {
+    "name": "Bird of paradise",
+    "description": "Dramatic tropical plant with huge paddle-shaped leaves. Makes a bold statement in bright sunny rooms.",
+    "image_url": "https://images.pexels.com/photos/17289904/pexels-photo-17289904.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 24, "light_level": 8 }
+  },
+  {
+    "name": "Prayer plant",
+    "description": "Striking patterned leaves that fold upward at night as if in prayer. Loves humidity and warmth.",
+    "image_url": "https://images.pexels.com/photos/32724560/pexels-photo-32724560.jpeg",
+    "ideal_values": { "moisture": 65, "temperature": 22, "light_level": 5 }
+  },
+  {
+    "name": "Croton",
+    "description": "Explosively colourful foliage in red, orange, yellow, and green. Needs bright light to keep its vivid colours.",
+    "image_url": "https://images.pexels.com/photos/19627790/pexels-photo-19627790.jpeg",
+    "ideal_values": { "moisture": 60, "temperature": 23, "light_level": 8 }
+  },
+  {
+    "name": "English ivy",
+    "description": "Classic trailing or climbing vine with lobed leaves. Great for hanging baskets and trellises indoors.",
+    "image_url": "https://images.pexels.com/photos/3117228/pexels-photo-3117228.jpeg",
+    "ideal_values": { "moisture": 55, "temperature": 18, "light_level": 5 }
+  },
+  {
+    "name": "Bamboo palm",
+    "description": "Graceful multi-stemmed palm that brings a tropical feel and humidifies the air naturally.",
+    "image_url": "https://images.pexels.com/photos/15655064/pexels-photo-15655064.png",
+    "ideal_values": { "moisture": 60, "temperature": 22, "light_level": 6 }
+  }
+]

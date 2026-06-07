@@ -1,0 +1,212 @@
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "${MONOLITH_PORT}:${MONOLITH_PORT}"
+    volumes:
+      - /app/backend/main/src/generated/prisma
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - DEBUG=appName:*
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: plantit_minio
+    hostname:
+      minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  minio_init:
+    image: minio/mc:latest
+    container_name: plantit_minio_initializer
+    env_file:
+      - ./.env
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set my_s3 http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing my_s3/plants;
+      mc mb --ignore-existing my_s3/recipes;
+      mc mb --ignore-existing my_s3/species;
+      mc mb --ignore-existing my_s3/pdet-req;
+      mc anonymous set download my_s3/plants;
+      mc anonymous set download my_s3/recipes;
+      mc anonymous set download my_s3/species;
+      mc anonymous set download my_s3/pdet-req;
+      echo 'Buckets created';
+      "
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbit-node
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./infrastructure/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infrastructure/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1gb
+  
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infrastructure/mosquitto/config:/mosquitto/config
+      - ./infrastructure/mosquitto/data:/mosquitto/data
+      - ./infrastructure/mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=Europe/Ljubljana
+
+  ingestor:
+    build: ./backend/services/Ingestor 
+    container_name: ingestor_service
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_SENSORS=${RABBITMQ_URL_SENSORS}
+      - RABBITMQ_DATA_QUEUE=${RABBITMQ_DATA_QUEUE}
+      - RABBITMQ_SILENCE_TIME=${RABBITMQ_SILENCE_TIME}
+      - RABBITMQ_STATUS_QUEUE=${RABBITMQ_STATUS_QUEUE}
+
+  scrapper:
+    build:
+      context: ./backend/services/Scrapper
+    container_name: scrapper_service
+    depends_on:
+      seeder:
+          condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    restart: "no"
+
+  notification-service:
+    build:
+      context: ./backend/services/Notifications
+      dockerfile: Dockerfile
+    container_name: notification_service
+    restart: always
+    env_file:
+      - ./.env 
+    environment:
+      - RABBITMQ_URL_NOTIF=${RABBITMQ_URL_NOTIF}
+      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH}
+    volumes:
+      - ./backend/services/Notifications/internal/config:/app/config
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  pdet:
+    build:
+      context: ./backend/services/Pdet
+    container_name: pdet_service
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_URL_PLANT_DETECTION=${RABBITMQ_URL_PLANT_DETECTION}
+
+  seeder:
+    build:
+      context: ./infrastructure/seeder
+    container_name: seeder
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    env_file:
+      - ./.env
+
+volumes:
+  postgres-data:
+  minio_data:
+    driver: local
+  rabbitmq_data:

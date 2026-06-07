@@ -1,1 +1,21 @@
+# System
 .DS_Store
+.idea/
+.vscode/
+# Modules
+node_modules
+# Confidential
+*.env
+.env
+# Prisma
+backend/main/prisma/migrations/
+backend/main/src/generated/prisma
+/dist
+# Services
+go.sum
+# Firebase
+google-services.json
+firebase-credentials.json
+# Mosquitto
+password.txt
+mosquitto.db
